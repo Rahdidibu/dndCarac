@@ -88,9 +88,9 @@ Si vous préférez installer Nginx directement sur votre Raspberry Pi :
 
 ## 🌐 Rendre l'application accessible sur Internet
 
-Pour accéder de manière sécurisée à votre application depuis l'extérieur de chez vous, plusieurs options s'offrent à vous :
+Pour accéder à votre application depuis l'extérieur de votre domicile, plusieurs solutions s'offrent à vous :
 
-### Option A : Tunnel Cloudflare (Gratuit & Sécurisé, Pas besoin d'ouvrir de ports)
+### Option A : Tunnel Cloudflare (Recommandé, gratuit, sans ouverture de ports)
 C'est la méthode la plus sécurisée car elle ne nécessite aucune ouverture de port sur votre box internet.
 1. Créez un compte gratuit sur [Cloudflare](https://cloudflare.com).
 2. Installez `cloudflared` sur votre Raspberry Pi :
@@ -100,14 +100,78 @@ C'est la méthode la plus sécurisée car elle ne nécessite aucune ouverture de
    ```
 3. Connectez-vous et créez un tunnel vers le port local `8080` de votre conteneur Web.
 
-### Option B : Reverse Proxy avec Caddy (Certificats SSL automatiques)
-Si vous redirigez les ports 80 et 443 de votre box vers votre Raspberry Pi, **Caddy** est la solution la plus simple pour gérer le HTTPS automatiquement :
+### Option B : DuckDNS + Caddy / Nginx (Gratuit, nom de domaine et SSL automatique)
+Si vous souhaitez utiliser **DuckDNS** pour obtenir un nom de domaine dynamique gratuit (ex: `votre-nom.duckdns.org`), voici la procédure :
 
-1. Installez Caddy sur votre Pi.
-2. Créez un fichier `Caddyfile` :
+1. **Création du domaine** : Rendez-vous sur [DuckDNS.org](https://www.duckdns.org/), connectez-vous et créez un sous-domaine gratuit (ex: `mon-dnd-manager`).
+2. **Mise à jour automatique de l'IP sur le Pi** :
+   Créez un script sur votre Raspberry Pi pour informer DuckDNS de votre adresse IP publique si elle change :
+   ```bash
+   mkdir -p ~/duckdns
+   nano ~/duckdns/duck.sh
+   ```
+   Ajoutez la ligne suivante (remplacez par votre token et domaine DuckDNS) :
+   ```bash
+   echo url="https://www.duckdns.org/update?domains=mon-dnd-manager&token=votre-token-ici&ip=" | curl -k -K -
+   ```
+   Rendez le script exécutable et ajoutez-le dans le `crontab` du Pi pour qu'il s'exécute toutes les 5 minutes :
+   ```bash
+   chmod 700 ~/duckdns/duck.sh
+   crontab -e
+   # Ajouter cette ligne à la fin :
+   */5 * * * * ~/duckdns/duck.sh >/dev/null 2>&1
+   ```
+3. **Ouverture des ports sur votre box internet** :
+   Allez dans l'interface d'administration de votre box internet (Orange/Free/SFR/Bouygues) et configurez le transfert de ports (Port Forwarding) :
+   - Rediriger le port externe **80** (HTTP) vers le port **80** ou **8080** de l'IP locale de votre Pi.
+   - Rediriger le port externe **443** (HTTPS) vers le port **443** de l'IP locale de votre Pi.
+4. **Caddy (Reverse Proxy SSL automatique)** :
+   Installez Caddy sur votre Pi. Il obtiendra automatiquement un certificat Let's Encrypt gratuit pour votre domaine DuckDNS.
+   Éditez votre `/etc/caddy/Caddyfile` :
    ```caddy
-   mon-domaine.duckdns.org {
+   mon-dnd-manager.duckdns.org {
        reverse_proxy localhost:8080
    }
    ```
-3. Caddy obtiendra automatiquement un certificat Let's Encrypt et redirigera le trafic HTTPS sécurisé vers votre application.
+   Puis redémarrez Caddy : `sudo systemctl restart caddy`. Votre application est désormais accessible de manière sécurisée via `https://mon-dnd-manager.duckdns.org` !
+
+---
+
+## 🗂️ Gestion des versions et Mises à jour via Git
+
+Pour faciliter le suivi, le développement collaboratif et les mises à jour en production sur votre Raspberry Pi, le projet a été initialisé en tant que dépôt Git local.
+
+### 1. Pousser le projet sur GitHub ou GitLab
+Depuis votre machine de développement (votre Mac) :
+1. Créez un dépôt vide (ex: `dnd_character_manager`) sur GitHub ou GitLab.
+2. Associez-le et poussez le code :
+   ```bash
+   git remote add origin https://github.com/votre-nom/dnd_character_manager.git
+   git branch -M main
+   git push -u origin main
+   ```
+
+### 2. Déploiement initial sur le Raspberry Pi via Git
+Sur votre Raspberry Pi, clonez directement votre dépôt privé ou public :
+```bash
+git clone https://github.com/votre-nom/dnd_character_manager.git /home/pi/dnd_character_manager
+cd /home/pi/dnd_character_manager
+```
+
+### 3. Workflow de mise à jour simple en production
+Lorsque vous faites des modifications sur votre Mac, validez-les et poussez-les sur GitHub :
+```bash
+git add .
+git commit -m "Description de vos modifications"
+git push
+```
+
+Puis, sur le Raspberry Pi, pour mettre à jour l'application en ligne, lancez simplement :
+```bash
+cd /home/pi/dnd_character_manager
+git pull
+docker compose down
+docker compose up -d --build
+```
+Ceci va automatiquement récupérer le dernier code et reconstruire le conteneur Nginx avec la version mise à jour !
+
