@@ -1,0 +1,626 @@
+[
+    {
+        "index": "path-of-the-berserker",
+        "url": "/api/2024/subclasses/path-of-the-berserker",
+        "name": "Voie du Berserker",
+        "class": {
+            "index": "barbarian",
+            "url": "/api/2024/classes/barbarian",
+            "name": "Barbarian"
+        },
+        "summary": "Canaliser la Rage en fureur violente",
+        "description": "Les barbares qui suivent la Voie du Berserker dirigent leur Rage principalement vers la violence pure. Leur voie est celle d'une fureur déchaînée, et ils savourent le chaos de la bataille en laissant leur Rage les posséder et les renforcer.",
+        "features": []
+    },
+    {
+        "index": "path-of-the-wild-heart",
+        "url": "/api/2024/subclasses/path-of-the-wild-heart",
+        "name": "Voie du Cœur Sauvage",
+        "class": {
+            "index": "barbarian",
+            "url": "/api/2024/classes/barbarian",
+            "name": "Barbarian"
+        },
+        "summary": "Communion magique et kinship avec les animaux",
+        "description": "Les barbares de cette voie se considèrent comme proches des animaux sauvages. Ils apprennent des moyens magiques de communiquer avec la faune, et leur Rage renforce leur lien avec la nature tout en leur conférant une force surnaturelle.",
+        "features": []
+    },
+    {
+        "index": "path-of-the-world-tree",
+        "url": "/api/2024/subclasses/path-of-the-world-tree",
+        "name": "Voie de l'Arbre-Monde",
+        "class": {
+            "index": "barbarian",
+            "url": "/api/2024/classes/barbarian",
+            "name": "Barbarian"
+        },
+        "summary": "Tirer de la vitalité cosmique et de la téléportation",
+        "description": "Les barbares de cette voie canalisent l'énergie de l'Arbre-Monde (Yggdrasil). Ils peuvent étendre leur vitalité à leurs alliés, attirer des ennemis vers eux à travers des portails spatiaux et se téléporter sur le champ de bataille.",
+        "features": []
+    },
+    {
+        "index": "path-of-the-zealot",
+        "url": "/api/2024/subclasses/path-of-the-zealot",
+        "name": "Voie du Zélote",
+        "class": {
+            "index": "barbarian",
+            "url": "/api/2024/classes/barbarian",
+            "name": "Barbarian"
+        },
+        "summary": "Rage divine au nom d'un dieu ou d'un panthéon",
+        "description": "Les barbares qui suivent la Voie du Zélote font l'expérience d'une Rage divine extatique. Inspirés par la puissance d'une divinité, ils frappent avec des énergies divines et sont extrêmement difficiles à tuer définitivement au combat.",
+        "features": []
+    },
+    {
+        "index": "college-of-dance",
+        "url": "/api/2024/subclasses/college-of-dance",
+        "name": "Collège de la Danse",
+        "class": {
+            "index": "bard",
+            "url": "/api/2024/classes/bard",
+            "name": "Bard"
+        },
+        "summary": "Harnacher l'agilité et le mouvement en combat",
+        "description": "Les bardes du Collège de la Danse savent que les Mots de la Création ne peuvent être contenus par la parole ou le chant. Ils s'harmonisent avec le cosmos par le mouvement, gagnant une défense sans armure, des attaques agiles et la capacité d'inspirer les déplacements de leurs alliés.",
+        "features": []
+    },
+    {
+        "index": "college-of-glamour",
+        "url": "/api/2024/subclasses/college-of-glamour",
+        "name": "Collège du Glamour",
+        "class": {
+            "index": "bard",
+            "url": "/api/2024/classes/bard",
+            "name": "Bard"
+        },
+        "summary": "Tisser une magie féérique séduisante",
+        "description": "Le Collège du Glamour trouve ses origines dans le monde de la Féerie. Ses bardes tissent des fils de beauté et de terreur dans leurs chants pour charmer les foules, commander à l'esprit d'autrui et revêtir une majesté d'outre-monde.",
+        "features": []
+    },
+    {
+        "index": "college-of-lore",
+        "url": "/api/2024/subclasses/college-of-lore",
+        "name": "Collège du Savoir",
+        "class": {
+            "index": "bard",
+            "url": "/api/2024/classes/bard",
+            "name": "Bard"
+        },
+        "summary": "Recueillir des connaissances et des secrets magiques",
+        "description": "Les bardes du Collège du Savoir rassemblent des secrets, des histoires et des sorts de toutes origines. Ils excellent dans l'utilisation de leurs compétences, perturbent les attaques de leurs ennemis avec des Mots Coupants et découvrent des magies étrangères à leur classe.",
+        "features": []
+    },
+    {
+        "index": "college-of-valor",
+        "url": "/api/2024/subclasses/college-of-valor",
+        "name": "Collège de la Vaillance",
+        "class": {
+            "index": "bard",
+            "url": "/api/2024/classes/bard",
+            "name": "Bard"
+        },
+        "summary": "Chanter les exploits héroïques et manier les armes",
+        "description": "Les bardes de ce collège chantent les récits des héros légendaires. Ils apprennent l'art de la guerre, gagnant la maîtrise des armes de guerre, des armures moyennes, la capacité de faire deux attaques par tour et d'infuser les attaques de leurs alliés de magie guerrière.",
+        "features": []
+    },
+    {
+        "index": "life-domain",
+        "url": "/api/2024/subclasses/life-domain",
+        "name": "Domaine de la Vie",
+        "class": {
+            "index": "cleric",
+            "url": "/api/2024/classes/cleric",
+            "name": "Cleric"
+        },
+        "summary": "Maître des sorts de soins et de préservation",
+        "description": "Le Domaine de la Vie se concentre sur l'énergie positive qui soutient toute existence. Les prêtres de ce domaine sont des maîtres guérisseurs hors pair, capables de soigner les blessures les plus graves et de canaliser l'énergie divine pour restaurer la vitalité des affligés.",
+        "features": []
+    },
+    {
+        "index": "light-domain",
+        "url": "/api/2024/subclasses/light-domain",
+        "name": "Domaine de la Lumière",
+        "class": {
+            "index": "cleric",
+            "url": "/api/2024/classes/cleric",
+            "name": "Cleric"
+        },
+        "summary": "Manier une lumière aveuglante et protectrice",
+        "description": "Le Domaine de la Lumière est associé aux dieux du soleil, de la vérité et de la vigilance. Ses prêtres manient des flammes sacrées et une lumière purificatrice pour dissiper les ténèbres, brûler les impies et protéger leurs alliés par des éclats de lumière protectrice.",
+        "features": []
+    },
+    {
+        "index": "trickery-domain",
+        "url": "/api/2024/subclasses/trickery-domain",
+        "name": "Domaine de la Duperie",
+        "class": {
+            "index": "cleric",
+            "url": "/api/2024/classes/cleric",
+            "name": "Cleric"
+        },
+        "summary": "Semer le chaos et l'illusion chez les ennemis",
+        "description": "Le Domaine de la Duperie est le domaine des dieux espiègles, des voleurs et des rebelles. Ses prêtres excellent dans l'illusion et la discrétion. Ils peuvent créer un double illusoire d'eux-mêmes pour lancer des sorts et tromper la vigilance de leurs adversaires.",
+        "features": []
+    },
+    {
+        "index": "war-domain",
+        "url": "/api/2024/subclasses/war-domain",
+        "name": "Domaine de la Guerre",
+        "class": {
+            "index": "cleric",
+            "url": "/api/2024/classes/cleric",
+            "name": "Cleric"
+        },
+        "summary": "Inspirer la bravoure et châtier les opposants",
+        "description": "Le Domaine de la Guerre attire les prêtres des divinités de l'héroïsme, de la conquête et de la protection martiale. Ces prêtres reçoivent des bonus aux attaques d'armes, peuvent guider la précision de leurs alliés et porter des armures lourdes pour mener la charge.",
+        "features": []
+    },
+    {
+        "index": "circle-of-the-land",
+        "url": "/api/2024/subclasses/circle-of-the-land",
+        "name": "Cercle de la Terre",
+        "class": {
+            "index": "druid",
+            "url": "/api/2024/classes/druid",
+            "name": "Druid"
+        },
+        "summary": "Tirer sa puissance de son environnement",
+        "description": "Les druides du Cercle de la Terre sont profondément liés aux forces telluriques de leur région (aride, polaire, tempérée ou tropicale). Ils tirent une magie puissante de leur environnement et peuvent restaurer leurs emplacements de sorts en communiant avec la nature.",
+        "features": []
+    },
+    {
+        "index": "circle-of-the-moon",
+        "url": "/api/2024/subclasses/circle-of-the-moon",
+        "name": "Cercle de la Lune",
+        "class": {
+            "index": "druid",
+            "url": "/api/2024/classes/druid",
+            "name": "Druid"
+        },
+        "summary": "Prendre des formes animales redoutables",
+        "description": "Le Cercle de la Lune permet aux druides de maîtriser pleinement la Forme Sauvage. Ils peuvent se transformer rapidement en bêtes puissantes en plein combat, soigner leurs blessures sous forme animale et frapper avec une puissance lunaire élémentaire.",
+        "features": []
+    },
+    {
+        "index": "circle-of-the-sea",
+        "url": "/api/2024/subclasses/circle-of-the-sea",
+        "name": "Cercle de la Mer",
+        "class": {
+            "index": "druid",
+            "url": "/api/2024/classes/druid",
+            "name": "Druid"
+        },
+        "summary": "Canaliser la force des marées et des tempêtes",
+        "description": "Les druides de ce cercle invoquent le tumulte de l'océan et la fureur de la tempête. Ils peuvent s'entourer d'une aura de brume marine déchaînée qui repousse ou foudroie les ennemis et protège le druide contre les éléments.",
+        "features": []
+    },
+    {
+        "index": "circle-of-the-stars",
+        "url": "/api/2024/subclasses/circle-of-the-stars",
+        "name": "Cercle des Étoiles",
+        "class": {
+            "index": "druid",
+            "url": "/api/2024/classes/druid",
+            "name": "Druid"
+        },
+        "summary": "Exploiter la puissance des constellations",
+        "description": "Ce cercle permet aux druides de canaliser le pouvoir des astres. En prenant une Forme Stellaire, ils peuvent utiliser la constellation du Calice pour soigner, de l'Archer pour attaquer, ou du Dragon pour maintenir leur concentration intellectuelle et magique.",
+        "features": []
+    },
+    {
+        "index": "battle-master",
+        "url": "/api/2024/subclasses/battle-master",
+        "name": "Maître d'Armes",
+        "class": {
+            "index": "fighter",
+            "url": "/api/2024/classes/fighter",
+            "name": "Fighter"
+        },
+        "summary": "Utiliser des manœuvres de combat spéciales",
+        "description": "Le Maître d'Armes étudie le combat comme une science académique et tactique. Il utilise des dés de supériorité pour exécuter des manœuvres de combat complexes (désarmement, feinte, parade, provocation) pour dominer ses adversaires.",
+        "features": []
+    },
+    {
+        "index": "champion",
+        "url": "/api/2024/subclasses/champion",
+        "name": "Champion",
+        "class": {
+            "index": "fighter",
+            "url": "/api/2024/classes/fighter",
+            "name": "Fighter"
+        },
+        "summary": "Atteindre la perfection physique au combat",
+        "description": "Le Champion se concentre sur le développement de sa puissance brute. Il augmente sa plage de coups critiques (19-20 au d20), gagne des styles de combat supplémentaires, possède un athlétisme hors du commun et se régénère automatiquement lorsqu'il est gravement blessé.",
+        "features": []
+    },
+    {
+        "index": "eldritch-knight",
+        "url": "/api/2024/subclasses/eldritch-knight",
+        "name": "Chevalier Occulte",
+        "class": {
+            "index": "fighter",
+            "url": "/api/2024/classes/fighter",
+            "name": "Fighter"
+        },
+        "summary": "Apprendre des sorts arcaniques pour le combat",
+        "description": "Le Chevalier Occulte combine le maniement des armes avec la magie arcanique de l'école d'évocation et d'abjuration. Il peut lier ses armes à son esprit pour les rappeler instantanément et lancer un sort tout en effectuant des attaques d'armes physiques.",
+        "features": []
+    },
+    {
+        "index": "psi-warrior",
+        "url": "/api/2024/subclasses/psi-warrior",
+        "name": "Guerrier Psychique",
+        "class": {
+            "index": "fighter",
+            "url": "/api/2024/classes/fighter",
+            "name": "Fighter"
+        },
+        "summary": "Canaliser la puissance de l'esprit psi",
+        "description": "Le Guerrier Psychique utilise l'énergie mentale latente de son propre esprit pour renforcer ses attaques et sa défense. Il peut projeter des barrières protectrices de force pure, propulser ses frappes avec puissance ou déplacer des objets par télékinésie.",
+        "features": []
+    },
+    {
+        "index": "warrior-of-mercy",
+        "url": "/api/2024/subclasses/warrior-of-mercy",
+        "name": "Moine de la Miséricorde",
+        "class": {
+            "index": "monk",
+            "url": "/api/2024/classes/monk",
+            "name": "Monk"
+        },
+        "summary": "Manipuler l'énergie vitale pour soigner ou blesser",
+        "description": "Ces moines apprennent à équilibrer le flux vital du Ki. Ils portent des masques pour symboliser leur impartialité et peuvent utiliser leur Ki pour administrer des soins réparateurs ou infliger des douleurs et des faiblesses intenses d'un simple toucher.",
+        "features": []
+    },
+    {
+        "index": "warrior-of-shadow",
+        "url": "/api/2024/subclasses/warrior-of-shadow",
+        "name": "Moine des Ombres",
+        "class": {
+            "index": "monk",
+            "url": "/api/2024/classes/monk",
+            "name": "Monk"
+        },
+        "summary": "Se fondre dans l'obscurité et tromper l'ennemi",
+        "description": "Les moines de la Voie des Ombres sont des maîtres de l'infiltration et de l'assassinat. Ils peuvent manipuler l'obscurité pour se téléporter d'une ombre à une autre, devenir invisibles et harceler leurs cibles avec des techniques de ninja.",
+        "features": []
+    },
+    {
+        "index": "warrior-of-the-elements",
+        "url": "/api/2024/subclasses/warrior-of-the-elements",
+        "name": "Moine des Éléments",
+        "class": {
+            "index": "monk",
+            "url": "/api/2024/classes/monk",
+            "name": "Monk"
+        },
+        "summary": "Canaliser les forces de la nature",
+        "description": "Ces moines s'harmonisent avec les plans élémentaires. Ils peuvent projeter leur Ki sous forme de flammes, d'éclairs de tempête, de rafales d'air glacé ou de tremblements de terre terrestres pour dévaster leurs ennemis à distance.",
+        "features": []
+    },
+    {
+        "index": "warrior-of-the-open-hand",
+        "url": "/api/2024/subclasses/warrior-of-the-open-hand",
+        "name": "Moine de la Main Ouverte",
+        "class": {
+            "index": "monk",
+            "url": "/api/2024/classes/monk",
+            "name": "Monk"
+        },
+        "summary": "Maîtriser les techniques de combat à mains nues",
+        "description": "Les moines de la Main Ouverte sont les maîtres ultimes du combat sans arme. Ils apprennent à altérer le Ki de leurs adversaires pour les faire tomber à terre, les repousser à grande distance ou les empêcher de réagir pendant un combat.",
+        "features": []
+    },
+    {
+        "index": "oath-of-devotion",
+        "url": "/api/2024/subclasses/oath-of-devotion",
+        "name": "Serment de Dévotion",
+        "class": {
+            "index": "paladin",
+            "url": "/api/2024/classes/paladin",
+            "name": "Paladin"
+        },
+        "summary": "Incarner l'idéal de justice et de pureté",
+        "description": "Le Serment de Dévotion lie le paladin aux idéaux de justice, de compassion et de courage. Invoquant le pouvoir du bien absolu, il peut transformer son arme en une Arme Sacrée rayonnante et dissiper les influences maléfiques.",
+        "features": []
+    },
+    {
+        "index": "oath-of-glory",
+        "url": "/api/2024/subclasses/oath-of-glory",
+        "name": "Serment de Gloire",
+        "class": {
+            "index": "paladin",
+            "url": "/api/2024/classes/paladin",
+            "name": "Paladin"
+        },
+        "summary": "Accomplir des exploits héroïques d'exception",
+        "description": "Les paladins qui prêtent le Serment de Gloire croient qu'eux et leurs compagnons sont destinés à accomplir des exploits légendaires. Ils gagnent une vitesse accrue, inspirent leurs alliés et améliorent leurs prouesses physiques et athlétiques.",
+        "features": []
+    },
+    {
+        "index": "oath-of-the-ancients",
+        "url": "/api/2024/subclasses/oath-of-the-ancients",
+        "name": "Serment des Anciens",
+        "class": {
+            "index": "paladin",
+            "url": "/api/2024/classes/paladin",
+            "name": "Paladin"
+        },
+        "summary": "Préserver la lumière, l'amour et la beauté",
+        "description": "Aussi appelés chevaliers sylvestres, ces paladins jurent de préserver la joie et la beauté du monde contre les ténèbres. Ils s'entourent d'une aura de protection contre la magie et les dégâts de sort et canalisent la puissance de la nature.",
+        "features": []
+    },
+    {
+        "index": "oath-of-vengeance",
+        "url": "/api/2024/subclasses/oath-of-vengeance",
+        "name": "Serment de Vengeance",
+        "class": {
+            "index": "paladin",
+            "url": "/api/2024/classes/paladin",
+            "name": "Paladin"
+        },
+        "summary": "Traquer et châtier ses ennemis jurés",
+        "description": "Le Serment de Vengeance est un serment solennel de châtier ceux qui ont commis de graves péchés. Ces paladins se concentrent sur la traque d'une cible unique, gagnant un avantage au combat grâce à leur Vœu d'Inimitié et terrifiant leurs proies.",
+        "features": []
+    },
+    {
+        "index": "beast-master",
+        "url": "/api/2024/subclasses/beast-master",
+        "name": "Maître des Bêtes",
+        "class": {
+            "index": "ranger",
+            "url": "/api/2024/classes/ranger",
+            "name": "Ranger"
+        },
+        "summary": "Combattre aux côtés d'un compagnon animal",
+        "description": "Le Maître des Bêtes noue un lien spirituel et indéfectible avec un compagnon animal. Cette bête combat à ses côtés, partageant ses actions et bénéficiant des sorts de soins et de protection du rôdeur.",
+        "features": []
+    },
+    {
+        "index": "fey-wanderer",
+        "url": "/api/2024/subclasses/fey-wanderer",
+        "name": "Vagabond Féérique",
+        "class": {
+            "index": "ranger",
+            "url": "/api/2024/classes/ranger",
+            "name": "Ranger"
+        },
+        "summary": "Utiliser la magie et le charme du monde des fées",
+        "description": "Le Vagabond Féérique est imprégné de la magie du plan de la Féerie. Il possède un charme surnaturel qu'il peut ajouter à ses interactions sociales, inflige des dégâts psychiques supplémentaires et peut invoquer des créatures féériques.",
+        "features": []
+    },
+    {
+        "index": "gloom-stalker",
+        "url": "/api/2024/subclasses/gloom-stalker",
+        "name": "Traqueur des Ombres",
+        "class": {
+            "index": "ranger",
+            "url": "/api/2024/classes/ranger",
+            "name": "Ranger"
+        },
+        "summary": "Traquer les menaces dans l'obscurité des profondeurs",
+        "description": "Le Traqueur des Ombres excelle dans l'exploration et le combat au sein de l'Outre-Terre et des lieux sans lumière. Il est invisible pour les créatures reposant sur la vision dans le noir et frappe avec une rapidité fulgurante au début du combat.",
+        "features": []
+    },
+    {
+        "index": "hunter",
+        "url": "/api/2024/subclasses/hunter",
+        "name": "Chasseur",
+        "class": {
+            "index": "ranger",
+            "url": "/api/2024/classes/ranger",
+            "name": "Ranger"
+        },
+        "summary": "Se spécialiser contre des proies redoutables",
+        "description": "Le Chasseur étudie ses ennemis pour apprendre à contrer leurs tactiques. Il choisit des techniques défensives et offensives adaptées (telles que le Tueur de Colosses ou la Défense Multi-attaques) pour abattre les monstres géants.",
+        "features": []
+    },
+    {
+        "index": "arcane-trickster",
+        "url": "/api/2024/subclasses/arcane-trickster",
+        "name": "Escroc Arcanique",
+        "class": {
+            "index": "rogue",
+            "url": "/api/2024/classes/rogue",
+            "name": "Rogue"
+        },
+        "summary": "Allier la magie d'illusion à la roublardise",
+        "description": "L'Escroc Arcanique combine les talents de discrétion d'un roublard avec des sorts d'illusion et d'enchantement. Il maîtrise une version invisible et magique du sort Main de Mage pour crocheter des serrures ou dérober des bourses à distance.",
+        "features": []
+    },
+    {
+        "index": "assassin",
+        "url": "/api/2024/subclasses/assassin",
+        "name": "Assassin",
+        "class": {
+            "index": "rogue",
+            "url": "/api/2024/classes/rogue",
+            "name": "Rogue"
+        },
+        "summary": "Maîtriser l'art des poisons et des attaques surprises",
+        "description": "L'Assassin est un spécialiste de la mort rapide et silencieuse. Il excelle à surprendre ses ennemis en infligeant des coups critiques automatiques sur les cibles surprises et sait utiliser les déguisements et les poisons avec brio.",
+        "features": []
+    },
+    {
+        "index": "soulknife",
+        "url": "/api/2024/subclasses/soulknife",
+        "name": "Lame Psychique",
+        "class": {
+            "index": "rogue",
+            "url": "/api/2024/classes/rogue",
+            "name": "Rogue"
+        },
+        "summary": "Matérialiser des lames d'énergie mentale",
+        "description": "Le Soulknife frappe ses cibles non pas avec de l'acier physique, mais avec des lames de pure énergie psychique projetées de ses mains. Ces lames ne laissent aucune trace physique, infligent des blessures mentales et lui permettent de communiquer par télépathie.",
+        "features": []
+    },
+    {
+        "index": "thief",
+        "url": "/api/2024/subclasses/thief",
+        "name": "Voleur",
+        "class": {
+            "index": "rogue",
+            "url": "/api/2024/classes/rogue",
+            "name": "Rogue"
+        },
+        "summary": "Exceller dans l'infiltration et le larcin rapide",
+        "description": "Le Voleur perfectionne l'agilité physique et le crochetage de serrures. Il peut grimper à vitesse normale, utiliser des objets magiques normalement réservés à d'autres classes et utiliser son Action Bonus pour crocheter, désamorcer ou utiliser des objets.",
+        "features": []
+    },
+    {
+        "index": "aberrant-sorcery",
+        "url": "/api/2024/subclasses/aberrant-sorcery",
+        "name": "Sorcellerie Aberrante",
+        "class": {
+            "index": "sorcerer",
+            "url": "/api/2024/classes/sorcerer",
+            "name": "Sorcerer"
+        },
+        "summary": "Tirer ses pouvoirs d'entités du Plan Lointain",
+        "description": "Le sorcier aberrant est marqué par l'influence d'entités extraterrestres ou du Plan Lointain. Il développe des capacités de télépathie, peut lancer des sorts sans composants verbaux ou somatiques et modifier sa structure corporelle physique.",
+        "features": []
+    },
+    {
+        "index": "clockwork-sorcery",
+        "url": "/api/2024/subclasses/clockwork-sorcery",
+        "name": "Sorcellerie de l'Horlogerie",
+        "class": {
+            "index": "sorcerer",
+            "url": "/api/2024/classes/sorcerer",
+            "name": "Sorcerer"
+        },
+        "summary": "Imposer l'ordre de Mécanus sur le chaos",
+        "description": "Cette lignée magique provient du plan de l'ordre parfait, Mécanus. Le sorcier peut utiliser cette magie géométrique pour annuler l'avantage ou le désavantage sur les dés d'un simple mot et ériger des boucliers d'ordre protecteur.",
+        "features": []
+    },
+    {
+        "index": "draconic-sorcery",
+        "url": "/api/2024/subclasses/draconic-sorcery",
+        "name": "Sorcellerie Draconique",
+        "class": {
+            "index": "sorcerer",
+            "url": "/api/2024/classes/sorcerer",
+            "name": "Sorcerer"
+        },
+        "summary": "Hériter du sang et de la puissance des dragons",
+        "description": "Le sorcier draconique porte en lui le sang des dragons ancestraux. Il possède des écailles protectrices qui augmentent sa CA naturelle (13 + Dex), des PV maximums accrus, et peut canaliser le souffle élémentaire de son ancêtre draconique.",
+        "features": []
+    },
+    {
+        "index": "wild-magic-sorcery",
+        "url": "/api/2024/subclasses/wild-magic-sorcery",
+        "name": "Sorcellerie de la Magie Sauvage",
+        "class": {
+            "index": "sorcerer",
+            "url": "/api/2024/classes/sorcerer",
+            "name": "Sorcerer"
+        },
+        "summary": "Déclencher des vagues de magie imprévisibles",
+        "description": "La magie sauvage est issue des forces chaotiques de la création. Chaque sort lancé par le sorcier peut provoquer des sursauts de magie imprévisibles (la Relance Chaotique), allant d'une téléportation gratuite à une boule de feu accidentelle centrée sur lui-même.",
+        "features": []
+    },
+    {
+        "index": "archfey-patron",
+        "url": "/api/2024/subclasses/archfey-patron",
+        "name": "Patron des Archifées",
+        "class": {
+            "index": "warlock",
+            "url": "/api/2024/classes/warlock",
+            "name": "Warlock"
+        },
+        "summary": "Pacte avec un seigneur féérique trompeur",
+        "description": "Votre patron est un être mystérieux et capricieux du plan de la Féerie. Ce pacte vous accorde la faculté de vous téléporter instantanément après avoir subi des dégâts, de charmer ou de terrifier les créatures autour de vous d'un simple mot.",
+        "features": []
+    },
+    {
+        "index": "celestial-patron",
+        "url": "/api/2024/subclasses/celestial-patron",
+        "name": "Patron Céleste",
+        "class": {
+            "index": "warlock",
+            "url": "/api/2024/classes/warlock",
+            "name": "Warlock"
+        },
+        "summary": "Pacte avec un être de pure lumière",
+        "description": "Vous servez une entité des plans supérieurs (un ange, une licorne ou un phénix). Vous gagnez la capacité de soigner vos alliés par une réserve de dés de lumière curative sacrée et de résister aux dégâts radiants.",
+        "features": []
+    },
+    {
+        "index": "fiend-patron",
+        "url": "/api/2024/subclasses/fiend-patron",
+        "name": "Patron du Fiélon",
+        "class": {
+            "index": "warlock",
+            "url": "/api/2024/classes/warlock",
+            "name": "Warlock"
+        },
+        "summary": "Pacte avec un démon ou un diable des Enfers",
+        "description": "Votre patron est un fiélon des plans inférieurs (diable ou démon). Ce sombre pacte vous accorde des points de vie temporaires à chaque fois que vous tuez un ennemi, la possibilité d'ajouter d10 à un jet de caractéristique, et de projeter des flammes infernales.",
+        "features": []
+    },
+    {
+        "index": "great-old-one-patron",
+        "url": "/api/2024/subclasses/great-old-one-patron",
+        "name": "Patron du Grand Ancien",
+        "class": {
+            "index": "warlock",
+            "url": "/api/2024/classes/warlock",
+            "name": "Warlock"
+        },
+        "summary": "Pacte avec une entité cosmique indicible",
+        "description": "Votre patron est une entité mystérieuse du Plan Lointain, dont les motivations dépassent l'entendement. Vous établissez une télépathie à double sens avec les créatures, protégez votre esprit contre les intrusions mentales et modifiez la chance.",
+        "features": []
+    },
+    {
+        "index": "abjurer",
+        "url": "/api/2024/subclasses/abjurer",
+        "name": "Abjurateur",
+        "class": {
+            "index": "wizard",
+            "url": "/api/2024/classes/wizard",
+            "name": "Wizard"
+        },
+        "summary": "Spécialiste de la protection et des barrières magiques",
+        "description": "L'Abjurateur étudie la magie de protection et de bannissement. Il peut créer une Garde Arcanique magique qui absorbe les dégâts à sa place et projeter cette barrière sur ses alliés proches pour amortir leurs blessures.",
+        "features": []
+    },
+    {
+        "index": "diviner",
+        "url": "/api/2024/subclasses/diviner",
+        "name": "Devin",
+        "class": {
+            "index": "wizard",
+            "url": "/api/2024/classes/wizard",
+            "name": "Wizard"
+        },
+        "summary": "Maître de la perception temporelle et de la prescience",
+        "description": "Le Devin cherche à percer les mystères du temps et du destin. Grâce à son aptitude de Présage, il lance des dés à l'avance lors de son repos et peut substituer ces résultats prédéterminés à n'importe quel jet d20 de la journée.",
+        "features": []
+    },
+    {
+        "index": "evoker",
+        "url": "/api/2024/subclasses/evoker",
+        "name": "Évocateur",
+        "class": {
+            "index": "wizard",
+            "url": "/api/2024/classes/wizard",
+            "name": "Wizard"
+        },
+        "summary": "Créer des explosions d'énergie élémentaire dévastatrices",
+        "description": "L'Évocateur se spécialise dans la création d'effets magiques dévastateurs de feu, de foudre ou de froid. Il apprend à Façonner ses sorts d'aire d'effet (comme Boule de Feu) pour épargner ses alliés des dégâts de ses propres sorts.",
+        "features": []
+    },
+    {
+        "index": "illusionist",
+        "url": "/api/2024/subclasses/illusionist",
+        "name": "Illusionniste",
+        "class": {
+            "index": "wizard",
+            "url": "/api/2024/classes/wizard",
+            "name": "Wizard"
+        },
+        "summary": "Façonner la réalité par des trompe-l'œil magiques",
+        "description": "L'Illusionniste manipule la perception des autres pour créer des images et des sons trompeurs. Il peut lancer des illusions comme des Actions Bonus et modifier l'illusion en cours de route pour la rendre plus vivante et interactive.",
+        "features": []
+    }
+]

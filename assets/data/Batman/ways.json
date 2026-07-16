@@ -1,0 +1,281 @@
+[
+  {
+    "id": "argent",
+    "name": "Voie de l'Argent",
+    "type": "commune",
+    "ranks": [
+      {"rank": 1, "name": "Niveau de vie", "type": "N/A", "description": "Le personnage débute au niveau de vie Fortuné (s'il l'avait déjà, son capital bénéficie d'un bonus de 50 000 $)."},
+      {"rank": 2, "name": "Influence", "type": "P", "description": "Le personnage dispose de 1 point de fortune par rang. Chaque point lui permet de bénéficier d'un +5 sur un test de négociation ou de Volonté."},
+      {"rank": 3, "name": "Véhicule de luxe", "type": "G", "description": "Une fois par scénario, le personnage peut faire l'acquisition d'un véhicule de son choix (+2 sur les tests de pilotage)."},
+      {"rank": 4, "name": "Relations", "type": "G", "description": "Une fois par aventure, le personnage peut faire jouer ses relations pour obtenir un avantage important. Son niveau de vie passe à Millionnaire."},
+      {"rank": 5, "name": "Pied-à-terre", "type": "N/A", "description": "Le personnage possède un logement confortable dans toutes les grandes capitales du monde. Son niveau de vie passe à Milliardaire."}
+    ]
+  },
+  {
+    "id": "armes_distance",
+    "name": "Voie des Armes à distance",
+    "type": "commune",
+    "ranks": [
+      {"rank": 1, "name": "Ajuster", "type": "G", "description": "+2 sur l'ATD quand on tire sur une cible dans la portée de base de l'arme."},
+      {"rank": 2, "name": "Joli coup !", "type": "G", "description": "Ignore les malus quand la ligne de vue est obstruée ou quand la cible est engagée au corps à corps."},
+      {"rank": 3, "name": "Attaque de précision", "type": "A", "description": "Lance deux fois les dés de dommages (trois fois sur une réussite critique)."},
+      {"rank": 4, "name": "Attaque rapide", "type": "L", "description": "Deux attaques à distance au prix d'une action limitée."},
+      {"rank": 5, "name": "Viser le point faible", "type": "G", "description": "Utiliser D12 au lieu de D20 pour ajouter +2D6 aux dommages."}
+    ]
+  },
+  {
+    "id": "arts",
+    "name": "Voie des Arts",
+    "type": "commune",
+    "ranks": [
+      {"rank": 1, "name": "Formation artistique", "type": "P", "description": "+1 par rang sur les tests de connaissance des arts. +5 supplémentaire pour une forme d'art au choix."},
+      {"rank": 2, "name": "Muses", "type": "P", "description": "1 point d'inspiration par rang et par jour. Permet de relancer un dé ou d'offrir +5 à un allié."},
+      {"rank": 3, "name": "Mise en scène", "type": "A", "description": "Crée une diversion artistique. Les adversaires subissent un malus de -3 à tous leurs tests pendant 1 tour."},
+      {"rank": 4, "name": "Performance", "type": "L", "description": "Une représentation artistique marquante accordant +5 pour les prochaines interactions sociales."},
+      {"rank": 5, "name": "Chef-d'œuvre", "type": "N/A", "description": "Crée une œuvre d'une valeur immense qui ouvre des portes ou fascine durableement les témoins."}
+    ]
+  },
+  {
+    "id": "corps_a_corps",
+    "name": "Voie du Corps à corps",
+    "type": "commune",
+    "ranks": [
+      {"rank": 1, "name": "Arme de prédilection", "type": "P", "description": "+1 à l'ATC et aux dommages avec une arme ou technique de combat choisie."},
+      {"rank": 2, "name": "Parade", "type": "G", "description": "Réduire les dommages d'une attaque au contact réussie de (1D6 + modificateur de Force)."},
+      {"rank": 3, "name": "Désarmement", "type": "A", "description": "Tenter de désarmer un adversaire avec un test d'ATC opposé à sa Dextérité."},
+      {"rank": 4, "name": "Double attaque", "type": "A", "description": "Effectuer deux attaques au contact dans le même tour."},
+      {"rank": 5, "name": "Maître d'armes", "type": "A", "description": "Lancer D12 au lieu de D20 pour l'ATC afin d'ajouter +2D6 aux dommages."}
+    ]
+  },
+  {
+    "id": "corporations",
+    "name": "Voie des Corporations",
+    "type": "commune",
+    "ranks": [
+      {"rank": 1, "name": "Réseau professionnel", "type": "P", "description": "+1 par rang sur les tests liés aux interactions au sein d'une organisation ou institution."},
+      {"rank": 2, "name": "Ressources institutionnelles", "type": "G", "description": "Accéder à des ressources de son organisation (véhicules, équipements, informations)."},
+      {"rank": 3, "name": "Autorité", "type": "P", "description": "+5 sur les tests d'intimidation ou de persuasion dans le cadre de son organisation."},
+      {"rank": 4, "name": "Agent de terrain", "type": "P", "description": "Dispose d'un réseau d'informateurs. Une fois par aventure, obtenir une information critique."},
+      {"rank": 5, "name": "Haut dirigeant", "type": "N/A", "description": "Dispose d'une position de pouvoir significative dans son organisation."}
+    ]
+  },
+  {
+    "id": "danger",
+    "name": "Voie du Danger",
+    "type": "commune",
+    "ranks": [
+      {"rank": 1, "name": "Même pas peur", "type": "P", "description": "+1 par rang sur les tests de caractéristique effectués sous la pression d'un péril imminent."},
+      {"rank": 2, "name": "Réflexes de survie", "type": "G", "description": "Ne peut pas être pris par surprise. +2 à l'Initiative."},
+      {"rank": 3, "name": "Coup du destin", "type": "G", "description": "Une fois par combat, relancer un test raté en situation de danger."},
+      {"rank": 4, "name": "Adrénaline", "type": "G", "description": "Dépenser 1 point d'exploit pour agir en premier dans un tour, quel que soit l'ordre d'initiative."},
+      {"rank": 5, "name": "Nez du danger", "type": "P", "description": "Le personnage détecte automatiquement les pièges et embuscades à moins de 10 mètres."}
+    ]
+  },
+  {
+    "id": "discours",
+    "name": "Voie du Discours",
+    "type": "commune",
+    "ranks": [
+      {"rank": 1, "name": "Éloquence", "type": "P", "description": "+1 par rang sur les tests de Volonté visant à convaincre, persuader ou mentir."},
+      {"rank": 2, "name": "Bluff", "type": "G", "description": "Faire croire un mensonge sans test si le résultat est plausible."},
+      {"rank": 3, "name": "Discours enflammé", "type": "L", "description": "Motiver un groupe par un discours, accordant +3 à tous leurs tests pendant 1 heure."},
+      {"rank": 4, "name": "Négociateur", "type": "P", "description": "+5 sur les tests de négociation. Peut désamorcer une situation hostile sans combat."},
+      {"rank": 5, "name": "Démagogue", "type": "N/A", "description": "Capable d'influencer durablement l'opinion d'une foule ou d'un groupe."}
+    ]
+  },
+  {
+    "id": "enquete",
+    "name": "Voie de l'Enquête",
+    "type": "commune",
+    "ranks": [
+      {"rank": 1, "name": "Sens de l'observation", "type": "P", "description": "+1 par rang sur les tests de Perception liés à la recherche d'indices."},
+      {"rank": 2, "name": "Déduction", "type": "P", "description": "Après avoir observé une scène, déduire automatiquement les événements récents si le test de Perception le permet."},
+      {"rank": 3, "name": "Filature", "type": "P", "description": "+5 pour suivre discrètement un individu dans une foule ou un environnement urbain."},
+      {"rank": 4, "name": "Profil psychologique", "type": "A", "description": "Analyser le comportement d'un individu pour déduire ses motivations (+5 aux tests ultérieurs contre lui)."},
+      {"rank": 5, "name": "Flair infaillible", "type": "P", "description": "Lance 2D20 lors des tests de recherche d'indices et conserve le meilleur résultat."}
+    ]
+  },
+  {
+    "id": "evasion",
+    "name": "Voie de l'Évasion",
+    "type": "commune",
+    "ranks": [
+      {"rank": 1, "name": "Souplesse", "type": "P", "description": "+1 par rang sur les tests pour se libérer d'entraves ou se faufiler dans des espaces réduits."},
+      {"rank": 2, "name": "Esquive", "type": "G", "description": "+2 à la Défense contre une attaque que le personnage voit venir."},
+      {"rank": 3, "name": "Cascade", "type": "M", "description": "Se déplacer en sautant, grimpant ou roulant pour éviter les obstacles sans malus."},
+      {"rank": 4, "name": "Insaisissable", "type": "G", "description": "Dépenser 1 point d'exploit pour annuler complètement les dommages d'une attaque ratée d'un cheveu."},
+      {"rank": 5, "name": "Fantôme", "type": "P", "description": "Ne peut jamais être immobilisé ou retenu si le joueur déclare vouloir s'échapper."}
+    ]
+  },
+  {
+    "id": "exploits_physiques",
+    "name": "Voie des Exploits physiques",
+    "type": "commune",
+    "ranks": [
+      {"rank": 1, "name": "Athlète", "type": "P", "description": "+1 par rang sur les tests d'athlétisme (course, saut, natation, escalade)."},
+      {"rank": 2, "name": "Entraînement intensif", "type": "P", "description": "Augmente de 1 point une caractéristique physique de son choix (For, Con ou Dex)."},
+      {"rank": 3, "name": "Se dépasser", "type": "G", "description": "En s'infligeant la perte de 1 PV, obtenir +5 sur un test de Force, Dextérité ou Constitution."},
+      {"rank": 4, "name": "Second souffle", "type": "L", "description": "Récupérer (D6 + modificateur de Constitution) points de vie une fois par combat."},
+      {"rank": 5, "name": "Corps de fer", "type": "P", "description": "Résistance aux dommages : réduire tous les dommages physiques de 2 points."}
+    ]
+  },
+  {
+    "id": "furtivite",
+    "name": "Voie de la Furtivité",
+    "type": "commune",
+    "ranks": [
+      {"rank": 1, "name": "Discrétion", "type": "P", "description": "+1 par rang sur les tests de dissimulation et de déplacement furtif."},
+      {"rank": 2, "name": "Pas de l'ombre", "type": "M", "description": "Se déplacer sans faire de bruit, même sur des surfaces délicates."},
+      {"rank": 3, "name": "Camouflage", "type": "L", "description": "Se fondre dans l'environnement, devenant pratiquement invisible à l'immobilité."},
+      {"rank": 4, "name": "Frappe dans l'ombre", "type": "A", "description": "Attaquer depuis la dissimulation accorde +2D6 dommages supplémentaires."},
+      {"rank": 5, "name": "Fantôme des ombres", "type": "P", "description": "Ne peut pas être détecté par des moyens normaux tant qu'il reste dans l'obscurité."}
+    ]
+  },
+  {
+    "id": "medecine",
+    "name": "Voie de la Médecine",
+    "type": "commune",
+    "ranks": [
+      {"rank": 1, "name": "Premiers secours", "type": "A", "description": "Stabiliser un personnage tombé à 0 PV et lui rendre (1D6 + rang) PV."},
+      {"rank": 2, "name": "Soins avancés", "type": "L", "description": "En prenant 10 minutes, permettre à un blessé de récupérer le double des PV de son dé de vie."},
+      {"rank": 3, "name": "Chirurgien", "type": "L", "description": "En passant une heure au chevet d'un blessé, lui permettre d'ignorer les effets d'une blessure grave."},
+      {"rank": 4, "name": "Frappe chirurgicale", "type": "P", "description": "Connait les points vitaux. +1D6 dommages sur une réussite critique en corps à corps."},
+      {"rank": 5, "name": "Guérisseur exceptionnel", "type": "L", "description": "Soigner une maladie, un poison ou une condition grave qui résistait aux soins normaux."}
+    ]
+  },
+  {
+    "id": "pilotage",
+    "name": "Voie du Pilotage",
+    "type": "commune",
+    "ranks": [
+      {"rank": 1, "name": "Pilote", "type": "P", "description": "+1 par rang sur les tests de pilotage de tout type de véhicule."},
+      {"rank": 2, "name": "Conduite habile", "type": "G", "description": "Effectuer une manœuvre risquée sans pénalité de difficulté."},
+      {"rank": 3, "name": "Course-poursuite", "type": "P", "description": "+5 sur les tests lors des courses-poursuites en véhicule."},
+      {"rank": 4, "name": "Cascadeur", "type": "A", "description": "Utiliser son véhicule comme arme ou bouclier (1D10 dommages)."},
+      {"rank": 5, "name": "As du volant", "type": "G", "description": "Obtenir automatiquement un 15 minimum sur tout test de pilotage."}
+    ]
+  },
+  {
+    "id": "psychologie",
+    "name": "Voie de la Psychologie",
+    "type": "commune",
+    "ranks": [
+      {"rank": 1, "name": "Empathie", "type": "P", "description": "+1 par rang sur les tests visant à comprendre les émotions ou motivations d'un interlocuteur."},
+      {"rank": 2, "name": "Manipulation", "type": "G", "description": "+5 sur les tests de persuasion après avoir réussi à établir un profil psychologique."},
+      {"rank": 3, "name": "Déstabiliser", "type": "A", "description": "Infliger un malus de -3 à tous les tests d'un adversaire pendant 1 tour par une remarque cinglante."},
+      {"rank": 4, "name": "Thérapeute", "type": "L", "description": "Aider un personnage à surmonter une peur ou un traumatisme, supprimant ses effets pour le reste du scénario."},
+      {"rank": 5, "name": "Maître manipulateur", "type": "N/A", "description": "+10 sur les tests de persuasion ou de tromperie."}
+    ]
+  },
+  {
+    "id": "sciences",
+    "name": "Voie des Sciences",
+    "type": "commune",
+    "ranks": [
+      {"rank": 1, "name": "Culture scientifique", "type": "P", "description": "+1 par rang sur les tests de connaissance scientifique."},
+      {"rank": 2, "name": "Analyse", "type": "A", "description": "Analyser un substance, un mécanisme ou une situation pour en comprendre le fonctionnement."},
+      {"rank": 3, "name": "Invention", "type": "L", "description": "Créer un gadget ou un outil improvisé à partir des matériaux disponibles."},
+      {"rank": 4, "name": "Contre-mesures", "type": "A", "description": "Neutraliser un dispositif électronique, un poison ou un explosif avec un test d'Intelligence."},
+      {"rank": 5, "name": "Génie", "type": "N/A", "description": "Résoudre automatiquement tout problème scientifique ou technologique de difficulté normale."}
+    ]
+  },
+  {
+    "id": "touche_a_tout",
+    "name": "Voie du Touche-à-tout",
+    "type": "commune",
+    "ranks": [
+      {"rank": 1, "name": "Débrouillard", "type": "P", "description": "+2 sur tous les tests pour lesquels le personnage n'a pas de voie associée."},
+      {"rank": 2, "name": "Apprentissage rapide", "type": "N/A", "description": "Peut tenter n'importe quel test sans pénalité d'inexpérience."},
+      {"rank": 3, "name": "Adaptabilité", "type": "G", "description": "Une fois par scénario, utiliser la valeur d'une autre caractéristique pour un test."},
+      {"rank": 4, "name": "Polyvalence", "type": "P", "description": "+3 sur tous les tests lors des premiers rounds d'une situation inattendue."},
+      {"rank": 5, "name": "Maître de l'improvisation", "type": "G", "description": "Transformer n'importe quel objet ordinaire en outil parfaitement adapté à la situation."}
+    ]
+  },
+  {
+    "id": "arts_martiaux",
+    "name": "Voie des Arts martiaux",
+    "type": "commune",
+    "ranks": [
+      {"rank": 1, "name": "Discipline martiale", "type": "P", "description": "+1 par rang en ATC avec les attaques à mains nues ou à l'arme blanche légère."},
+      {"rank": 2, "name": "Frappe précise", "type": "G", "description": "Ignorer les bonus de Défense fournis par l'armure lors d'une attaque au contact."},
+      {"rank": 3, "name": "Arts de combat", "type": "A", "description": "Effectuer deux attaques à mains nues dans le même tour."},
+      {"rank": 4, "name": "Projection", "type": "A", "description": "Projeter un adversaire à 3 mètres, le faisant tomber à terre (Affaibli jusqu'à la fin du tour)."},
+      {"rank": 5, "name": "Maître combattant", "type": "P", "description": "Les attaques à mains nues infligent 1D8 + For dommages et ignorent les RD non magiques."}
+    ]
+  },
+  {
+    "id": "anarchie",
+    "name": "Voie de l'Anarchie",
+    "type": "ombre",
+    "ranks": [
+      {"rank": 1, "name": "Provocateur", "type": "P", "description": "+1 par rang sur les tests visant à provoquer le chaos ou déstabiliser une situation ordonnée."},
+      {"rank": 2, "name": "Imprévisible", "type": "G", "description": "Les adversaires subissent un malus de -2 à leurs tests pour anticiper les actions du personnage."},
+      {"rank": 3, "name": "Sabotage", "type": "A", "description": "Mettre hors service un équipement ou un système en quelques secondes."},
+      {"rank": 4, "name": "Semer la pagaille", "type": "A", "description": "Créer une diversion affectant tous les adversaires dans un rayon de 10m (-2 à leurs actions pendant 2 tours)."},
+      {"rank": 5, "name": "Agent du chaos", "type": "N/A", "description": "Les plans du personnage sont si imprévisibles qu'ils ne peuvent jamais être totalement contrés."}
+    ]
+  },
+  {
+    "id": "crime",
+    "name": "Voie du Crime",
+    "type": "ombre",
+    "ranks": [
+      {"rank": 1, "name": "Crochetage", "type": "A", "description": "+1 par rang sur les tests pour crocheter des serrures ou désamorcer des alarmes."},
+      {"rank": 2, "name": "Pickpocket", "type": "A", "description": "Voler un objet sur une personne sans être détecté avec un test de Dextérité."},
+      {"rank": 3, "name": "Modus operandi", "type": "P", "description": "+5 sur les tests liés au crime spécialisé choisi (escroquerie, vol, contrebande...)."},
+      {"rank": 4, "name": "Réseau criminel", "type": "N/A", "description": "Dispose de contacts dans le milieu criminel pouvant fournir informations et ressources illicites."},
+      {"rank": 5, "name": "Parrain", "type": "N/A", "description": "Commande un réseau de sbires (3 + rang PNJ niveau 1). Peut remplacer des sbires par des niveaux supérieurs."}
+    ]
+  },
+  {
+    "id": "justice",
+    "name": "Voie de la Justice",
+    "type": "ombre",
+    "prerequisite": "Justice ≥ rang souhaité",
+    "ranks": [
+      {"rank": 1, "name": "Sens de la justice", "type": "P", "description": "+1 par rang sur les tests pour protéger des innocents ou capturer des criminels."},
+      {"rank": 2, "name": "Intimidation héroïque", "type": "G", "description": "Tenter d'intimider un adversaire pour le faire fuir ou se rendre (+5 sur le test de Volonté)."},
+      {"rank": 3, "name": "Volonté d'acier", "type": "P", "description": "Résistance mentale : +3 contre les effets de peur, de contrôle et de manipulation."},
+      {"rank": 4, "name": "Coup décisif", "type": "A", "description": "Une fois par combat, infliger le maximum de dommages possible avec une attaque."},
+      {"rank": 5, "name": "Justicier légendaire", "type": "P", "description": "+5 à tous les tests en présence du mal ou de l'injustice manifeste."}
+    ]
+  },
+  {
+    "id": "ordre",
+    "name": "Voie de l'Ordre",
+    "type": "ombre",
+    "prerequisite": "Ordre ≥ rang souhaité",
+    "ranks": [
+      {"rank": 1, "name": "Sens du devoir", "type": "P", "description": "+1 par rang sur les tests effectués dans le cadre de sa mission officielle."},
+      {"rank": 2, "name": "Autorité légale", "type": "G", "description": "Utiliser son autorité pour obtenir coopération et accès (+5 sur les interactions liées à la loi)."},
+      {"rank": 3, "name": "Procédure", "type": "P", "description": "+3 en Défense quand un allié se trouve dans les 5 mètres."},
+      {"rank": 4, "name": "Commandement", "type": "A", "description": "Donner des ordres précis qui accordent +2 à tous les alliés pour leur prochain test."},
+      {"rank": 5, "name": "Pilier de l'ordre", "type": "N/A", "description": "Sa présence inspire confiance. Les alliés bénéficient d'un +3 permanent à tous leurs tests tant qu'ils l'accompagnent."}
+    ]
+  },
+  {
+    "id": "invention",
+    "name": "Voie de l'Invention",
+    "type": "ombre",
+    "ranks": [
+      {"rank": 1, "name": "Génie technologique", "type": "P", "description": "+1 par rang sur les tests pour concevoir ou réparer des appareils technologiques."},
+      {"rank": 2, "name": "Gadget", "type": "L", "description": "Créer un gadget spécialisé reproduisant une capacité simple d'une autre voie (rang 1-2)."},
+      {"rank": 3, "name": "Invention mineure", "type": "N/A", "description": "Les capacités reproduites par le gadget ont un nombre de rangs égal aux rangs dans cette voie."},
+      {"rank": 4, "name": "Prototype", "type": "L", "description": "Créer un dispositif sophistiqué reproduisant jusqu'à 2 capacités d'une voie de son choix."},
+      {"rank": 5, "name": "Chef-d'œuvre technologique", "type": "N/A", "description": "Créer un dispositif révolutionnaire qui change fondamentalement l'équilibre des forces."}
+    ]
+  },
+  {
+    "id": "investigation",
+    "name": "Voie de l'Investigation",
+    "type": "ombre",
+    "ranks": [
+      {"rank": 1, "name": "Détective hors pair", "type": "P", "description": "+2 par rang sur les tests d'enquête liés à la recherche d'informations dans des archives ou réseaux."},
+      {"rank": 2, "name": "Réseau d'informateurs", "type": "N/A", "description": "Dispose d'informateurs dans plusieurs domaines. Une fois par aventure, obtenir une information précise."},
+      {"rank": 3, "name": "Reconstitution", "type": "A", "description": "Reconstituer intégralement les événements passés d'un lieu à partir des indices disponibles."},
+      {"rank": 4, "name": "Filature avancée", "type": "P", "description": "Pister une cible pendant des jours sans être détecté, même sous haute surveillance."},
+      {"rank": 5, "name": "Omniscience", "type": "N/A", "description": "Jamais à court d'informations. Peut retrouver n'importe quelle donnée publique ou semi-publique."}
+    ]
+  }
+]
+

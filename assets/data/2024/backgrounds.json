@@ -1,0 +1,482 @@
+[
+  {
+    "index": "acolyte",
+    "name": "Acolyte",
+    "ability_scores": [
+      {
+        "index": "int"
+      },
+      {
+        "index": "wis"
+      },
+      {
+        "index": "cha"
+      }
+    ],
+    "feat": {
+      "index": "magic-initiate",
+      "name": "Magic Initiate"
+    },
+    "proficiencies": [
+      {
+        "index": "skill-insight"
+      },
+      {
+        "index": "skill-religion"
+      },
+      {
+        "index": "tool-calligraphers-supplies"
+      }
+    ]
+  },
+  {
+    "index": "artisan",
+    "name": "Artisan",
+    "ability_scores": [
+      {
+        "index": "str"
+      },
+      {
+        "index": "dex"
+      },
+      {
+        "index": "int"
+      }
+    ],
+    "feat": {
+      "index": "crafter",
+      "name": "Crafter"
+    },
+    "proficiencies": [
+      {
+        "index": "skill-investigation"
+      },
+      {
+        "index": "skill-persuasion"
+      },
+      {
+        "index": "tool-artisans-tools"
+      }
+    ]
+  },
+  {
+    "index": "charlatan",
+    "name": "Charlatan",
+    "ability_scores": [
+      {
+        "index": "dex"
+      },
+      {
+        "index": "con"
+      },
+      {
+        "index": "cha"
+      }
+    ],
+    "feat": {
+      "index": "skilled",
+      "name": "Skilled"
+    },
+    "proficiencies": [
+      {
+        "index": "skill-deception"
+      },
+      {
+        "index": "skill-sleight-of-hand"
+      },
+      {
+        "index": "tool-forgery-kit"
+      }
+    ]
+  },
+  {
+    "index": "criminal",
+    "name": "Criminal",
+    "ability_scores": [
+      {
+        "index": "dex"
+      },
+      {
+        "index": "con"
+      },
+      {
+        "index": "int"
+      }
+    ],
+    "feat": {
+      "index": "alert",
+      "name": "Alert"
+    },
+    "proficiencies": [
+      {
+        "index": "skill-sleight-of-hand"
+      },
+      {
+        "index": "skill-stealth"
+      },
+      {
+        "index": "tool-thieves-tools"
+      }
+    ]
+  },
+  {
+    "index": "entertainer",
+    "name": "Entertainer",
+    "ability_scores": [
+      {
+        "index": "str"
+      },
+      {
+        "index": "dex"
+      },
+      {
+        "index": "cha"
+      }
+    ],
+    "feat": {
+      "index": "musician",
+      "name": "Musician"
+    },
+    "proficiencies": [
+      {
+        "index": "skill-acrobatics"
+      },
+      {
+        "index": "skill-performance"
+      },
+      {
+        "index": "tool-musical-instrument"
+      }
+    ]
+  },
+  {
+    "index": "farmer",
+    "name": "Farmer",
+    "ability_scores": [
+      {
+        "index": "str"
+      },
+      {
+        "index": "con"
+      },
+      {
+        "index": "wis"
+      }
+    ],
+    "feat": {
+      "index": "tough",
+      "name": "Tough"
+    },
+    "proficiencies": [
+      {
+        "index": "skill-animal-handling"
+      },
+      {
+        "index": "skill-nature"
+      },
+      {
+        "index": "tool-carpenters-tools"
+      }
+    ]
+  },
+  {
+    "index": "guard",
+    "name": "Guard",
+    "ability_scores": [
+      {
+        "index": "str"
+      },
+      {
+        "index": "int"
+      },
+      {
+        "index": "wis"
+      }
+    ],
+    "feat": {
+      "index": "alert",
+      "name": "Alert"
+    },
+    "proficiencies": [
+      {
+        "index": "skill-athletics"
+      },
+      {
+        "index": "skill-perception"
+      },
+      {
+        "index": "tool-gaming-set"
+      }
+    ]
+  },
+  {
+    "index": "guide",
+    "name": "Guide",
+    "ability_scores": [
+      {
+        "index": "dex"
+      },
+      {
+        "index": "con"
+      },
+      {
+        "index": "wis"
+      }
+    ],
+    "feat": {
+      "index": "magic-initiate",
+      "name": "Magic Initiate"
+    },
+    "proficiencies": [
+      {
+        "index": "skill-stealth"
+      },
+      {
+        "index": "skill-survival"
+      },
+      {
+        "index": "tool-cartographers-tools"
+      }
+    ]
+  },
+  {
+    "index": "hermit",
+    "name": "Hermit",
+    "ability_scores": [
+      {
+        "index": "con"
+      },
+      {
+        "index": "wis"
+      },
+      {
+        "index": "cha"
+      }
+    ],
+    "feat": {
+      "index": "healer",
+      "name": "Healer"
+    },
+    "proficiencies": [
+      {
+        "index": "skill-medicine"
+      },
+      {
+        "index": "skill-religion"
+      },
+      {
+        "index": "tool-herbalism-kit"
+      }
+    ]
+  },
+  {
+    "index": "merchant",
+    "name": "Merchant",
+    "ability_scores": [
+      {
+        "index": "con"
+      },
+      {
+        "index": "int"
+      },
+      {
+        "index": "cha"
+      }
+    ],
+    "feat": {
+      "index": "lucky",
+      "name": "Lucky"
+    },
+    "proficiencies": [
+      {
+        "index": "skill-animal-handling"
+      },
+      {
+        "index": "skill-persuasion"
+      },
+      {
+        "index": "tool-navigators-tools"
+      }
+    ]
+  },
+  {
+    "index": "noble",
+    "name": "Noble",
+    "ability_scores": [
+      {
+        "index": "str"
+      },
+      {
+        "index": "int"
+      },
+      {
+        "index": "cha"
+      }
+    ],
+    "feat": {
+      "index": "skilled",
+      "name": "Skilled"
+    },
+    "proficiencies": [
+      {
+        "index": "skill-history"
+      },
+      {
+        "index": "skill-persuasion"
+      },
+      {
+        "index": "tool-gaming-set"
+      }
+    ]
+  },
+  {
+    "index": "sage",
+    "name": "Sage",
+    "ability_scores": [
+      {
+        "index": "con"
+      },
+      {
+        "index": "int"
+      },
+      {
+        "index": "wis"
+      }
+    ],
+    "feat": {
+      "index": "magic-initiate",
+      "name": "Magic Initiate"
+    },
+    "proficiencies": [
+      {
+        "index": "skill-arcana"
+      },
+      {
+        "index": "skill-history"
+      },
+      {
+        "index": "tool-calligraphers-supplies"
+      }
+    ]
+  },
+  {
+    "index": "sailor",
+    "name": "Sailor",
+    "ability_scores": [
+      {
+        "index": "str"
+      },
+      {
+        "index": "dex"
+      },
+      {
+        "index": "wis"
+      }
+    ],
+    "feat": {
+      "index": "tavern-brawler",
+      "name": "Tavern Brawler"
+    },
+    "proficiencies": [
+      {
+        "index": "skill-acrobatics"
+      },
+      {
+        "index": "skill-perception"
+      },
+      {
+        "index": "tool-navigators-tools"
+      }
+    ]
+  },
+  {
+    "index": "scribe",
+    "name": "Scribe",
+    "ability_scores": [
+      {
+        "index": "dex"
+      },
+      {
+        "index": "int"
+      },
+      {
+        "index": "wis"
+      }
+    ],
+    "feat": {
+      "index": "skilled",
+      "name": "Skilled"
+    },
+    "proficiencies": [
+      {
+        "index": "skill-investigation"
+      },
+      {
+        "index": "skill-perception"
+      },
+      {
+        "index": "tool-calligraphers-supplies"
+      }
+    ]
+  },
+  {
+    "index": "soldier",
+    "name": "Soldier",
+    "ability_scores": [
+      {
+        "index": "str"
+      },
+      {
+        "index": "dex"
+      },
+      {
+        "index": "con"
+      }
+    ],
+    "feat": {
+      "index": "savage-attacker",
+      "name": "Savage Attacker"
+    },
+    "proficiencies": [
+      {
+        "index": "skill-athletics"
+      },
+      {
+        "index": "skill-intimidation"
+      },
+      {
+        "index": "tool-gaming-set"
+      }
+    ]
+  },
+  {
+    "index": "wayfarer",
+    "name": "Wayfarer",
+    "ability_scores": [
+      {
+        "index": "dex"
+      },
+      {
+        "index": "wis"
+      },
+      {
+        "index": "cha"
+      }
+    ],
+    "feat": {
+      "index": "lucky",
+      "name": "Lucky"
+    },
+    "proficiencies": [
+      {
+        "index": "skill-insight"
+      },
+      {
+        "index": "skill-stealth"
+      },
+      {
+        "index": "tool-thieves-tools"
+      }
+    ]
+  }
+]
