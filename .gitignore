@@ -49,3 +49,6 @@ app.*.map.json
 *.db
 *.sqlite
 
+# Environment keys
+.env
+.env.*

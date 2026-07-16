@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/providers/database_provider.dart';
+import '../../../core/utils/supabase_mapper.dart';
 
 // ── Compendium providers ────────────────────────────────────
 
@@ -20,14 +22,31 @@ final batmanWaysProvider = FutureProvider<List<BatmanWay>>((ref) {
 
 final batmanCharacterProvider =
     StreamProvider.family<BatmanCharacter?, int>((ref, characterId) {
-  final db = ref.watch(databaseProvider);
-  return db.batmanDao.watchBatmanCharacter(characterId);
+  final client = Supabase.instance.client;
+  return client
+      .from('batman_characters')
+      .stream(primaryKey: ['id'])
+      .eq('character_id', characterId)
+      .map((list) {
+        if (list.isEmpty) return null;
+        final camelMap = SupabaseMapper.toCamelCaseMap(list.first);
+        return BatmanCharacter.fromJson(camelMap);
+      });
 });
 
 final batmanCharacterWaysProvider =
     StreamProvider.family<List<BatmanCharacterWay>, int>((ref, characterId) {
-  final db = ref.watch(databaseProvider);
-  return db.batmanDao.watchCharacterWays(characterId);
+  final client = Supabase.instance.client;
+  return client
+      .from('batman_character_ways')
+      .stream(primaryKey: ['id'])
+      .eq('character_id', characterId)
+      .map((list) {
+        return list.map((m) {
+          final camelMap = SupabaseMapper.toCamelCaseMap(m);
+          return BatmanCharacterWay.fromJson(camelMap);
+        }).toList();
+      });
 });
 
 // ── Wizard state ─────────────────────────────────────────────

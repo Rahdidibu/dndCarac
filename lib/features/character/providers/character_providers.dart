@@ -1,22 +1,48 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/database/tables/tables.dart';
 import '../../../core/providers/database_provider.dart';
+import '../../../core/utils/supabase_mapper.dart';
 import 'wizard_provider.dart';
 
 /// Stream of all characters ordered by last updated
 final charactersProvider = StreamProvider<List<Character>>((ref) {
-  final db = ref.watch(databaseProvider);
-  return db.characterDao.watchAllCharacters();
+  final client = Supabase.instance.client;
+  final userId = client.auth.currentUser?.id;
+  if (userId == null) return Stream.value([]);
+
+  return client
+      .from('characters')
+      .stream(primaryKey: ['id'])
+      .eq('user_id', userId)
+      .map((list) {
+        final chars = list.map((m) {
+          final camelMap = SupabaseMapper.toCamelCaseMap(m);
+          return Character.fromJson(camelMap);
+        }).toList();
+        // Sort by updatedAt desc locally since stream ordering is primaryKey by default
+        chars.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+        return chars;
+      });
 });
 
 /// Stream of CharacterClass rows for a given character
 final characterClassesProvider =
     StreamProvider.family<List<CharacterClassesData>, int>((ref, characterId) {
-  final db = ref.watch(databaseProvider);
-  return db.characterDao.watchCharacterClasses(characterId);
+  final client = Supabase.instance.client;
+  return client
+      .from('character_classes')
+      .stream(primaryKey: ['id'])
+      .eq('character_id', characterId)
+      .map((list) {
+        return list.map((m) {
+          final camelMap = SupabaseMapper.toCamelCaseMap(m);
+          return CharacterClassesData.fromJson(camelMap);
+        }).toList();
+      });
 });
 
 /// Computed total level for a character
@@ -119,58 +145,132 @@ final wizardAbilityModifiersProvider = FutureProvider.autoDispose<Map<String, in
 
 final characterByIdProvider =
     StreamProvider.family<Character?, int>((ref, characterId) {
-  final db = ref.watch(databaseProvider);
-  return db.characterDao
-      .watchAllCharacters()
-      .map((list) => list.where((c) => c.id == characterId).firstOrNull);
+  final client = Supabase.instance.client;
+  return client
+      .from('characters')
+      .stream(primaryKey: ['id'])
+      .eq('id', characterId)
+      .map((list) {
+        if (list.isEmpty) return null;
+        final camelMap = SupabaseMapper.toCamelCaseMap(list.first);
+        return Character.fromJson(camelMap);
+      });
 });
 
 final characterAbilityScoresProvider =
-    FutureProvider.family<CharacterAbilityScore?, int>((ref, characterId) {
-  final db = ref.watch(databaseProvider);
-  return db.characterDao.getAbilityScores(characterId);
+    FutureProvider.family<CharacterAbilityScore?, int>((ref, characterId) async {
+  final client = Supabase.instance.client;
+  final response = await client
+      .from('character_ability_scores')
+      .select()
+      .eq('character_id', characterId)
+      .maybeSingle();
+  if (response == null) return null;
+  final camelMap = SupabaseMapper.toCamelCaseMap(response);
+  return CharacterAbilityScore.fromJson(camelMap);
 });
 
 final characterProficienciesProvider =
-    FutureProvider.family<List<CharacterProficiency>, int>((ref, characterId) {
-  final db = ref.watch(databaseProvider);
-  return db.characterDao.getProficiencies(characterId);
+    FutureProvider.family<List<CharacterProficiency>, int>((ref, characterId) async {
+  final client = Supabase.instance.client;
+  final response = await client
+      .from('character_proficiencies')
+      .select()
+      .eq('character_id', characterId);
+  return response.map((m) {
+    final camelMap = SupabaseMapper.toCamelCaseMap(m);
+    return CharacterProficiency.fromJson(camelMap);
+  }).toList();
 });
 
 final characterSpellsProvider =
     StreamProvider.family<List<CharacterSpell>, int>((ref, characterId) {
-  final db = ref.watch(databaseProvider);
-  return db.characterDao.watchCharacterSpells(characterId);
+  final client = Supabase.instance.client;
+  return client
+      .from('character_spells')
+      .stream(primaryKey: ['id'])
+      .eq('character_id', characterId)
+      .map((list) {
+        return list.map((m) {
+          final camelMap = SupabaseMapper.toCamelCaseMap(m);
+          return CharacterSpell.fromJson(camelMap);
+        }).toList();
+      });
 });
 
 final characterSpellSlotsProvider =
     StreamProvider.family<List<CharacterSpellSlot>, int>((ref, characterId) {
-  final db = ref.watch(databaseProvider);
-  return db.characterDao.watchSpellSlots(characterId);
+  final client = Supabase.instance.client;
+  return client
+      .from('character_spell_slots')
+      .stream(primaryKey: ['id'])
+      .eq('character_id', characterId)
+      .order('slot_level', ascending: true)
+      .map((list) {
+        return list.map((m) {
+          final camelMap = SupabaseMapper.toCamelCaseMap(m);
+          return CharacterSpellSlot.fromJson(camelMap);
+        }).toList();
+      });
 });
 
 final characterResourcesProvider =
     StreamProvider.family<List<CharacterResource>, int>((ref, characterId) {
-  final db = ref.watch(databaseProvider);
-  return db.characterDao.watchResources(characterId);
+  final client = Supabase.instance.client;
+  return client
+      .from('character_resources')
+      .stream(primaryKey: ['id'])
+      .eq('character_id', characterId)
+      .map((list) {
+        return list.map((m) {
+          final camelMap = SupabaseMapper.toCamelCaseMap(m);
+          return CharacterResource.fromJson(camelMap);
+        }).toList();
+      });
 });
 
 final characterAttacksProvider =
     StreamProvider.family<List<CharacterAttack>, int>((ref, characterId) {
-  final db = ref.watch(databaseProvider);
-  return db.characterDao.watchAttacks(characterId);
+  final client = Supabase.instance.client;
+  return client
+      .from('character_attacks')
+      .stream(primaryKey: ['id'])
+      .eq('character_id', characterId)
+      .map((list) {
+        return list.map((m) {
+          final camelMap = SupabaseMapper.toCamelCaseMap(m);
+          return CharacterAttack.fromJson(camelMap);
+        }).toList();
+      });
 });
 
 final characterEquipmentProvider =
-    StreamProvider.family<List<CharacterEquipmentData>, int>(
-        (ref, characterId) {
-  final db = ref.watch(databaseProvider);
-  return db.characterDao.watchEquipment(characterId);
+    StreamProvider.family<List<CharacterEquipmentData>, int>((ref, characterId) {
+  final client = Supabase.instance.client;
+  return client
+      .from('character_equipment')
+      .stream(primaryKey: ['id'])
+      .eq('character_id', characterId)
+      .map((list) {
+        return list.map((m) {
+          final camelMap = SupabaseMapper.toCamelCaseMap(m);
+          return CharacterEquipmentData.fromJson(camelMap);
+        }).toList();
+      });
 });
 
 final characterFeatsProvider = StreamProvider.family<List<CharacterFeat>, int>((ref, characterId) {
-  final db = ref.watch(databaseProvider);
-  return db.characterDao.watchCharacterFeats(characterId);
+  final client = Supabase.instance.client;
+  return client
+      .from('character_feats')
+      .stream(primaryKey: ['id'])
+      .eq('character_id', characterId)
+      .map((list) {
+        return list.map((m) {
+          final camelMap = SupabaseMapper.toCamelCaseMap(m);
+          return CharacterFeat.fromJson(camelMap);
+        }).toList();
+      });
 });
 
 final characterFeatDetailsProvider = FutureProvider.family<List<SrdFeat>, int>((ref, characterId) async {

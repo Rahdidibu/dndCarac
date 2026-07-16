@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Configuration (Change these to match your Pi credentials)
-PI_USER="pi"
-PI_HOST="raspberrypi.local"
-PI_DIR="/home/pi/dnd_character_manager"
+PI_USER="vadim"
+PI_HOST="Raspidibu"
+PI_DIR="/home/vadim/dnd_character_manager"
 
 echo "🚀 Building Flutter Web for release..."
 flutter build web --release

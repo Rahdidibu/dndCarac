@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/database/app_database.dart';
 import 'core/providers/database_provider.dart';
 import 'core/seed/srd_seeder.dart';
 import 'core/seed/batman_seeder.dart';
+import 'features/auth/screens/auth_screen.dart';
 import 'features/character/screens/character_list_screen.dart';
 import 'features/character/screens/character_creation_wizard.dart';
 import 'features/character/screens/character_sheet_screen.dart';
@@ -18,8 +20,27 @@ import 'features/spells/screens/spell_management_screen.dart';
 import 'features/forge/forge_screen.dart';
 import 'l10n/app_localizations.dart';
 
+final authSessionProvider = StreamProvider<Session?>((ref) {
+  try {
+    return Supabase.instance.client.auth.onAuthStateChange.map((event) => event.session);
+  } catch (_) {
+    return Stream.value(null);
+  }
+});
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+  const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+
+  if (supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty) {
+    await Supabase.initialize(
+      url: supabaseUrl,
+      anonKey: supabaseAnonKey,
+    );
+  }
+
   final db = AppDatabase();
   await SrdSeeder(db).seedIfNeeded();
   await BatmanSeeder(db).seedIfNeeded();
@@ -39,6 +60,8 @@ class DndApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
+    final sessionAsync = ref.watch(authSessionProvider);
+
     return MaterialApp(
       title: "D&D Character Manager",
       debugShowCheckedModeBanner: false,
@@ -84,7 +107,22 @@ class DndApp extends ConsumerWidget {
           return BatmanLevelUpScreen(characterId: id);
         },
       },
-      home: const MainScaffold(),
+      home: sessionAsync.when(
+        loading: () {
+          try {
+            final currentSession = Supabase.instance.client.auth.currentSession;
+            if (currentSession != null) return const MainScaffold();
+          } catch (_) {}
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        },
+        error: (err, _) => Scaffold(body: Center(child: Text('Erreur Auth: $err'))),
+        data: (session) {
+          if (session == null) {
+            return const AuthScreen();
+          }
+          return const MainScaffold();
+        },
+      ),
     );
   }
 }
