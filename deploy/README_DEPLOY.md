@@ -90,15 +90,15 @@ C'est la méthode idéale car elle ne nécessite aucune configuration compliqué
 
 ### Option B : DuckDNS + Caddy (Gratuit, nom de domaine et SSL automatique)
 Si vous préférez utiliser un sous-domaine dynamique DuckDNS :
-1. Créez un sous-domaine gratuit sur [DuckDNS.org](https://www.duckdns.org/) (ex: `dnd-perso.duckdns.org`).
+1. Créez un sous-domaine gratuit sur [DuckDNS.org](https://www.duckdns.org/) : **`vadndim.duckdns.org`**.
 2. Créez un script de mise à jour d'IP sur le Pi :
    ```bash
    mkdir -p ~/duckdns
    nano ~/duckdns/duck.sh
    ```
-   Ajoutez-y la ligne :
+   Ajoutez-y la ligne suivante :
    ```bash
-   echo url="https://www.duckdns.org/update?domains=dnd-perso&token=votre-token-duckdns&ip=" | curl -k -K -
+   echo url="https://www.duckdns.org/update?domains=vadndim&token=3bcec803-6d10-480e-b6e4-d6cee8bc89e6&ip=" | curl -k -K -
    ```
    Rendez le script exécutable et configurez-le dans le `crontab` du Pi pour se lancer toutes les 5 minutes :
    ```bash
@@ -112,8 +112,24 @@ Si vous préférez utiliser un sous-domaine dynamique DuckDNS :
    - Redirigez le port externe **443** (HTTPS) vers le port **443** de l'IP locale de votre Pi.
 4. Installez Caddy sur le Pi pour gérer le certificat SSL Let's Encrypt automatique. Modifiez votre `/etc/caddy/Caddyfile` :
    ```caddy
-   dnd-perso.duckdns.org {
+   vadndim.duckdns.org {
        reverse_proxy localhost:8080
    }
    ```
-   Puis relancez Caddy : `sudo systemctl restart caddy`. Votre application est accessible en HTTPS sur `https://dnd-perso.duckdns.org` !
+   Puis relancez Caddy : `sudo systemctl restart caddy`. Votre application est accessible en HTTPS sur `https://vadndim.duckdns.org` !
+
+---
+
+## 💻 5. Développement Local avec VS Code DevContainer (Optionnel)
+
+Si vous souhaitez coder ou tester l'application localement dans le même environnement standardisé sans encombrer votre machine hôte avec des SDK Flutter/Dart ou des dépendances Java/C++ :
+
+1. Ouvrez ce dossier de projet dans **Visual Studio Code**.
+2. Installez l'extension officielle **Dev Containers** (`ms-vscode-remote.remote-containers`).
+3. VS Code détectera automatiquement la configuration et vous proposera de rouvrir le dossier dans un conteneur (**"Reopen in Container"**).
+4. Le conteneur se construit avec les prérequis Flutter ( stable ) et résout automatiquement le `flutter pub get`.
+5. Pour lancer l'application en mode serveur web local avec rechargement à chaud (Hot Reload) depuis le conteneur :
+   ```bash
+   flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0 --dart-define-from-file=.env
+   ```
+6. Le port `8080` est automatiquement redirigé vers votre navigateur hôte (Mac) pour pouvoir tester en direct !
