@@ -1,29 +1,17 @@
 #!/bin/bash
 
-# Configuration (Change these to match your Pi credentials)
-PI_USER="vadim"
-PI_HOST="Raspidibu"
-PI_DIR="/home/vadim/dnd_character_manager"
+# Ce script est destiné à être exécuté directement sur le Raspberry Pi.
+# Il récupère les derniers fichiers du dépôt Git (contenant le build précompilé)
+# et relance le conteneur Docker.
 
-echo "🚀 Building Flutter Web for release..."
-flutter build web --release
+# Aller à la racine du projet (le script est dans deploy/)
+cd "$(dirname "$0")/.."
 
-echo "📦 Packaging deployment files..."
-# Create a temporary archive containing build/web, deploy/Dockerfile, deploy/nginx.conf, and deploy/docker-compose.yml
-tar -czf deploy_package.tar.gz \
-    build/web \
-    deploy/Dockerfile \
-    deploy/nginx.conf \
-    deploy/docker-compose.yml
+echo "🔄 Récupération des dernières modifications depuis Git..."
+git pull
 
-echo "📤 Uploading package to Raspberry Pi ($PI_HOST)..."
-ssh $PI_USER@$PI_HOST "mkdir -p $PI_DIR"
-scp deploy_package.tar.gz $PI_USER@$PI_HOST:$PI_DIR/
+echo "🛠️ Relance et reconstruction du conteneur Docker..."
+docker compose -f deploy/docker-compose.yml down
+docker compose -f deploy/docker-compose.yml up -d --build
 
-echo "🛠️ Extracting and building container on Raspberry Pi..."
-ssh $PI_USER@$PI_HOST "cd $PI_DIR && tar -xzf deploy_package.tar.gz && docker compose down && docker compose up -d --build"
-
-# Clean up local archive
-rm deploy_package.tar.gz
-
-echo "✅ Deployment completed successfully! Accessible at http://$PI_HOST:8080"
+echo "✅ Mise à jour terminée ! L'application est disponible sur le port 8080."
