@@ -1,54 +1,54 @@
 [
   {
     "index": "alert",
-    "name": "Alert",
-    "description": "You gain the following benefits.\n**Initiative Proficiency.** When you roll Initiative, you can add your Proficiency Bonus to the roll.\n**Initiative Swap.** Immediately after you roll Initiative, you can swap your Initiative with the Initiative of one willing ally in the same combat. You can't make this swap if you or the ally has the Incapacitated condition.",
+    "name": "Alerte",
+    "description": "Vous obtenez les avantages suivants :\n**Maîtrise de l'initiative.** Vous ajoutez votre bonus de maîtrise à vos jets d'initiative.\n**Échange d'initiative.** Immédiatement après avoir lancé l'initiative, vous pouvez échanger votre score d'initiative avec celui d'un allié consentant dans le même combat (sauf si l'un de vous est neutralisé).",
     "type": "origin",
     "url": "/api/2024/feats/alert"
   },
   {
     "index": "magic-initiate",
-    "name": "Magic Initiate",
-    "description": "You gain the following benefits.\n**Two Cantrips.** You learn two cantrips of your choice from the Cleric, Druid, or Wizard spell list. Intelligence, Wisdom, or Charisma is your spellcasting ability for this feat's spells (choose when you select this feat).\n**Level 1 Spell.** Choose a level 1 spell from the same list you selected for this feat's cantrips. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have.\n**Spell Change.** Whenever you gain a new level, you can replace one of the spells you chose for this feat with a different spell of the same level from the chosen spell list.",
-    "repeatable": "You can take this feat more than once, but you must choose a different spell list each time.",
+    "name": "Initié à la magie",
+    "description": "Vous obtenez les avantages suivants :\n**Deux tours de magie.** Vous apprenez deux tours de magie de votre choix dans la liste de sorts de clerc, de druide ou de magicien. L'Intelligence, la Sagesse ou le Charisme est votre caractéristique de lancement de sort pour ces sorts.\n**Sort de niveau 1.** Choisissez un sort de niveau 1 dans la même liste. Vous l'avez toujours préparé et pouvez le lancer une fois sans emplacement de sort par repos long.",
+    "repeatable": "Vous pouvez prendre ce don plusieurs fois, en choisissant une liste de sorts différente à chaque fois.",
     "type": "origin",
     "url": "/api/2024/feats/magic-initiate"
   },
   {
     "index": "savage-attacker",
-    "name": "Savage Attacker",
-    "description": "You've trained to deal particularly damaging strikes. Once per turn when you hit a target with a weapon, you can roll the weapon's damage dice twice and use either roll against the target.",
+    "name": "Ravageur",
+    "description": "Une fois par tour lorsque vous touchez une cible avec une arme, vous pouvez lancer deux fois les dés de dégâts de l'arme et utiliser le meilleur résultat.",
     "type": "origin",
     "url": "/api/2024/feats/savage-attacker"
   },
   {
     "index": "skilled",
-    "name": "Skilled",
-    "description": "You gain proficiency in any combination of three skills or tools of your choice.",
-    "repeatable": "You can take this feat more than once.",
+    "name": "Qualifié",
+    "description": "Vous gagnez la maîtrise de trois compétences ou outils de votre choix (dans n'importe quelle combinaison).",
+    "repeatable": "Vous pouvez prendre ce don plus d'une fois.",
     "type": "origin",
     "url": "/api/2024/feats/skilled"
   },
   {
     "index": "ability-score-improvement",
-    "name": "Ability Score Improvement",
+    "name": "Amélioration de caractéristiques",
     "type": "general",
     "prerequisites": {
       "minimum_level": 4
     },
-    "description": "Increase one ability score of your choice by 2, or increase two ability scores of your choice by 1. This feat can't increase an ability score above 20.",
-    "repeatable": "You can take this feat more than once.",
+    "description": "Augmentez une caractéristique de votre choix de 2, ou deux caractéristiques de votre choix de 1. Ce don ne peut pas augmenter une caractéristique au-dessus de 20.",
+    "repeatable": "Vous pouvez prendre ce don plus d'une fois.",
     "url": "/api/2024/feats/ability-score-improvement"
   },
   {
     "index": "grappler",
-    "name": "Grappler",
+    "name": "Lutteur",
     "type": "general",
     "prerequisites": {
       "minimum_level": 4
     },
     "prerequisite_options": {
-      "desc": "Strength or Dexterity 13+",
+      "desc": "Force ou Dextérité 13+",
       "type": "ability-scores",
       "choose": 1,
       "from": {
@@ -75,179 +75,179 @@
         ]
       }
     },
-    "description": "You gain the following benefits.\n**Ability Score Increase.** Increase your Strength or Dexterity score by 1, to a maximum of 20.\n**Punch and Grab.** When you hit a creature with an Unarmed Strike as part of the Attack action on your turn, you can use both the Damage and the Grapple option. You can use this benefit only once per turn.\n**Attack Advantage.** You have Advantage on attack rolls against a creature Grappled by you.\n**Fast Wrestler.** You don't have to spend extra movement to move a creature Grappled by you if the creature is your size or smaller.",
+    "description": "Vous obtenez les avantages suivants :\n**Augmentation de caractéristique.** Augmentez votre Force ou Dextérité de 1 (maximum 20).\n**Frapper et attraper.** Lorsque vous touchez une créature avec une attaque à mains nues, vous pouvez infliger des dégâts et la gripper en même temps.\n**Avantage.** Vous avez l'avantage sur les jets d'attaque contre les créatures que vous agrippez.\n**Lutteur rapide.** Vous ne subissez pas de pénalité de déplacement en déplaçant une créature agrippée de votre taille ou plus petite.",
     "url": "/api/2024/feats/grappler"
   },
   {
     "index": "archery",
-    "name": "Archery",
+    "name": "Archerie",
     "type": "fighting-style",
     "prerequisites": {
-      "feature_named": "Fighting Style"
+      "feature_named": "Style de combat"
     },
-    "description": "You gain a +2 bonus to attack rolls you make with Ranged weapons.",
+    "description": "Vous gagnez un bonus de +2 aux jets d'attaque avec des armes à distance.",
     "url": "/api/2024/feats/archery"
   },
   {
     "index": "defense",
-    "name": "Defense",
+    "name": "Défense",
     "type": "fighting-style",
     "prerequisites": {
-      "feature_named": "Fighting Style"
+      "feature_named": "Style de combat"
     },
-    "description": "While you're wearing Light, Medium, or Heavy armor, you gain a +1 bonus to Armor Class.",
+    "description": "Tant que vous portez une armure légère, moyenne ou lourde, vous gagnez un bonus de +1 à votre classe d'armure (CA).",
     "url": "/api/2024/feats/defense"
   },
   {
     "index": "great-weapon-fighting",
-    "name": "Great Weapon Fighting",
+    "name": "Armes à deux mains",
     "type": "fighting-style",
     "prerequisites": {
-      "feature_named": "Fighting Style"
+      "feature_named": "Style de combat"
     },
-    "description": "When you roll damage for an attack you make with a Melee weapon that you are holding with two hands, you can treat any 1 or 2 on a damage die as a 3. The weapon must have the Two-Handed or Versatile property to gain this benefit.",
+    "description": "Lorsque vous lancez les dégâts d'une arme de corps à corps tenue à deux mains, vous pouvez remplacer tout résultat de 1 ou 2 par un 3.",
     "url": "/api/2024/feats/great-weapon-fighting"
   },
   {
     "index": "two-weapon-fighting",
-    "name": "Two Weapon Fighting",
+    "name": "Combat à deux armes",
     "type": "fighting-style",
     "prerequisites": {
-      "feature_named": "Fighting Style"
+      "feature_named": "Style de combat"
     },
-    "description": "When you make an extra attack as a result of using a weapon that has the Light property, you can add your ability modifier to the damage of that attack if you aren't already adding it to the damage.",
+    "description": "Lorsque vous effectuez l'attaque supplémentaire de combat à deux armes (arme légère), vous pouvez ajouter votre modificateur de caractéristique aux dégâts de cette attaque.",
     "url": "/api/2024/feats/two-weapon-fighting"
   },
   {
     "index": "boon-of-combat-prowess",
-    "name": "Boon of Combat Prowess",
+    "name": "Bénédiction de prouesse au combat",
     "type": "epic-boon",
     "prerequisites": {
       "minimum_level": 19
     },
-    "description": "You gain the following benefits.\n**Ability Score Increase.** Increase one ability score of your choice by 1, to a maximum of 30.\n**Peerless Aim.** When you miss with an attack roll, you can hit instead. Once you use this benefit, you can't use it again until the start of your next turn.",
+    "description": "Don épique : Augmentez une caractéristique de 1 (max 30). Une fois par tour lorsque vous ratez une attaque, vous pouvez décider de toucher à la place.",
     "url": "/api/2024/feats/boon-of-combat-prowess"
   },
   {
     "index": "boon-of-dimensional-travel",
-    "name": "Boon of Dimensional Travel",
+    "name": "Bénédiction de voyage dimensionnel",
     "type": "epic-boon",
     "prerequisites": {
       "minimum_level": 19
     },
-    "description": "You gain the following benefits.\n**Ability Score Increase.** Increase one ability score of your choice by 1, to a maximum of 30.\n**Blink Steps.** Immediately after you take the Attack action or the Magic action, you can teleport up to 30 feet to an unoccupied space you can see.",
+    "description": "Don épique : Augmentez une caractéristique de 1 (max 30). Immédiatement après avoir fait une action Attaquer ou Lancer un sort, vous pouvez vous téléporter de 9 mètres.",
     "url": "/api/2024/feats/boon-of-dimensional-travel"
   },
   {
     "index": "boon-of-fate",
-    "name": "Boon of Fate",
+    "name": "Bénédiction du destin",
     "type": "epic-boon",
     "prerequisites": {
       "minimum_level": 19
     },
-    "description": "You gain the following benefits.\n**Ability Score Increase.** Increase one ability score of your choice by 1, to a maximum of 30.\n**Improve Fate.** When you or another creature within 60 feet of you succeeds on or fails a D20 Test, you can roll 2d4 and apply the total rolled as a bonus or penalty to the d20 roll. Once you use this benefit, you can't use it again until you roll Initiative or finish a Short or Long Rest.",
+    "description": "Don épique : Augmentez une caractéristique de 1 (max 30). Vous pouvez appliquer un bonus/malus de 2d4 sur un jet de d20 à portée.",
     "url": "/api/2024/feats/boon-of-fate"
   },
   {
     "index": "boon-of-irresistible-offense",
-    "name": "Boon of Irresistible Offense",
+    "name": "Bénédiction d'offensive irrésistible",
     "type": "epic-boon",
     "prerequisites": {
       "minimum_level": 19
     },
-    "description": "You gain the following benefits.\n**Ability Score Increase.** Increase one ability score of your choice by 1, to a maximum of 30.\n**Overcome Defenses.** The Bludgeoning, Piercing, and Slashing damage you deal always ignores Resistance.\n**Overwhelming Strike.** When you roll a 20 on the d20 for an attack roll, you can deal extra damage to the target equal to the ability score increased by this feat. The extra damage's type is the same as the attack's type.",
+    "description": "Don épique : Augmentez une caractéristique de 1 (max 30). Vos dégâts physiques ignorent toujours la résistance aux dégâts.",
     "url": "/api/2024/feats/boon-of-irresistible-offense"
   },
   {
     "index": "boon-of-spell-recall",
-    "name": "Boon of Spell Recall",
+    "name": "Bénédiction de rappel de sort",
     "type": "epic-boon",
     "prerequisites": {
       "minimum_level": 19,
       "feature_named": "Spellcasting"
     },
-    "description": "You gain the following benefits.\n**Ability Score Increase.** Increase one ability score of your choice by 1, to a maximum of 30.\n**Free Casting.** Whenever you cast a spell with a level 1–4 spell slot, roll 1d4. If the number you roll is the same as the slot's level, the slot isn't expended.",
+    "description": "Don épique : Augmentez une caractéristique de 1 (max 30). Lorsque vous lancez un sort de niveau 1 à 4, vous avez une chance de ne pas dépenser l'emplacement.",
     "url": "/api/2024/feats/boon-of-spell-recall"
   },
   {
     "index": "boon-of-the-night-spirit",
-    "name": "Boon of the Night Spirit",
+    "name": "Bénédiction de l'esprit de la nuit",
     "type": "epic-boon",
     "prerequisites": {
       "minimum_level": 19
     },
-    "description": "You gain the following benefits.\n**Ability Score Increase.** Increase one ability score of your choice by 1, to a maximum of 30.\n**Merge with Shadows.** While within Dim Light or Darkness, you can give yourself the Invisible condition as a Bonus Action. The condition ends on you immediately after you take an action, a Bonus Action, or a Reaction.\n**Shadowy form.** While within Dim Light or Darkness, you have Resistance to all damage except Psychic and Radiant.",
+    "description": "Don épique : Augmentez une caractéristique de 1 (max 30). Dans la pénombre ou l'obscurité, vous pouvez devenir invisible par une action bonus.",
     "url": "/api/2024/feats/boon-of-the-night-spirit"
   },
   {
     "index": "boon-of-truesight",
-    "name": "Boon of Truesight",
+    "name": "Bénédiction de vision véridique",
     "type": "epic-boon",
     "prerequisites": {
       "minimum_level": 19
     },
-    "description": "You gain the following benefits.\n**Ability Score Increase.** Increase one ability score of your choice by 1, to a maximum of 30.\n**Truesight.** You have Truesight with a range of 60 feet.",
+    "description": "Don épique : Augmentez une caractéristique de 1 (max 30). Vous obtenez la vision véridique sur 18 mètres.",
     "url": "/api/2024/feats/boon-of-truesight"
   },
   {
     "index": "lucky",
-    "name": "Lucky",
+    "name": "Chanceux",
     "type": "origin",
     "description": "Vous gagnez les avantages suivants :\n**Points de chance.** Vous avez un nombre de points de chance égal à votre bonus de maîtrise (minimum 2). Vous récupérez tous vos points de chance après un repos long.\n**Avantage.** Lorsque vous effectuez un test de d20 (jet d'attaque, caractéristique ou sauvegarde), vous pouvez dépenser 1 point de chance pour vous accorder l'avantage sur ce jet.\n**Désavantage.** Lorsqu'un ennemi effectue un jet d'attaque contre vous, vous pouvez dépenser 1 point de chance pour lui infliger le désavantage sur son attaque.",
     "url": "/api/2024/feats/lucky"
   },
   {
     "index": "crafter",
-    "name": "Crafter",
+    "name": "Artisan",
     "type": "origin",
     "description": "Vous gagnez les avantages suivants :\n**Maîtrise d'outils.** Vous gagnez la maîtrise de trois outils d'artisan de votre choix.\n**Rabais de l'artisan.** Vous bénéficiez d'une réduction de 20% sur le prix d'achat de tout équipement non-magique.\n**Artisanat rapide.** Lorsque vous fabriquez un objet non-magique, le temps nécessaire est réduit de moitié.",
     "url": "/api/2024/feats/crafter"
   },
   {
     "index": "musician",
-    "name": "Musician",
+    "name": "Musicien",
     "type": "origin",
     "description": "Vous gagnez les avantages suivants :\n**Maîtrise d'instruments.** Vous gagnez la maîtrise de trois instruments de musique de votre choix.\n**Chant inspirant.** À la fin d'un repos court ou long, vous pouvez jouer un chant pour inspirer vos compagnons. Choisissez un nombre d'alliés égal à votre bonus de maîtrise qui vous entendent. Chacun gagne une Inspiration Héroïque.",
     "url": "/api/2024/feats/musician"
   },
   {
     "index": "healer",
-    "name": "Healer",
+    "name": "Soigneur",
     "type": "origin",
     "description": "Vous gagnez les avantages suivants :\n**Soin de secouriste.** Par une action et en dépensant une utilisation d'une trousse de soin, vous pouvez soigner une créature adjacente. Elle récupère 1d8 + votre bonus de maîtrise points de vie. Une créature ne peut plus bénéficier de ce soin avant d'avoir fini un repos court ou long.\n**Repos revigorant.** Lorsque vous dépensez un dé de vie lors d'un repos court pour récupérer des PV, vous pouvez relancer tout résultat de 1 ou 2 sur ces dés.",
     "url": "/api/2024/feats/healer"
   },
   {
     "index": "tavern-brawler",
-    "name": "Tavern Brawler",
+    "name": "Bagarreur de taverne",
     "type": "origin",
-    "description": "Vous gagnez les avantages suivants :\n**Frappe de taverne.** Vos attaques à mains nues infligent des dégâts égaux à 1d4 + votre modificateur de Force au lieu des dégâts normaux.\n**Bousculade.** Lorsque vous touchez une créature avec une attaque à mains nues dans le cadre de votre action Attaquer, vous pouvez choisir de la pousser de 1,5 mètre (5 pieds) en ligne droite.\n**Fracas de bouteille.** Une fois par tour lorsque vous touchez avec une arme improvisée, vous pouvez relancer les dégâts si vous obtenez un 1.",
+    "description": "Vous gagnez les avantages suivants :\n**Frappe de taverne.** Vos attaques à mains nues infligent des dégâts égaux à 1d4 + votre modificateur de Force au lieu des dégâts normaux.\n**Bousculade.** Lorsque vous touchez une créature avec une attaque à mains nues dans le cadre de votre action Attaquer, vous pouvez choisir de la pousser de 1,5 metre (5 pieds) en ligne droite.\n**Fracas de bouteille.** Une fois par tour lorsque vous touchez avec une arme improvisée, vous pouvez relancer les dégâts si vous obtenez un 1.",
     "url": "/api/2024/feats/tavern-brawler"
   },
   {
     "index": "tough",
-    "name": "Tough",
+    "name": "Robuste",
     "type": "origin",
     "description": "Vos points de vie maximum augmentent d'une valeur égale à deux fois votre niveau actuel. Chaque fois que vous gagnez un niveau par la suite, vos points de vie maximum augmentent de 2 points supplémentaires.",
     "url": "/api/2024/feats/tough"
   },
   {
     "index": "pact-of-the-blade",
-    "name": "Pact of the Blade",
+    "name": "Pacte de la lame",
     "type": "origin",
     "description": "Vous pouvez utiliser votre action pour créer une arme de pacte dans votre main vide, ou lier une arme magique existante à vous. Vous maîtrisez cette arme, et vous pouvez l'utiliser comme focaliseur de vos sorts de warlock. Vous pouvez utiliser votre modificateur de caractéristique de lanceur de sorts (Charisme) au lieu de la Force ou de la Dextérité pour les jets d'attaque et de dégâts avec cette arme.",
     "url": "/api/2024/feats/pact-of-the-blade"
   },
   {
     "index": "pact-of-the-chain",
-    "name": "Pact of the Chain",
+    "name": "Pacte de la chaîne",
     "type": "origin",
     "description": "Vous apprenez le sort *Appel de familier* et pouvez le lancer comme un rituel. Lorsque vous le lancez, vous pouvez choisir l'une des formes spéciales suivantes pour votre familier : diablotin (imp), pseudodragon, quasit ou sprite. De plus, lorsque vous entreprenez l'action Attaquer, vous pouvez renoncer à l'une de vos attaques pour permettre à votre familier d'effectuer une attaque de son choix en utilisant sa réaction.",
     "url": "/api/2024/feats/pact-of-the-chain"
   },
   {
     "index": "pact-of-the-tome",
-    "name": "Pact of the Tome",
+    "name": "Pacte du grimoire",
     "type": "origin",
     "description": "Votre protecteur vous offre un grimoire nommé Livre des Ombres. Choisissez trois tours de magie de n'importe quelle liste de sorts de classe. Tant que le livre est en votre possession, vous pouvez lancer ces tours de magie à volonté. Ils comptent comme des sorts de warlock pour vous. Vous gagnez également deux emplacements de sorts de warlock de niveau 1 supplémentaires qui disparaissent à la fin de votre prochain repos court ou long.",
     "url": "/api/2024/feats/pact-of-the-tome"

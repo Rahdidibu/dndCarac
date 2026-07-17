@@ -3,11 +3,11 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {"flutter_bootstrap.js": "29e16247c49115b56f9f0f4638b15aaa",
+const RESOURCES = {"flutter_bootstrap.js": "185cd2019491cb8534ce07175c3f406f",
 "version.json": "fad01731908f900373b5eb669a38d2eb",
 "index.html": "73495cdd6698562dd3b37dbd8846f8ca",
 "/": "73495cdd6698562dd3b37dbd8846f8ca",
-"main.dart.js": "594660e77ce312bf06187592a0fd7019",
+"main.dart.js": "cdef857f84fb5c1680526e7dcdf0f05a",
 "sqlite3.wasm": "5250248f8bfca04d8a5329c8eea7e632",
 "flutter.js": "83d881c1dbb6d6bcd6b42e274605b69c",
 "favicon.png": "5dcef449791fa27946b3d35ad8803796",
@@ -34,7 +34,7 @@ const RESOURCES = {"flutter_bootstrap.js": "29e16247c49115b56f9f0f4638b15aaa",
 "assets/assets/data/2014/levels.json": "daf4d32c0cd3177caf0bc146034cab0d",
 "assets/assets/data/2014/spells.json": "85e083cca65f256756116080e916bc8f",
 "assets/assets/data/2024/species.json": "cbe619f9e844440260fd761da6910ef2",
-"assets/assets/data/2024/feats.json": "6112e760907c3e67823e8165804e562f",
+"assets/assets/data/2024/feats.json": "b9ab5f0fe0b749dff9fc9e4b979ca1f8",
 "assets/assets/data/2024/classes.json": "1e54f03d7975c4c1ecaa59647066dcb0",
 "assets/assets/data/2024/backgrounds.json": "2524196e78f9513f9d57ded8855e5bdf",
 "assets/assets/data/2024/weapon_mastery.json": "1016973f581b69ae6cddc763a3be74d8",

@@ -40,6 +40,8 @@ class SrdSeeder {
         await _seedWeaponMasteries2024();
         // Force update feats to ensure new feats are imported
         await _seedFeats2024();
+        // Force update backgrounds to ensure origin feats are populated
+        await _seedBackgrounds2024();
       }
 
       // Force seed 2024 subclasses to ensure French translations are applied

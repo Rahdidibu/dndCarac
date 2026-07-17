@@ -5,67 +5,72 @@ import '../../../../l10n/app_localizations.dart';
 import '../../providers/character_providers.dart';
 import '../../providers/wizard_provider.dart';
 
-// All SRD skills with associated ability
+// All SRD skills with associated ability (sorted by ability, then alphabetically by French name)
 const List<({String key, String name, String ability})> _allSkills = [
+  // Force
   (key: 'athletics', name: 'Athlétisme', ability: 'str'),
+  // Dextérité
   (key: 'acrobatics', name: 'Acrobaties', ability: 'dex'),
-  (key: 'sleight_of_hand', name: 'Escamotage', ability: 'dex'),
   (key: 'stealth', name: 'Discrétion', ability: 'dex'),
+  (key: 'sleight_of_hand', name: 'Escamotage', ability: 'dex'),
+  // Intelligence
   (key: 'arcana', name: 'Arcanes', ability: 'int'),
   (key: 'history', name: 'Histoire', ability: 'int'),
   (key: 'investigation', name: 'Investigation', ability: 'int'),
   (key: 'nature', name: 'Nature', ability: 'int'),
   (key: 'religion', name: 'Religion', ability: 'int'),
+  // Sagesse
   (key: 'animal_handling', name: 'Dressage', ability: 'wis'),
-  (key: 'insight', name: 'Perspicacité', ability: 'wis'),
   (key: 'medicine', name: 'Médecine', ability: 'wis'),
   (key: 'perception', name: 'Perception', ability: 'wis'),
+  (key: 'insight', name: 'Perspicacité', ability: 'wis'),
   (key: 'survival', name: 'Survie', ability: 'wis'),
-  (key: 'deception', name: 'Tromperie', ability: 'cha'),
+  // Charisme
   (key: 'intimidation', name: 'Intimidation', ability: 'cha'),
-  (key: 'performance', name: 'Représentation', ability: 'cha'),
   (key: 'persuasion', name: 'Persuasion', ability: 'cha'),
+  (key: 'performance', name: 'Représentation', ability: 'cha'),
+  (key: 'deception', name: 'Tromperie', ability: 'cha'),
 ];
 
 const List<({String key, String name})> _artisanTools = [
   (key: 'alchemists_supplies', name: "Matériel d'alchimiste"),
   (key: 'brewers_supplies', name: 'Matériel de brasseur'),
   (key: 'calligraphers_supplies', name: 'Matériel de calligraphe'),
-  (key: 'carpenters_tools', name: 'Outils de charpentier'),
-  (key: 'cartographers_tools', name: 'Outils de cartographe'),
-  (key: 'cobblers_tools', name: 'Outils de cordonnier'),
-  (key: 'cooks_utensils', name: 'Ustensiles de cuisinier'),
-  (key: 'glassblowers_tools', name: 'Outils de souffleur de verre'),
-  (key: 'jewelers_tools', name: 'Outils de joaillier'),
-  (key: 'leatherworkers_tools', name: 'Outils de travail du cuir'),
-  (key: 'masons_tools', name: 'Outils de maçon'),
   (key: 'painters_supplies', name: 'Matériel de peintre'),
-  (key: 'potters_tools', name: 'Outils de potier'),
+  (key: 'cartographers_tools', name: 'Outils de cartographe'),
+  (key: 'carpenters_tools', name: 'Outils de charpentier'),
+  (key: 'cobblers_tools', name: 'Outils de cordonnier'),
   (key: 'smiths_tools', name: 'Outils de forgeron'),
+  (key: 'jewelers_tools', name: 'Outils de joaillier'),
+  (key: 'masons_tools', name: 'Outils de maçon'),
+  (key: 'potters_tools', name: 'Outils de potier'),
   (key: 'tinkers_tools', name: 'Outils de rétameur'),
-  (key: 'weavers_tools', name: 'Outils de tisserand'),
   (key: 'woodcarvers_tools', name: 'Outils de sculpteur sur bois'),
+  (key: 'glassblowers_tools', name: 'Outils de souffleur de verre'),
+  (key: 'weavers_tools', name: 'Outils de tisserand'),
+  (key: 'leatherworkers_tools', name: 'Outils de travail du cuir'),
+  (key: 'cooks_utensils', name: 'Ustensiles de cuisinier'),
 ];
 
 const List<({String key, String name})> _musicalInstruments = [
+  (key: 'shawm', name: 'Chalemie'),
+  (key: 'horn', name: 'Cor'),
   (key: 'bagpipes', name: 'Cornemuse'),
-  (key: 'drum', name: 'Tambour'),
   (key: 'flute', name: 'Flûte'),
+  (key: 'pan_flute', name: 'Flûte de Pan'),
   (key: 'lute', name: 'Luth'),
   (key: 'lyre', name: 'Lyre'),
-  (key: 'horn', name: 'Cor'),
-  (key: 'pan_flute', name: 'Flûte de Pan'),
+  (key: 'drum', name: 'Tambour'),
   (key: 'dulcimer', name: 'Tympanon'),
   (key: 'viol', name: 'Viole'),
-  (key: 'shawm', name: 'Chalemie'),
 ];
 
 const List<({String key, String name})> _otherTools = [
   (key: 'disguise_kit', name: 'Matériel de déguisement'),
   (key: 'forgery_kit', name: 'Nécessaire de contrefaçon'),
+  (key: 'poisoners_kit', name: 'Nécessaire d\'empoisonneur'),
   (key: 'herbalism_kit', name: 'Nécessaire d\'herboriste'),
   (key: 'navigators_tools', name: 'Outils de navigateur'),
-  (key: 'poisoners_kit', name: 'Nécessaire d\'empoisonneur'),
   (key: 'thieves_tools', name: 'Outils de voleur'),
 ];
 
