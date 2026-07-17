@@ -1,0 +1,4 @@
+# Ignorer tous les fichiers de certificats réels
+*
+# Ne pas ignorer le .gitignore lui-même
+!.gitignore
