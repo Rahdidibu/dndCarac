@@ -418,7 +418,59 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
           attacksAsync.when(
             loading: () => const SizedBox.shrink(),
             error: (_, _) => const SizedBox.shrink(),
-            data: (attacks) {
+            data: (dbAttacks) {
+              final equipment = equipmentAsync.value ?? <CharacterEquipmentData>[];
+              final scoresAsync = ref.watch(characterAbilityScoresProvider(widget.characterId));
+              final scores = scoresAsync.value;
+
+              final int strScore = scores?.strength ?? 10;
+              final int dexScore = scores?.dexterity ?? 10;
+              final int strMod = DndRules.modifier(strScore);
+              final int dexMod = DndRules.modifier(dexScore);
+
+              final List<CharacterAttack> combinedAttacks = [...dbAttacks];
+
+              // Find any weapon in the inventory
+              for (final item in equipment) {
+                final weapon = StartingEquipmentHelper.getWeaponStats(item.itemName);
+                if (weapon != null) {
+                  final nameLower = weapon.name.toLowerCase();
+                  final itemLower = item.itemName.toLowerCase();
+                  final alreadyExists = combinedAttacks.any((a) =>
+                      a.name.toLowerCase() == nameLower ||
+                      a.name.toLowerCase() == itemLower);
+                  if (!alreadyExists) {
+                    int abilityMod;
+                    if (weapon.scalingAbility == 'str') {
+                      abilityMod = strMod;
+                    } else if (weapon.scalingAbility == 'dex') {
+                      abilityMod = dexMod;
+                    } else { // finesse
+                      abilityMod = strMod > dexMod ? strMod : dexMod;
+                    }
+
+                    final int totalAttackBonus = abilityMod + 2; // Level 1 is +2
+                    final String attackBonusStr = totalAttackBonus >= 0 ? '+$totalAttackBonus' : '$totalAttackBonus';
+                    final String damageDiceStr = abilityMod != 0
+                        ? '${weapon.baseDice}${abilityMod > 0 ? '+$abilityMod' : '$abilityMod'}'
+                        : weapon.baseDice;
+
+                    combinedAttacks.add(
+                      CharacterAttack(
+                        id: -999 - item.id, // Virtual negative id
+                        characterId: widget.characterId,
+                        name: item.itemName,
+                        attackBonus: attackBonusStr,
+                        damageDice: damageDiceStr,
+                        damageType: weapon.damageType,
+                        masteryProperty: widget.character.ruleset == RulesetVersion.dnd2024 ? weapon.mastery : null,
+                        notes: 'Depuis l\'inventaire',
+                      ),
+                    );
+                  }
+                }
+              }
+
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -434,7 +486,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  if (attacks.isEmpty)
+                  if (combinedAttacks.isEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Text('Aucune attaque configurée.',
@@ -442,7 +494,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                     )
                   else ...[
                     // Weapon selection cards
-                    ...attacks.map((a) => _WeaponCard(
+                    ...combinedAttacks.map((a) => _WeaponCard(
                       attack: a,
                       isActive: _activeWeapon?.id == a.id,
                       character: widget.character,
@@ -735,10 +787,20 @@ class _WeaponCard extends ConsumerWidget {
                   ],
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
-                onPressed: onDelete,
-              ),
+              if (attack.id >= 0)
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                  onPressed: onDelete,
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Icon(
+                    Icons.backpack_outlined,
+                    size: 18,
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                  ),
+                ),
             ],
           ),
         ),

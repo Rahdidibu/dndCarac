@@ -581,9 +581,10 @@ class CharacterService {
     }
     
     // Check for heavy armor
-    if (name.contains('harnois') || name.contains('plate') || name.contains('clavandier') || name.contains('splint')) {
+    if (name.contains('harnois') || name.contains('plate') || name.contains('clavandier') || name.contains('splint') || name.contains('cotte de mailles') || name.contains('chain mail') || name.contains('chainmail')) {
       int baseAc = 18;
       if (name.contains('splint') || name.contains('clavandier')) baseAc = 17;
+      if (name.contains('cotte de mailles') || name.contains('chain mail') || name.contains('chainmail')) baseAc = 16;
       return ArmorInfo(item.itemName, baseAc, 'heavy', 0);
     }
     
@@ -643,6 +644,45 @@ class CharacterService {
           notes: const Value('Équipement de départ'),
         ),
       );
+    }
+
+    // Seed attacks for weapons
+    final scores = await db.characterDao.getAbilityScores(characterId);
+    final int strScore = scores?.strength ?? 10;
+    final int dexScore = scores?.dexterity ?? 10;
+    final int strMod = DndRules.modifier(strScore);
+    final int dexMod = DndRules.modifier(dexScore);
+
+    for (final item in allItems) {
+      final weapon = StartingEquipmentHelper.getWeaponStats(item.name);
+      if (weapon != null) {
+        int abilityMod;
+        if (weapon.scalingAbility == 'str') {
+          abilityMod = strMod;
+        } else if (weapon.scalingAbility == 'dex') {
+          abilityMod = dexMod;
+        } else { // finesse
+          abilityMod = strMod > dexMod ? strMod : dexMod;
+        }
+
+        final int totalAttackBonus = abilityMod + 2; // Level 1 prof bonus is +2
+        final String attackBonusStr = totalAttackBonus >= 0 ? '+$totalAttackBonus' : '$totalAttackBonus';
+        final String damageDiceStr = abilityMod != 0
+            ? '${weapon.baseDice}${abilityMod > 0 ? '+$abilityMod' : '$abilityMod'}'
+            : weapon.baseDice;
+
+        await db.characterDao.insertAttack(
+          CharacterAttacksCompanion.insert(
+            characterId: characterId,
+            name: weapon.name,
+            attackBonus: attackBonusStr,
+            damageDice: damageDiceStr,
+            damageType: weapon.damageType,
+            masteryProperty: Value(wizard.ruleset == RulesetVersion.dnd2024 ? weapon.mastery : null),
+            notes: const Value('Arme de départ'),
+          ),
+        );
+      }
     }
 
     // 3. Gold / Currency
