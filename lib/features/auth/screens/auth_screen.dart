@@ -1,3 +1,6 @@
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:js' as js;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -260,7 +263,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       const SizedBox(height: 16),
 
                       // Switch Login / Sign Up
-                      TextButton(
+                       TextButton(
                         onPressed: _isLoading
                             ? null
                             : () {
@@ -275,6 +278,18 @@ class _AuthScreenState extends State<AuthScreen> {
                               : 'Pas encore de compte ? Inscrivez-vous',
                         ),
                       ),
+                      if (kIsWeb) ...[
+                        const SizedBox(height: 16),
+                        const Divider(),
+                        const SizedBox(height: 8),
+                        TextButton.icon(
+                          onPressed: () {
+                            js.context.callMethod('open', ['app-release.apk']);
+                          },
+                          icon: const Icon(Icons.android),
+                          label: const Text('Télécharger l\'application Android (APK)'),
+                        ),
+                      ],
                     ],
                   ),
                 ),

@@ -7,11 +7,30 @@ import '../../../../l10n/app_localizations.dart';
 import '../../providers/character_providers.dart';
 import '../../providers/wizard_provider.dart';
 
-class Step4Origin extends ConsumerWidget {
+class Step4Origin extends ConsumerStatefulWidget {
   const Step4Origin({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<Step4Origin> createState() => _Step4OriginState();
+}
+
+class _Step4OriginState extends ConsumerState<Step4Origin> {
+  String? _selectedFilterAbility;
+
+  String _abilityLabel(String key) {
+    const labels = {
+      'str': 'FOR',
+      'dex': 'DEX',
+      'con': 'CON',
+      'int': 'INT',
+      'wis': 'SAG',
+      'cha': 'CHA',
+    };
+    return labels[key] ?? key.toUpperCase();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final wizard = ref.watch(wizardProvider);
     final notifier = ref.read(wizardProvider.notifier);
@@ -94,29 +113,84 @@ class Step4Origin extends ConsumerWidget {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
+
+        if (wizard.ruleset == RulesetVersion.dnd2024) ...[
+          Text(
+            'Filtrer par bonus de caractéristique',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+          ),
+          const SizedBox(height: 4),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                'Toutes', 'str', 'dex', 'con', 'int', 'wis', 'cha'
+              ].map((ability) {
+                final isAll = ability == 'Toutes';
+                final isSelected = isAll 
+                    ? _selectedFilterAbility == null 
+                    : _selectedFilterAbility == ability;
+                final label = isAll ? 'Toutes' : _abilityLabel(ability);
+                return Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: ChoiceChip(
+                    label: Text(label, style: const TextStyle(fontSize: 12)),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      setState(() {
+                        _selectedFilterAbility = isAll ? null : (selected ? ability : null);
+                      });
+                    },
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+
         backgroundsAsync.when(
           loading: () => const LinearProgressIndicator(),
           error: (e, _) => Text('Erreur: $e'),
-          data: (backgrounds) => DropdownButtonFormField<String>(
-            key: const ValueKey('background-dropdown'),
-            decoration: const InputDecoration(
-              labelText: 'Background',
-              border: OutlineInputBorder(),
-            ),
-            value: wizard.backgroundId,
-            items: backgrounds
-                .map((b) =>
-                    DropdownMenuItem(value: b.id, child: Text(b.name)))
-                .toList(),
-            onChanged: (v) {
-              notifier.setBackground(v);
-              if (wizard.ruleset == RulesetVersion.dnd2024 && v != null) {
-                final bg = backgrounds.firstWhere((b) => b.id == v);
-                notifier.setChosenFeatId(bg.originFeatId);
-                notifier.setBackgroundAsi({});
-              }
-            },
-          ),
+          data: (backgrounds) {
+            var filteredBackgrounds = backgrounds;
+            if (wizard.ruleset == RulesetVersion.dnd2024 && _selectedFilterAbility != null) {
+              filteredBackgrounds = backgrounds.where((bg) {
+                if (bg.asiJson == null) return false;
+                try {
+                  final List<dynamic> list = json.decode(bg.asiJson!);
+                  return list.cast<String>().contains(_selectedFilterAbility);
+                } catch (_) {
+                  return false;
+                }
+              }).toList();
+            }
+
+            final currentVal = filteredBackgrounds.any((b) => b.id == wizard.backgroundId)
+                ? wizard.backgroundId
+                : null;
+
+            return DropdownButtonFormField<String>(
+              key: ValueKey('background-dropdown-${_selectedFilterAbility ?? "all"}'),
+              decoration: const InputDecoration(
+                labelText: 'Background',
+                border: OutlineInputBorder(),
+              ),
+              value: currentVal,
+              items: filteredBackgrounds
+                  .map((b) =>
+                      DropdownMenuItem(value: b.id, child: Text(b.name)))
+                  .toList(),
+              onChanged: (v) {
+                notifier.setBackground(v);
+                if (wizard.ruleset == RulesetVersion.dnd2024 && v != null) {
+                  final bg = backgrounds.firstWhere((b) => b.id == v);
+                  notifier.setChosenFeatId(bg.originFeatId);
+                  notifier.setBackgroundAsi({});
+                }
+              },
+            );
+          },
         ),
 
         // 2024: Origin Feat display

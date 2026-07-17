@@ -34,6 +34,9 @@ class WizardState {
   // Step 3b – weapon masteries (DnD 2024 only)
   final List<String> chosenWeaponMasteries;
 
+  // Step 6b – extra proficiencies from origin feats (Skilled, Crafter, Musician)
+  final List<String> chosenFeatExtraProficiencies;
+
   const WizardState({
     this.ruleset = RulesetVersion.dnd2014,
     this.name = '',
@@ -56,6 +59,7 @@ class WizardState {
     },
     this.chosenSkillProficiencies = const [],
     this.chosenWeaponMasteries = const [],
+    this.chosenFeatExtraProficiencies = const [],
   });
 
   WizardState copyWith({
@@ -73,6 +77,7 @@ class WizardState {
     Map<String, int>? abilityScores,
     List<String>? chosenSkillProficiencies,
     List<String>? chosenWeaponMasteries,
+    List<String>? chosenFeatExtraProficiencies,
   }) {
     return WizardState(
       ruleset: ruleset ?? this.ruleset,
@@ -90,6 +95,8 @@ class WizardState {
       chosenSkillProficiencies:
           chosenSkillProficiencies ?? this.chosenSkillProficiencies,
       chosenWeaponMasteries: chosenWeaponMasteries ?? this.chosenWeaponMasteries,
+      chosenFeatExtraProficiencies:
+          chosenFeatExtraProficiencies ?? this.chosenFeatExtraProficiencies,
     );
   }
 
@@ -162,7 +169,8 @@ class WizardNotifier extends StateNotifier<WizardState> {
   void setSpecies(String? id) =>
       state = state.copyWith(speciesId: id, subspeciesId: null);
   void setSubspecies(String? id) => state = state.copyWith(subspeciesId: id);
-  void setBackground(String? id) => state = state.copyWith(backgroundId: id);
+  void setBackground(String? id) =>
+      state = state.copyWith(backgroundId: id, chosenFeatExtraProficiencies: const []);
   void setChosenFeatId(String? id) => state = state.copyWith(chosenFeatId: id);
   void setBackgroundAsi(Map<String, int> choices) =>
       state = state.copyWith(backgroundAsiChoices: choices);
@@ -191,6 +199,18 @@ class WizardNotifier extends StateNotifier<WizardState> {
       current.add(key);
     }
     state = state.copyWith(chosenSkillProficiencies: current);
+  }
+
+  void toggleFeatExtraProficiency(String key) {
+    final current = [...state.chosenFeatExtraProficiencies];
+    if (current.contains(key)) {
+      current.remove(key);
+    } else {
+      if (current.length < 3) {
+        current.add(key);
+      }
+    }
+    state = state.copyWith(chosenFeatExtraProficiencies: current);
   }
 
   void toggleWeaponMastery(String id) {

@@ -113,8 +113,18 @@ class _StatsTab extends ConsumerWidget {
                   const SizedBox(height: 16),
 
                   // ── 6 ability scores ─────────────────────────────
-                  Text('Caractéristiques',
-                      style: Theme.of(context).textTheme.titleMedium),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Caractéristiques',
+                          style: Theme.of(context).textTheme.titleMedium),
+                      IconButton(
+                        icon: const Icon(Icons.edit_outlined, size: 20),
+                        tooltip: 'Modifier les caractéristiques',
+                        onPressed: () => _showEditAbilitiesDialog(context, ref, scores),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 8),
                   _AbilityScoreGrid(scoreMap: scoreMap),
                   const SizedBox(height: 16),
@@ -150,26 +160,40 @@ class _StatsTab extends ConsumerWidget {
                   Text('Compétences',
                       style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 4),
-                  ..._skillAbilityMap.entries.map((entry) {
-                    final skill = entry.key;
-                    final ability = entry.value;
-                    final isProficient = profKeys.contains('skill_$skill');
-                    final hasExpertise = expertiseKeys.contains('skill_$skill');
-                    final mod = DndRules.modifier(scoreMap[ability]!);
-                    int total = mod;
-                    if (hasExpertise) {
-                      total += profBonus * 2;
-                    } else if (isProficient) {
-                      total += profBonus;
-                    }
-                    return _ProficiencyRow(
-                      label: _skillNames[skill]!,
-                      abbr: _abilityAbbr[ability]!,
-                      bonus: total,
-                      proficient: isProficient,
-                      expertise: hasExpertise,
-                    );
-                  }),
+                  ...(() {
+                    final sortedEntries = _skillAbilityMap.entries.toList()
+                      ..sort((a, b) {
+                        const abilityOrder = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+                        final orderA = abilityOrder.indexOf(a.value);
+                        final orderB = abilityOrder.indexOf(b.value);
+                        if (orderA != orderB) {
+                          return orderA.compareTo(orderB);
+                        }
+                        final nameA = _skillNames[a.key]!;
+                        final nameB = _skillNames[b.key]!;
+                        return nameA.compareTo(nameB);
+                      });
+                    return sortedEntries.map((entry) {
+                      final skill = entry.key;
+                      final ability = entry.value;
+                      final isProficient = profKeys.contains('skill_$skill');
+                      final hasExpertise = expertiseKeys.contains('skill_$skill');
+                      final mod = DndRules.modifier(scoreMap[ability]!);
+                      int total = mod;
+                      if (hasExpertise) {
+                        total += profBonus * 2;
+                      } else if (isProficient) {
+                        total += profBonus;
+                      }
+                      return _ProficiencyRow(
+                        label: _skillNames[skill]!,
+                        abbr: _abilityAbbr[ability]!,
+                        bonus: total,
+                        proficient: isProficient,
+                        expertise: hasExpertise,
+                      );
+                    });
+                  })(),
                 ],
               ),
             );
@@ -323,4 +347,125 @@ class _ProficiencyRow extends StatelessWidget {
       ),
     );
   }
+}
+
+class _EditAbilitiesDialog extends ConsumerStatefulWidget {
+  final int characterId;
+  final CharacterAbilityScore scores;
+
+  const _EditAbilitiesDialog({required this.characterId, required this.scores});
+
+  @override
+  ConsumerState<_EditAbilitiesDialog> createState() => _EditAbilitiesDialogState();
+}
+
+class _EditAbilitiesDialogState extends ConsumerState<_EditAbilitiesDialog> {
+  late final TextEditingController _strCtrl;
+  late final TextEditingController _dexCtrl;
+  late final TextEditingController _conCtrl;
+  late final TextEditingController _intCtrl;
+  late final TextEditingController _wisCtrl;
+  late final TextEditingController _chaCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _strCtrl = TextEditingController(text: '${widget.scores.strength}');
+    _dexCtrl = TextEditingController(text: '${widget.scores.dexterity}');
+    _conCtrl = TextEditingController(text: '${widget.scores.constitution}');
+    _intCtrl = TextEditingController(text: '${widget.scores.intelligence}');
+    _wisCtrl = TextEditingController(text: '${widget.scores.wisdom}');
+    _chaCtrl = TextEditingController(text: '${widget.scores.charisma}');
+  }
+
+  @override
+  void dispose() {
+    _strCtrl.dispose();
+    _dexCtrl.dispose();
+    _conCtrl.dispose();
+    _intCtrl.dispose();
+    _wisCtrl.dispose();
+    _chaCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Modifier les caractéristiques'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildField('Force (STR)', _strCtrl),
+            _buildField('Dextérité (DEX)', _dexCtrl),
+            _buildField('Constitution (CON)', _conCtrl),
+            _buildField('Intelligence (INT)', _intCtrl),
+            _buildField('Sagesse (WIS)', _wisCtrl),
+            _buildField('Charisme (CHA)', _chaCtrl),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Annuler'),
+        ),
+        FilledButton(
+          onPressed: _save,
+          child: const Text('Enregistrer'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildField(String label, TextEditingController controller) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+        ),
+        keyboardType: TextInputType.number,
+      ),
+    );
+  }
+
+  Future<void> _save() async {
+    final db = ref.read(databaseProvider);
+    final str = int.tryParse(_strCtrl.text) ?? widget.scores.strength;
+    final dex = int.tryParse(_dexCtrl.text) ?? widget.scores.dexterity;
+    final con = int.tryParse(_conCtrl.text) ?? widget.scores.constitution;
+    final valInt = int.tryParse(_intCtrl.text) ?? widget.scores.intelligence;
+    final wis = int.tryParse(_wisCtrl.text) ?? widget.scores.wisdom;
+    final cha = int.tryParse(_chaCtrl.text) ?? widget.scores.charisma;
+
+    await db.characterDao.upsertAbilityScores(
+      CharacterAbilityScoresCompanion(
+        characterId: Value(widget.characterId),
+        strength: Value(str),
+        dexterity: Value(dex),
+        constitution: Value(con),
+        intelligence: Value(valInt),
+        wisdom: Value(wis),
+        charisma: Value(cha),
+      ),
+    );
+
+    ref.invalidate(characterAbilityScoresProvider(widget.characterId));
+
+    if (mounted) Navigator.of(context).pop();
+  }
+}
+
+void _showEditAbilitiesDialog(
+    BuildContext context, WidgetRef ref, CharacterAbilityScore scores) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return _EditAbilitiesDialog(characterId: scores.characterId, scores: scores);
+    },
+  );
 }

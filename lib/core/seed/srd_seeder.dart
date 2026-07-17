@@ -38,6 +38,8 @@ class SrdSeeder {
       } else {
         // Force update weapon masteries to French for existing databases
         await _seedWeaponMasteries2024();
+        // Force update feats to ensure new feats are imported
+        await _seedFeats2024();
       }
 
       // Force seed 2024 subclasses to ensure French translations are applied

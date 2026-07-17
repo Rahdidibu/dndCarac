@@ -187,6 +187,16 @@ class CharacterService {
       }
     }
 
+    // 5e — Extra proficiencies from origin feats (Skilled, Crafter, Musician)
+    for (final profKey in wizard.chosenFeatExtraProficiencies) {
+      if (!profCompanions.any((p) => p.proficiencyKey.value == profKey)) {
+        profCompanions.add(CharacterProficienciesCompanion.insert(
+          characterId: characterId,
+          proficiencyKey: profKey,
+        ));
+      }
+    }
+
     if (profCompanions.isNotEmpty) {
       await db.characterDao.replaceAllProficiencies(characterId, profCompanions);
     }

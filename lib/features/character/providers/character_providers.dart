@@ -105,6 +105,14 @@ final srdFeatByIdProvider =
   },
 );
 
+final srdFeatsProvider =
+    FutureProvider.family<List<SrdFeat>, RulesetVersion>(
+  (ref, ruleset) async {
+    final db = ref.watch(databaseProvider);
+    return db.compendiumDao.getAllFeats(ruleset);
+  },
+);
+
 final wizardAbilityModifiersProvider = FutureProvider.autoDispose<Map<String, int>>((ref) async {
   final wizard = ref.watch(wizardProvider);
   final db = ref.watch(databaseProvider);

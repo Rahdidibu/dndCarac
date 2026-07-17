@@ -23,7 +23,9 @@ class CompendiumDao extends DatabaseAccessor<AppDatabase>
   // ── Spells ──────────────────────────────────────────────
 
   Future<List<SrdSpell>> getAllSpells(RulesetVersion ruleset) =>
-      (select(srdSpells)..where((s) => s.ruleset.equalsValue(ruleset)))
+      (select(srdSpells)
+            ..where((s) => s.ruleset.equalsValue(ruleset))
+            ..orderBy([(s) => OrderingTerm.asc(s.name)]))
           .get();
 
   Future<List<SrdSpell>> searchSpells(
@@ -62,7 +64,10 @@ class CompendiumDao extends DatabaseAccessor<AppDatabase>
   // ── Classes ─────────────────────────────────────────────
 
   Future<List<SrdClassesData>> getClasses(RulesetVersion ruleset) =>
-      (select(srdClasses)..where((c) => c.ruleset.equalsValue(ruleset))).get();
+      (select(srdClasses)
+            ..where((c) => c.ruleset.equalsValue(ruleset))
+            ..orderBy([(c) => OrderingTerm.asc(c.name)]))
+          .get();
 
   Future<SrdClassesData?> getClassById(String id, RulesetVersion ruleset) =>
       (select(srdClasses)
@@ -78,7 +83,8 @@ class CompendiumDao extends DatabaseAccessor<AppDatabase>
           String classId, RulesetVersion ruleset) =>
       (select(srdSubclasses)
             ..where((s) =>
-                s.classId.equals(classId) & s.ruleset.equalsValue(ruleset)))
+                s.classId.equals(classId) & s.ruleset.equalsValue(ruleset))
+            ..orderBy([(s) => OrderingTerm.asc(s.name)]))
           .get();
 
   Future<void> insertAllSubclasses(List<SrdSubclassesCompanion> subclasses) =>
@@ -87,7 +93,10 @@ class CompendiumDao extends DatabaseAccessor<AppDatabase>
   // ── Races / Species ──────────────────────────────────────
 
   Future<List<SrdRace>> getRaces(RulesetVersion ruleset) =>
-      (select(srdRaces)..where((r) => r.ruleset.equalsValue(ruleset))).get();
+      (select(srdRaces)
+            ..where((r) => r.ruleset.equalsValue(ruleset))
+            ..orderBy([(r) => OrderingTerm.asc(r.name)]))
+          .get();
 
   Future<SrdRace?> getRaceById(String id, RulesetVersion ruleset) =>
       (select(srdRaces)
@@ -103,7 +112,8 @@ class CompendiumDao extends DatabaseAccessor<AppDatabase>
           String raceId, RulesetVersion ruleset) =>
       (select(srdSubraces)
             ..where((s) =>
-                s.raceId.equals(raceId) & s.ruleset.equalsValue(ruleset)))
+                s.raceId.equals(raceId) & s.ruleset.equalsValue(ruleset))
+            ..orderBy([(s) => OrderingTerm.asc(s.name)]))
           .get();
 
   Future<void> insertAllSubraces(List<SrdSubracesCompanion> subraces) =>
@@ -112,7 +122,9 @@ class CompendiumDao extends DatabaseAccessor<AppDatabase>
   // ── Backgrounds ──────────────────────────────────────────
 
   Future<List<SrdBackground>> getBackgrounds(RulesetVersion ruleset) =>
-      (select(srdBackgrounds)..where((b) => b.ruleset.equalsValue(ruleset)))
+      (select(srdBackgrounds)
+            ..where((b) => b.ruleset.equalsValue(ruleset))
+            ..orderBy([(b) => OrderingTerm.asc(b.name)]))
           .get();
 
   Future<SrdBackground?> getBackgroundById(String id, RulesetVersion ruleset) =>
@@ -174,7 +186,10 @@ class CompendiumDao extends DatabaseAccessor<AppDatabase>
   // ── Feats ──────────────────────────────────────────────
 
   Future<List<SrdFeat>> getAllFeats(RulesetVersion ruleset) =>
-      (select(srdFeats)..where((f) => f.ruleset.equalsValue(ruleset))).get();
+      (select(srdFeats)
+            ..where((f) => f.ruleset.equalsValue(ruleset))
+            ..orderBy([(f) => OrderingTerm.asc(f.name)]))
+          .get();
 
   Future<SrdFeat?> getFeatById(String id, RulesetVersion ruleset) =>
       (select(srdFeats)

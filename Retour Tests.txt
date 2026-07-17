@@ -1,0 +1,8 @@
+Il te manque le don pour wayfarer "lucky" la sélection de caracs par achat de points pose un peu soucis sur tel quand tu as les bonus de background parce que les boutons sortent un peu.
+La sélection de l'alignement te fais un select à rallonge, peut être que ça n'est pas la meilleure manière de présenter ça.
+Peut être que pouvoir filtrer les bgs par caracs ça peut être cool
+Tes listes ne me semblent pas triées
+Typiquement je pense que trier la liste des compétences peut être très cool, idéalement triée par carac utilisée puis par ordre alphabétique c'est pas mal.
+Est-ce qu'il existe un moyen de modifier son personnage une fois créé ? Genre son nom ou certains choix de caracs ?
+J'ai pris un BG avec "skilled" à quelle moment je choisis les maîtrises ?
+J'imagine que tu n'as pas rentré le contenu des classes de dnd 2024. Par exemple j'ai fait un warlock niveau 1 je n'ai pas eu la possibilité de sélectionner un pacte de la lame par exemple.

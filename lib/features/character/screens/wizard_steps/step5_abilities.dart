@@ -421,16 +421,32 @@ class _AbilityRow extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           children: [
-            SizedBox(
-              width: 125,
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    _abilityLabel(abilityKey, l10n),
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _abilityLabel(abilityKey, l10n),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      if (modifierVal > 0) ...[
+                        const SizedBox(width: 6),
+                        Text(
+                          '(+$modifierVal)',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                         ),
+                      ],
+                    ],
                   ),
                   Text(
                     'Mod final : ${mod >= 0 ? '+' : ''}$mod',
@@ -444,17 +460,6 @@ class _AbilityRow extends ConsumerWidget {
                 ],
               ),
             ),
-            const Spacer(),
-            if (modifierVal > 0)
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Chip(
-                  label: Text('+$modifierVal'),
-                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  padding: EdgeInsets.zero,
-                ),
-              ),
             IconButton(
               icon: const Icon(Icons.remove_circle_outline),
               onPressed: onDecrement,

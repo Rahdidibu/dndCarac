@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/utils/dnd_rules.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../providers/wizard_provider.dart';
 
@@ -38,19 +37,6 @@ class _Step2IdentityState extends ConsumerState<Step2Identity> {
         ref.watch(wizardProvider.select((s) => s.alignment));
     final notifier = ref.read(wizardProvider.notifier);
 
-    final alignmentLabels = {
-      'alignmentLG': l10n.alignmentLG,
-      'alignmentNG': l10n.alignmentNG,
-      'alignmentCG': l10n.alignmentCG,
-      'alignmentLN': l10n.alignmentLN,
-      'alignmentTN': l10n.alignmentTN,
-      'alignmentCN': l10n.alignmentCN,
-      'alignmentLE': l10n.alignmentLE,
-      'alignmentNE': l10n.alignmentNE,
-      'alignmentCE': l10n.alignmentCE,
-      'alignmentU': l10n.alignmentU,
-    };
-
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
@@ -81,18 +67,64 @@ class _Step2IdentityState extends ConsumerState<Step2Identity> {
           onChanged: notifier.setPlayerName,
         ),
         const SizedBox(height: 16),
-        DropdownButtonFormField<String>(
-          key: ValueKey(alignment.isEmpty ? null : alignment),
-          decoration: InputDecoration(
-            labelText: l10n.fieldAlignment,
-            border: const OutlineInputBorder(),
-            prefixIcon: const Icon(Icons.balance),
+        Text(
+          l10n.fieldAlignment,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 3,
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 8,
+          childAspectRatio: 2.2,
+          children: [
+            (key: 'alignmentLG', label: l10n.alignmentLG),
+            (key: 'alignmentNG', label: l10n.alignmentNG),
+            (key: 'alignmentCG', label: l10n.alignmentCG),
+            (key: 'alignmentLN', label: l10n.alignmentLN),
+            (key: 'alignmentTN', label: l10n.alignmentTN),
+            (key: 'alignmentCN', label: l10n.alignmentCN),
+            (key: 'alignmentLE', label: l10n.alignmentLE),
+            (key: 'alignmentNE', label: l10n.alignmentNE),
+            (key: 'alignmentCE', label: l10n.alignmentCE),
+          ].map((a) {
+            final isSelected = alignment == a.label;
+            return ChoiceChip(
+              label: Container(
+                alignment: Alignment.center,
+                child: Text(
+                  a.label,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              selected: isSelected,
+              showCheckmark: false,
+              onSelected: (selected) {
+                notifier.setAlignment(selected ? a.label : '');
+              },
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 8),
+        Center(
+          child: ChoiceChip(
+            label: Text(
+              l10n.alignmentU,
+              style: TextStyle(
+                fontWeight: alignment == l10n.alignmentU ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+            selected: alignment == l10n.alignmentU,
+            onSelected: (selected) {
+              notifier.setAlignment(selected ? l10n.alignmentU : '');
+            },
           ),
-          value: alignment.isEmpty ? null : alignment,
-          items: DndRules.alignments(alignmentLabels)
-              .map((a) => DropdownMenuItem(value: a, child: Text(a)))
-              .toList(),
-          onChanged: (v) => notifier.setAlignment(v ?? ''),
         ),
       ],
     );

@@ -13,5 +13,9 @@ final authSessionProvider = StreamProvider<Session?>((ref) {
 /// Provider simple pour récupérer l'ID de l'utilisateur connecté actuellement
 final userIdProvider = Provider<String?>((ref) {
   final sessionAsync = ref.watch(authSessionProvider);
-  return sessionAsync.value?.user.id ?? Supabase.instance.client.auth.currentUser?.id;
+  return sessionAsync.when(
+    data: (session) => session?.user.id,
+    loading: () => null,
+    error: (_, __) => null,
+  );
 });
