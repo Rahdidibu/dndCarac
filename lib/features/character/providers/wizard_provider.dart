@@ -37,6 +37,18 @@ class WizardState {
   // Step 6b – extra proficiencies from origin feats (Skilled, Crafter, Musician)
   final List<String> chosenFeatExtraProficiencies;
 
+  // 2024: warlock level 1 pact invocation choice
+  final String? chosenWarlockPact;
+
+  // 2024: cleric level 1 divine order choice
+  final String? chosenDivineOrder;
+
+  // 2024: druid level 1 primal order choice
+  final String? chosenPrimalOrder;
+
+  // 2024: fighting style feat choice (fighter lvl 1, paladin lvl 2, ranger lvl 2)
+  final String? chosenFightingStyle;
+
   const WizardState({
     this.ruleset = RulesetVersion.dnd2014,
     this.name = '',
@@ -60,6 +72,10 @@ class WizardState {
     this.chosenSkillProficiencies = const [],
     this.chosenWeaponMasteries = const [],
     this.chosenFeatExtraProficiencies = const [],
+    this.chosenWarlockPact,
+    this.chosenDivineOrder,
+    this.chosenPrimalOrder,
+    this.chosenFightingStyle,
   });
 
   WizardState copyWith({
@@ -78,6 +94,10 @@ class WizardState {
     List<String>? chosenSkillProficiencies,
     List<String>? chosenWeaponMasteries,
     List<String>? chosenFeatExtraProficiencies,
+    String? chosenWarlockPact,
+    String? chosenDivineOrder,
+    String? chosenPrimalOrder,
+    String? chosenFightingStyle,
   }) {
     return WizardState(
       ruleset: ruleset ?? this.ruleset,
@@ -97,6 +117,10 @@ class WizardState {
       chosenWeaponMasteries: chosenWeaponMasteries ?? this.chosenWeaponMasteries,
       chosenFeatExtraProficiencies:
           chosenFeatExtraProficiencies ?? this.chosenFeatExtraProficiencies,
+      chosenWarlockPact: chosenWarlockPact ?? this.chosenWarlockPact,
+      chosenDivineOrder: chosenDivineOrder ?? this.chosenDivineOrder,
+      chosenPrimalOrder: chosenPrimalOrder ?? this.chosenPrimalOrder,
+      chosenFightingStyle: chosenFightingStyle ?? this.chosenFightingStyle,
     );
   }
 
@@ -163,7 +187,19 @@ class WizardNotifier extends StateNotifier<WizardState> {
 
   void removeClass(int index) {
     final updated = [...state.classes]..removeAt(index);
-    state = state.copyWith(classes: updated);
+    final hasWarlock = updated.any((c) => c.classId == 'warlock');
+    final hasCleric = updated.any((c) => c.classId == 'cleric');
+    final hasDruid = updated.any((c) => c.classId == 'druid');
+    final hasFighter = updated.any((c) => c.classId == 'fighter');
+    final hasPaladin = updated.any((c) => c.classId == 'paladin');
+    final hasRanger = updated.any((c) => c.classId == 'ranger');
+    state = state.copyWith(
+      classes: updated,
+      chosenWarlockPact: hasWarlock ? state.chosenWarlockPact : null,
+      chosenDivineOrder: hasCleric ? state.chosenDivineOrder : null,
+      chosenPrimalOrder: hasDruid ? state.chosenPrimalOrder : null,
+      chosenFightingStyle: (hasFighter || hasPaladin || hasRanger) ? state.chosenFightingStyle : null,
+    );
   }
 
   void setSpecies(String? id) =>
@@ -172,6 +208,10 @@ class WizardNotifier extends StateNotifier<WizardState> {
   void setBackground(String? id) =>
       state = state.copyWith(backgroundId: id, chosenFeatExtraProficiencies: const []);
   void setChosenFeatId(String? id) => state = state.copyWith(chosenFeatId: id);
+  void setWarlockPact(String? id) => state = state.copyWith(chosenWarlockPact: id);
+  void setDivineOrder(String? id) => state = state.copyWith(chosenDivineOrder: id);
+  void setPrimalOrder(String? id) => state = state.copyWith(chosenPrimalOrder: id);
+  void setFightingStyle(String? id) => state = state.copyWith(chosenFightingStyle: id);
   void setBackgroundAsi(Map<String, int> choices) =>
       state = state.copyWith(backgroundAsiChoices: choices);
 

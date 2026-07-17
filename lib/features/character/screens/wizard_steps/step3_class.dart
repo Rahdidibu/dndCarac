@@ -93,6 +93,37 @@ class Step3Class extends ConsumerWidget {
           const SizedBox(height: 24),
           _WeaponMasteriesPanel(wizard: wizard, notifier: notifier),
         ],
+
+        // ── Warlock Pact (DnD 2024 only) ────────────────────────────────
+        if (wizard.ruleset.name == 'dnd2024' &&
+            wizard.classes.any((c) => c.classId == 'warlock')) ...[
+          const SizedBox(height: 24),
+          _WarlockPactPanel(wizard: wizard, notifier: notifier),
+        ],
+
+        // ── Divine Order (Cleric Level 1, DnD 2024 only) ────────────────
+        if (wizard.ruleset.name == 'dnd2024' &&
+            wizard.classes.any((c) => c.classId == 'cleric' && c.level >= 1)) ...[
+          const SizedBox(height: 24),
+          _DivineOrderPanel(wizard: wizard, notifier: notifier),
+        ],
+
+        // ── Primal Order (Druid Level 1, DnD 2024 only) ─────────────────
+        if (wizard.ruleset.name == 'dnd2024' &&
+            wizard.classes.any((c) => c.classId == 'druid' && c.level >= 1)) ...[
+          const SizedBox(height: 24),
+          _PrimalOrderPanel(wizard: wizard, notifier: notifier),
+        ],
+
+        // ── Fighting Style (Fighter lvl 1, Ranger lvl 2, Paladin lvl 2, DnD 2024 only)
+        if (wizard.ruleset.name == 'dnd2024' &&
+            wizard.classes.any((c) =>
+                (c.classId == 'fighter' && c.level >= 1) ||
+                (c.classId == 'ranger' && c.level >= 2) ||
+                (c.classId == 'paladin' && c.level >= 2))) ...[
+          const SizedBox(height: 24),
+          _FightingStylePanel(wizard: wizard, notifier: notifier),
+        ],
       ],
     );
   }
@@ -363,3 +394,288 @@ class _WeaponMasteriesPanel extends ConsumerWidget {
     );
   }
 }
+
+class _WarlockPactPanel extends ConsumerWidget {
+  final WizardState wizard;
+  final WizardNotifier notifier;
+
+  const _WarlockPactPanel({required this.wizard, required this.notifier});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final chosenPact = wizard.chosenWarlockPact;
+
+    final pacts = [
+      (
+        id: 'pact-of-the-blade',
+        name: 'Pacte de la Lame (Pact of the Blade)',
+        desc: 'Vous pouvez invoquer une arme magique ou lier une arme existante. Vous maîtrisez cette arme et utilisez votre modificateur de Charisme pour les jets d\'attaque et de dégâts.'
+      ),
+      (
+        id: 'pact-of-the-chain',
+        name: 'Pacte de la Chaîne (Pact of the Chain)',
+        desc: 'Vous apprenez le sort Appel de familier avec des formes spéciales (diablotin, pseudodragon, quasit, sprite). Votre familier peut également attaquer.'
+      ),
+      (
+        id: 'pact-of-the-tome',
+        name: 'Pacte du Grimoire (Pact of the Tome)',
+        desc: 'Vous obtenez un Livre des Ombres contenant 3 tours de magie de n\'importe quelle classe et 2 emplacements de sorts de warlock de niveau 1 supplémentaires.'
+      ),
+    ];
+
+    return Card(
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.auto_stories, size: 20, color: Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Pacte de Démoniste (Niveau 1)',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...pacts.map((pact) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: RadioListTile<String>(
+                  title: Text(pact.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  subtitle: Text(pact.desc, style: const TextStyle(fontSize: 12)),
+                  value: pact.id,
+                  groupValue: chosenPact,
+                  onChanged: (val) => notifier.setWarlockPact(val),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DivineOrderPanel extends ConsumerWidget {
+  final WizardState wizard;
+  final WizardNotifier notifier;
+
+  const _DivineOrderPanel({required this.wizard, required this.notifier});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final chosen = wizard.chosenDivineOrder;
+
+    final options = [
+      (
+        id: 'protector',
+        name: 'Protecteur (Protector)',
+        desc: 'Vous gagnez la maîtrise des armures lourdes et des armes de guerre.'
+      ),
+      (
+        id: 'thaumaturge',
+        name: 'Thaumaturge',
+        desc: 'Vous apprenez un tour de magie de clerc supplémentaire. De plus, vous ajoutez votre modificateur de Sagesse à vos tests d\'Arcanes et de Religion.'
+      ),
+    ];
+
+    return Card(
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.shield, size: 20, color: Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Ordre Divin (Divine Order - Niveau 1)',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...options.map((opt) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: RadioListTile<String>(
+                  title: Text(opt.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  subtitle: Text(opt.desc, style: const TextStyle(fontSize: 12)),
+                  value: opt.id,
+                  groupValue: chosen,
+                  onChanged: (val) => notifier.setDivineOrder(val),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PrimalOrderPanel extends ConsumerWidget {
+  final WizardState wizard;
+  final WizardNotifier notifier;
+
+  const _PrimalOrderPanel({required this.wizard, required this.notifier});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final chosen = wizard.chosenPrimalOrder;
+
+    final options = [
+      (
+        id: 'magician',
+        name: 'Magicien (Magician)',
+        desc: 'Vous apprenez un tour de magie de druide supplémentaire. De plus, vous ajoutez votre modificateur de Sagesse à vos tests d\'Arcanes et de Nature.'
+      ),
+      (
+        id: 'warden',
+        name: 'Protecteur sauvage (Warden)',
+        desc: 'Vous gagnez la maîtrise des armures moyennes et des armes de guerre.'
+      ),
+    ];
+
+    return Card(
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.forest, size: 20, color: Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Ordre Primal (Primal Order - Niveau 1)',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...options.map((opt) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: RadioListTile<String>(
+                  title: Text(opt.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  subtitle: Text(opt.desc, style: const TextStyle(fontSize: 12)),
+                  value: opt.id,
+                  groupValue: chosen,
+                  onChanged: (val) => notifier.setPrimalOrder(val),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FightingStylePanel extends ConsumerWidget {
+  final WizardState wizard;
+  final WizardNotifier notifier;
+
+  const _FightingStylePanel({required this.wizard, required this.notifier});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final chosen = wizard.chosenFightingStyle;
+
+    final styles = [
+      (
+        id: 'archery',
+        name: 'Archerie (Archery)',
+        desc: 'Vous gagnez un bonus de +2 aux jets d\'attaque avec des armes à distance.'
+      ),
+      (
+        id: 'defense',
+        name: 'Défense (Defense)',
+        desc: 'Tant que vous portez une armure, vous gagnez un bonus de +1 à votre classe d\'armure (CA).'
+      ),
+      (
+        id: 'great-weapon-fighting',
+        name: 'Armes à deux mains (Great Weapon Fighting)',
+        desc: 'Lorsque vous lancez les dégâts d\'une attaque au corps à corps avec une arme à deux mains, vous pouvez remplacer tout résultat de 1 ou 2 par un 3.'
+      ),
+      (
+        id: 'two-weapon-fighting',
+        name: 'Combat à deux armes (Two-Weapon Fighting)',
+        desc: 'Lorsque vous effectuez l\'attaque supplémentaire du combat à deux armes, vous pouvez ajouter votre modificateur de caractéristique aux dégâts de cette attaque.'
+      ),
+    ];
+
+    return Card(
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.fitness_center, size: 20, color: Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Style de Combat (Fighting Style)',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...styles.map((opt) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: RadioListTile<String>(
+                  title: Text(opt.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  subtitle: Text(opt.desc, style: const TextStyle(fontSize: 12)),
+                  value: opt.id,
+                  groupValue: chosen,
+                  onChanged: (val) => notifier.setFightingStyle(val),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+

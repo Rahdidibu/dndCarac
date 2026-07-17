@@ -75,6 +75,54 @@ class Step7Summary extends ConsumerWidget {
           const SizedBox(height: 12),
         ],
 
+        // ── Warlock Pact (D&D 2024 only) ──────────────────────────────────
+        if (wizard.ruleset == RulesetVersion.dnd2024 && wizard.chosenWarlockPact != null) ...[
+          _OriginFeatSummaryRow(featId: wizard.chosenWarlockPact!, ruleset: wizard.ruleset),
+          const SizedBox(height: 12),
+        ],
+
+        // ── Fighting Style (D&D 2024 only) ────────────────────────────────
+        if (wizard.ruleset == RulesetVersion.dnd2024 && wizard.chosenFightingStyle != null) ...[
+          _OriginFeatSummaryRow(featId: wizard.chosenFightingStyle!, ruleset: wizard.ruleset),
+          const SizedBox(height: 12),
+        ],
+
+        // ── Divine Order (D&D 2024 only) ──────────────────────────────────
+        if (wizard.ruleset == RulesetVersion.dnd2024 && wizard.chosenDivineOrder != null) ...[
+          _SectionCard(
+            title: 'Ordre Divin (Clerc)',
+            children: [
+              _SummaryRow(
+                wizard.chosenDivineOrder == 'protector'
+                    ? 'Protecteur (Protector)'
+                    : 'Thaumaturge',
+                wizard.chosenDivineOrder == 'protector'
+                    ? 'Armures lourdes & Armes de guerre'
+                    : 'Tour de magie supplémentaire & bonus aux compétences',
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+        ],
+
+        // ── Primal Order (D&D 2024 only) ──────────────────────────────────
+        if (wizard.ruleset == RulesetVersion.dnd2024 && wizard.chosenPrimalOrder != null) ...[
+          _SectionCard(
+            title: 'Ordre Primal (Druide)',
+            children: [
+              _SummaryRow(
+                wizard.chosenPrimalOrder == 'magician'
+                    ? 'Magicien (Magician)'
+                    : 'Protecteur sauvage (Warden)',
+                wizard.chosenPrimalOrder == 'magician'
+                    ? 'Tour de magie supplémentaire & bonus aux compétences'
+                    : 'Armures moyennes & Armes de guerre',
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+        ],
+
         // ── Ability scores ────────────────────────────────────────────────
         _SectionCard(
           title: 'Caractéristiques',

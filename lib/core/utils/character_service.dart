@@ -197,6 +197,30 @@ class CharacterService {
       }
     }
 
+    // 5f — Divine Order Protector proficiencies (heavy armor, martial weapons)
+    if (wizard.ruleset == RulesetVersion.dnd2024 && wizard.chosenDivineOrder == 'protector') {
+      for (final profKey in ['armor_heavy', 'weapon_martial']) {
+        if (!profCompanions.any((p) => p.proficiencyKey.value == profKey)) {
+          profCompanions.add(CharacterProficienciesCompanion.insert(
+            characterId: characterId,
+            proficiencyKey: profKey,
+          ));
+        }
+      }
+    }
+
+    // 5g — Primal Order Warden proficiencies (medium armor, martial weapons)
+    if (wizard.ruleset == RulesetVersion.dnd2024 && wizard.chosenPrimalOrder == 'warden') {
+      for (final profKey in ['armor_medium', 'weapon_martial']) {
+        if (!profCompanions.any((p) => p.proficiencyKey.value == profKey)) {
+          profCompanions.add(CharacterProficienciesCompanion.insert(
+            characterId: characterId,
+            proficiencyKey: profKey,
+          ));
+        }
+      }
+    }
+
     if (profCompanions.isNotEmpty) {
       await db.characterDao.replaceAllProficiencies(characterId, profCompanions);
     }
@@ -207,6 +231,28 @@ class CharacterService {
         CharacterFeatsCompanion.insert(
           characterId: characterId,
           featId: wizard.chosenFeatId!,
+          ruleset: RulesetVersion.dnd2024,
+        ),
+      );
+    }
+
+    // 5.6 — Insert chosen Warlock Pact as a feat (D&D 2024 only)
+    if (wizard.ruleset == RulesetVersion.dnd2024 && wizard.chosenWarlockPact != null) {
+      await db.characterDao.insertCharacterFeat(
+        CharacterFeatsCompanion.insert(
+          characterId: characterId,
+          featId: wizard.chosenWarlockPact!,
+          ruleset: RulesetVersion.dnd2024,
+        ),
+      );
+    }
+
+    // 5.7 — Insert chosen Fighting Style as a feat (D&D 2024 only)
+    if (wizard.ruleset == RulesetVersion.dnd2024 && wizard.chosenFightingStyle != null) {
+      await db.characterDao.insertCharacterFeat(
+        CharacterFeatsCompanion.insert(
+          characterId: characterId,
+          featId: wizard.chosenFightingStyle!,
           ruleset: RulesetVersion.dnd2024,
         ),
       );
