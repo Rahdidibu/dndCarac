@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/utils/url_helper.dart';
+import '../../../../core/constants/app_version.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -289,6 +290,13 @@ class _AuthScreenState extends State<AuthScreen> {
                           label: const Text('Télécharger l\'application Android (APK)'),
                         ),
                       ],
+                      const SizedBox(height: 16),
+                      Text(
+                        'Version $appVersion ($appBuildDate)',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                            ),
+                      ),
                     ],
                   ),
                 ),

@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/providers/database_provider.dart';
 import '../../l10n/app_localizations.dart';
+import '../../core/constants/app_version.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -118,7 +119,7 @@ class SettingsScreen extends ConsumerWidget {
                     onPressed: () => showLicensePage(
                       context: context,
                       applicationName: 'D&D Character Manager',
-                      applicationVersion: '1.0.0',
+                      applicationVersion: appVersion,
                     ),
                     icon: const Icon(Icons.description_outlined),
                     label: Text(l10n.settingsLicenses),
@@ -127,6 +128,16 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ),
           ),
+          const SizedBox(height: 24),
+          Center(
+            child: Text(
+              'Version $appVersion ($appBuildDate)',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+            ),
+          ),
+          const SizedBox(height: 16),
         ],
       ),
     );
