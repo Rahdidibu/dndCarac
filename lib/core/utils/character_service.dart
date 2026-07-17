@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import '../database/app_database.dart';
 import '../database/tables/tables.dart';
 import '../utils/dnd_rules.dart';
+import '../utils/starting_equipment_helper.dart';
 import '../../features/character/providers/wizard_provider.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -263,6 +264,9 @@ class CharacterService {
 
     // 7 — Init class resources
     await _initClassResources(characterId, wizard);
+
+    // 8 — Seed starting equipment and gold
+    await _initStartingEquipment(characterId, wizard);
 
     return characterId;
   }
@@ -613,6 +617,53 @@ class CharacterService {
     }
 
     return null;
+  }
+  Future<void> _initStartingEquipment(int characterId, WizardState wizard) async {
+    // 1. Get class starting equipment
+    final classItems = wizard.classes.isNotEmpty
+        ? StartingEquipmentHelper.getClassEquipment(wizard.classes.first.classId)
+        : <StartingItem>[];
+
+    // 2. Get background starting equipment
+    final bgItems = wizard.backgroundId != null
+        ? StartingEquipmentHelper.getBackgroundEquipment(wizard.backgroundId!)
+        : <StartingItem>[];
+
+    // Merge/insert all into db
+    final allItems = [...classItems, ...bgItems];
+    for (final item in allItems) {
+      await db.characterDao.insertEquipment(
+        CharacterEquipmentCompanion.insert(
+          characterId: characterId,
+          itemName: item.name,
+          quantity: Value(item.quantity),
+          weight: Value(item.weight),
+          equipped: Value(item.equipped),
+          attuned: const Value(false),
+          notes: const Value('Équipement de départ'),
+        ),
+      );
+    }
+
+    // 3. Gold / Currency
+    final gold = wizard.backgroundId != null
+        ? StartingEquipmentHelper.getBackgroundStartingGold(wizard.backgroundId!)
+        : 10;
+
+    // Fetch character to update currency field
+    final character = await db.characterDao.getCharacterById(characterId);
+    if (character != null) {
+      final String currentCurrencyJson = character.currency;
+      try {
+        final Map<String, dynamic> currMap = jsonDecode(currentCurrencyJson);
+        currMap['gp'] = (currMap['gp'] ?? 0) + gold;
+        await (db.update(db.characters)..where((t) => t.id.equals(characterId))).write(
+          CharactersCompanion(
+            currency: Value(jsonEncode(currMap)),
+          ),
+        );
+      } catch (_) {}
+    }
   }
 }
 
