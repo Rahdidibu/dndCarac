@@ -1,8 +1,7 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:js' as js;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../../core/utils/url_helper.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -284,7 +283,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         const SizedBox(height: 8),
                         TextButton.icon(
                           onPressed: () {
-                            js.context.callMethod('open', ['app-release.apk']);
+                            openUrl('app-release.apk');
                           },
                           icon: const Icon(Icons.android),
                           label: const Text('Télécharger l\'application Android (APK)'),
