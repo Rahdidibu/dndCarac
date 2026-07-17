@@ -133,3 +133,36 @@ Si vous souhaitez coder ou tester l'application localement dans le même environ
    flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0 --dart-define-from-file=.env
    ```
 6. Le port `8080` est automatiquement redirigé vers votre navigateur hôte (Mac) pour pouvoir tester en direct !
+
+---
+
+## 🗄️ 6. Base de Données Supabase en Local (Optionnel)
+
+Pour développer complètement hors-ligne ou tester vos développements sans toucher à votre base de données Cloud de production, nous avons inclus la configuration pour faire tourner **Supabase en local** via Docker :
+
+1. **Prérequis** : 
+   - Si vous utilisez le **VS Code DevContainer**, la Supabase CLI et Docker sont **déjà pré-installés et configurés**. Passez directement à l'étape 2.
+   - Si vous développez directement sur votre Mac hôte, installez la [Supabase CLI](https://supabase.com/docs/guides/cli) :
+     ```bash
+     brew install supabase/tap/supabase
+     ```
+2. **Démarrage de la base** : Ouvrez un terminal (dans VS Code ou sur votre Mac) à la racine du projet et lancez :
+   ```bash
+   supabase start
+   ```
+   *Ce script va démarrer toute la stack Supabase locale (Postgres, Auth, Studio) et exécuter automatiquement la migration de schéma SQL présente dans `supabase/migrations/`.*
+3. **Récupération des clés** : Le terminal affichera vos clés d'API locales :
+   - `API URL` : généralement `http://127.0.0.1:54321` (ou `http://localhost:54321`)
+   - `anon key` : votre clé anonyme locale
+4. **Configuration du .env** : Copiez ces valeurs dans votre fichier `.env` local pour que l'application s'y connecte au lieu du Cloud :
+   ```env
+   SUPABASE_URL=http://localhost:54321
+   SUPABASE_ANON_KEY=votre-anon-key-locale-generee
+   ```
+5. **Console locale (Studio)** : Vous pouvez visualiser et éditer les données de votre base locale sur l'interface d'administration à l'adresse **`http://localhost:54323`**.
+6. **Arrêter la base** : Pour libérer les ressources, lancez :
+   ```bash
+   supabase stop
+   ```
+
+

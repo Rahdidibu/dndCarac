@@ -93,19 +93,63 @@ class _EquipmentTab extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Ajouter un objet'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Nom')),
-            TextField(
-                controller: qtyCtrl,
-                decoration: const InputDecoration(labelText: 'Quantité'),
-                keyboardType: TextInputType.number),
-            TextField(
-                controller: weightCtrl,
-                decoration: const InputDecoration(labelText: 'Poids (kg)'),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true)),
-          ],
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Autocomplete<DndItemPreset>(
+                displayStringForOption: (DndItemPreset option) => option.name,
+                optionsBuilder: (TextEditingValue textEditingValue) {
+                  if (textEditingValue.text.isEmpty) {
+                    return const Iterable<DndItemPreset>.empty();
+                  }
+                  return _dndItemPresets.where((DndItemPreset option) {
+                    return option.name
+                        .toLowerCase()
+                        .contains(textEditingValue.text.toLowerCase());
+                  });
+                },
+                onSelected: (DndItemPreset selection) {
+                  nameCtrl.text = selection.name;
+                  weightCtrl.text = selection.weight.toString();
+                },
+                fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+                  // Synchronize autocomplete input with nameCtrl
+                  if (nameCtrl.text.isNotEmpty && textEditingController.text.isEmpty) {
+                    textEditingController.text = nameCtrl.text;
+                  }
+                  textEditingController.addListener(() {
+                    nameCtrl.text = textEditingController.text;
+                  });
+                  return TextField(
+                    controller: textEditingController,
+                    focusNode: focusNode,
+                    decoration: const InputDecoration(
+                      labelText: 'Nom de l\'objet',
+                      hintText: 'Ex: Épée longue, Rations...',
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                  controller: qtyCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Quantité',
+                    prefixIcon: Icon(Icons.unfold_more),
+                  ),
+                  keyboardType: TextInputType.number),
+              const SizedBox(height: 12),
+              TextField(
+                  controller: weightCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Poids total (kg)',
+                    prefixIcon: Icon(Icons.monitor_weight_outlined),
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+            ],
+          ),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Annuler')),
@@ -205,3 +249,70 @@ class _EquipmentTile extends ConsumerWidget {
     );
   }
 }
+
+class DndItemPreset {
+  final String name;
+  final double weight; // in kg
+  
+  const DndItemPreset(this.name, this.weight);
+}
+
+const List<DndItemPreset> _dndItemPresets = [
+  // Armes
+  DndItemPreset('Dague', 0.5),
+  DndItemPreset('Épée courte', 1.0),
+  DndItemPreset('Épée longue', 1.5),
+  DndItemPreset('Rapière', 1.0),
+  DndItemPreset('Cimeterre', 1.5),
+  DndItemPreset('Espadon', 3.0),
+  DndItemPreset('Grande hache', 3.5),
+  DndItemPreset('Hache d\'armes', 2.0),
+  DndItemPreset('Hachette', 1.0),
+  DndItemPreset('Masse', 2.0),
+  DndItemPreset('Marteau de guerre', 1.0),
+  DndItemPreset('Marteau léger', 1.0),
+  DndItemPreset('Lance', 1.5),
+  DndItemPreset('Javelot', 1.0),
+  DndItemPreset('Bâton', 2.0),
+  DndItemPreset('Arc court', 1.0),
+  DndItemPreset('Arc long', 1.0),
+  DndItemPreset('Arbalète légère', 2.5),
+  DndItemPreset('Arbalète lourde', 8.0),
+  DndItemPreset('Fronde', 0.0),
+  
+  // Armures & Boucliers
+  DndItemPreset('Armure de rembourrage', 4.0),
+  DndItemPreset('Armure de cuir', 5.0),
+  DndItemPreset('Cuir clouté', 6.0),
+  DndItemPreset('Chemise de mailles', 10.0),
+  DndItemPreset('Cotte de mailles', 25.0),
+  DndItemPreset('Cuirasse', 10.0),
+  DndItemPreset('Demi-harnois', 20.0),
+  DndItemPreset('Harnois', 30.0),
+  DndItemPreset('Bouclier', 3.0),
+  
+  // Équipement d'aventure
+  DndItemPreset('Sac à dos', 2.5),
+  DndItemPreset('Sac de couchage', 3.5),
+  DndItemPreset('Gourde (pleine)', 2.5),
+  DndItemPreset('Rations (1 jour)', 1.0),
+  DndItemPreset('Corde en chanvre (15m)', 5.0),
+  DndItemPreset('Corde en soie (15m)', 2.5),
+  DndItemPreset('Torche', 0.5),
+  DndItemPreset('Lanterne sourde', 1.0),
+  DndItemPreset('Huile (flacon)', 0.5),
+  DndItemPreset('Pied-de-biche', 2.5),
+  DndItemPreset('Trousse de soins', 1.5),
+  DndItemPreset('Outils de voleur', 0.5),
+  DndItemPreset('Symbole sacré', 0.5),
+  DndItemPreset('Livre d\'instructions', 2.5),
+  DndItemPreset('Vêtements communs', 1.5),
+  DndItemPreset('Vêtements de voyage', 2.0),
+  DndItemPreset('Vêtements fins', 3.0),
+  DndItemPreset('Focalisateur arcanique', 1.5),
+  DndItemPreset('Grimoire', 1.5),
+  DndItemPreset('Coffre', 12.5),
+  DndItemPreset('Cadenas', 0.5),
+  DndItemPreset('Pelle', 2.5),
+  DndItemPreset('Miroir en acier', 0.2),
+];

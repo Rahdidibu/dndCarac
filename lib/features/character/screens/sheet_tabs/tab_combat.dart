@@ -615,6 +615,52 @@ class _WeaponCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
+
+    final scoresAsync = ref.watch(characterAbilityScoresProvider(character.id));
+    final totalLevelAsync = ref.watch(characterTotalLevelProvider(character.id));
+
+    String? breakdown;
+    if (scoresAsync.hasValue && totalLevelAsync.hasValue) {
+      final scores = scoresAsync.value;
+      final totalLevel = totalLevelAsync.value ?? 1;
+      final profBonus = DndRules.proficiencyBonus(totalLevel);
+      final bonusVal = int.tryParse(attack.attackBonus.replaceAll('+', '').replaceAll(' ', '')) ?? 0;
+
+      if (scores != null) {
+        final strMod = DndRules.modifier(scores.strength);
+        final dexMod = DndRules.modifier(scores.dexterity);
+        final conMod = DndRules.modifier(scores.constitution);
+
+        final strSign = strMod >= 0 ? '+$strMod' : '$strMod';
+        final dexSign = dexMod >= 0 ? '+$dexMod' : '$dexMod';
+        final conSign = conMod >= 0 ? '+$conMod' : '$conMod';
+        final profSign = '+$profBonus';
+
+        if (bonusVal == strMod + profBonus) {
+          breakdown = 'Force ($strSign) + Maîtrise ($profSign)';
+        } else if (bonusVal == dexMod + profBonus) {
+          breakdown = 'Dextérité ($dexSign) + Maîtrise ($profSign)';
+        } else if (bonusVal == conMod + profBonus) {
+          breakdown = 'Constitution ($conSign) + Maîtrise ($profSign)';
+        } else if (bonusVal == strMod) {
+          breakdown = 'Force ($strSign)';
+        } else if (bonusVal == dexMod) {
+          breakdown = 'Dextérité ($dexSign)';
+        } else {
+          final diffStr = bonusVal - strMod - profBonus;
+          final diffDex = bonusVal - dexMod - profBonus;
+          final diffCon = bonusVal - conMod - profBonus;
+          if (diffStr > 0) {
+            breakdown = 'Force ($strSign) + Maîtrise ($profSign) + Magie (+$diffStr)';
+          } else if (diffDex > 0) {
+            breakdown = 'Dextérité ($dexSign) + Maîtrise ($profSign) + Magie (+$diffDex)';
+          } else if (diffCon > 0) {
+            breakdown = 'Constitution ($conSign) + Maîtrise ($profSign) + Magie (+$diffCon)';
+          }
+        }
+      }
+    }
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       margin: const EdgeInsets.only(bottom: 6),
@@ -669,9 +715,21 @@ class _WeaponCard extends ConsumerWidget {
                       '${attack.attackBonus} • ${attack.damageDice} ${attack.damageType}',
                       style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
                     ),
+                    if (breakdown != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 1),
+                        child: Text(
+                          'Détail : $breakdown',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontStyle: FontStyle.italic,
+                            color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+                          ),
+                        ),
+                      ),
                     if (character.ruleset == RulesetVersion.dnd2024 && attack.masteryProperty != null && attack.masteryProperty!.isNotEmpty)
                       Padding(
-                        padding: const EdgeInsets.only(top: 2),
+                        padding: const EdgeInsets.only(top: 4),
                         child: _WeaponMasteryBadge(masteryId: attack.masteryProperty!),
                       ),
                   ],

@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/devcontainers/base:ubuntu
 
-# Install dependencies needed for Flutter
+# Install dependencies needed for Flutter and Supabase CLI
 RUN apt-get update && apt-get install -y \
     curl \
     git \
@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y \
     zip \
     libglu1-mesa \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Supabase CLI
+RUN curl -fsSL https://raw.githubusercontent.com/supabase/cli/main/install.sh | sh
 
 # Install Flutter SDK
 ENV FLUTTER_HOME=/usr/local/flutter

@@ -390,7 +390,8 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
           isSmithToolsProficient = profKeys.contains('smith_tools') || 
                                    profKeys.contains('smith\'s tools') ||
                                    profKeys.contains('smith') ||
-                                   profKeys.contains('outils de forgeron');
+                                   profKeys.contains('outils de forgeron') ||
+                                   profKeys.any((k) => k.contains('smith') || k.contains('forgeron') || k.contains('artisan'));
         }
 
         // Compute tool mod based on the material's required stat

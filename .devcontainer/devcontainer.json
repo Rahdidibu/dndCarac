@@ -15,11 +15,26 @@
       ]
     }
   },
-  "forwardPorts": [8080],
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "version": "latest",
+      "moby": false,
+      "enableNonRootDocker": "true"
+    }
+  },
+  "forwardPorts": [8080, 54321, 54323],
   "portsAttributes": {
     "8080": {
       "label": "Serveur Flutter Web",
       "onAutoForward": "openPreview"
+    },
+    "54321": {
+      "label": "Supabase API Gateway",
+      "onAutoForward": "silent"
+    },
+    "54323": {
+      "label": "Supabase Studio Dashboard",
+      "onAutoForward": "silent"
     }
   },
   "postCreateCommand": "flutter doctor && flutter pub get",
