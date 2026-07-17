@@ -19,14 +19,7 @@ import 'features/settings/settings_screen.dart';
 import 'features/spells/screens/spell_management_screen.dart';
 import 'features/forge/forge_screen.dart';
 import 'l10n/app_localizations.dart';
-
-final authSessionProvider = StreamProvider<Session?>((ref) {
-  try {
-    return Supabase.instance.client.auth.onAuthStateChange.map((event) => event.session);
-  } catch (_) {
-    return Stream.value(null);
-  }
-});
+import 'core/providers/auth_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

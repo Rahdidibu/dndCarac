@@ -6,14 +6,15 @@ import '../../../core/database/app_database.dart';
 import '../../../core/database/tables/tables.dart';
 import '../../../core/providers/database_provider.dart';
 import '../../../core/utils/supabase_mapper.dart';
+import '../../../core/providers/auth_provider.dart';
 import 'wizard_provider.dart';
 
 /// Stream of all characters ordered by last updated
 final charactersProvider = StreamProvider<List<Character>>((ref) {
-  final client = Supabase.instance.client;
-  final userId = client.auth.currentUser?.id;
+  final userId = ref.watch(userIdProvider);
   if (userId == null) return Stream.value([]);
 
+  final client = Supabase.instance.client;
   return client
       .from('characters')
       .stream(primaryKey: ['id'])
