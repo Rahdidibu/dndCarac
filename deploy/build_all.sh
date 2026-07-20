@@ -16,8 +16,8 @@ fi
 echo "🚀 Compilation de l'APK Android (release)..."
 flutter build apk --release --dart-define-from-file=.env
 
-echo "🚀 Compilation de Flutter Web avec les variables d'environnement..."
-flutter build web --release --dart-define-from-file=.env
+echo "🚀 Compilation de Flutter Web avec les variables d'environnement (sans Service Worker)..."
+flutter build web --release --pwa-strategy=none --dart-define-from-file=.env
 
 echo "📦 Copie des fichiers web vers deploy/web..."
 mkdir -p deploy/web
