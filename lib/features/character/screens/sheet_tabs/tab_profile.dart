@@ -81,6 +81,70 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
     if (mounted) setState(() => _dirty = false);
   }
 
+  Future<void> _pickAndUploadImage() async {
+    try {
+      final picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 85,
+      );
+      if (image == null) return;
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Téléchargement de la photo...')),
+      );
+
+      final client = Supabase.instance.client;
+      final userId = client.auth.currentUser?.id;
+      if (userId == null) throw Exception('Utilisateur non connecté');
+
+      final bytes = await image.readAsBytes();
+      final extension = image.name.split('.').last;
+      final fileName = '$userId/${widget.characterId}_${DateTime.now().millisecondsSinceEpoch}.$extension';
+
+      // Upload to Supabase Storage
+      await client.storage.from('character-avatars').uploadBinary(
+        fileName,
+        bytes,
+        fileOptions: FileOptions(
+          contentType: 'image/$extension',
+          upsert: true,
+        ),
+      );
+
+      // Get public URL
+      final imageUrl = client.storage.from('character-avatars').getPublicUrl(fileName);
+
+      // Update character in DB
+      final db = ref.read(databaseProvider);
+      await db.characterDao.updateCharacter(
+        CharactersCompanion(
+          id: Value(widget.characterId),
+          imageUrl: Value(imageUrl),
+          updatedAt: Value(DateTime.now().toIso8601String()),
+        ),
+      );
+
+      // Invalidate provider to refresh UI
+      ref.invalidate(characterByIdProvider(widget.characterId));
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Photo mise à jour avec succès !')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors du téléchargement: $e')),
+        );
+      }
+    }
+  }
+
   Future<void> _deleteFeat(String featId) async {
     final db = ref.read(databaseProvider);
     await db.characterDao.deleteCharacterFeat(widget.characterId, featId);
@@ -121,6 +185,12 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
       padding: const EdgeInsets.all(12),
       child: Column(
         children: [
+          _AvatarPicker(
+            imageUrl: widget.character.imageUrl,
+            characterName: widget.character.name,
+            onPick: _pickAndUploadImage,
+          ),
+          const SizedBox(height: 16),
           _ProfileField(
             label: 'Nom du personnage',
             controller: _nameCtrl,
@@ -776,6 +846,65 @@ class _ManageProficienciesDialogState extends ConsumerState<_ManageProficiencies
     ref.invalidate(characterProficienciesProvider(widget.characterId));
 
     if (mounted) Navigator.of(context).pop();
+  }
+}
+
+class _AvatarPicker extends ConsumerWidget {
+  final String? imageUrl;
+  final String characterName;
+  final VoidCallback onPick;
+
+  const _AvatarPicker({
+    required this.imageUrl,
+    required this.characterName,
+    required this.onPick,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hasImage = imageUrl != null && imageUrl!.isNotEmpty;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Center(
+      child: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: colorScheme.primary, width: 3),
+            ),
+            child: CircleAvatar(
+              radius: 60,
+              backgroundColor: colorScheme.primaryContainer,
+              backgroundImage: hasImage ? NetworkImage(imageUrl!) : null,
+              child: hasImage
+                  ? null
+                  : Text(
+                      characterName.isNotEmpty ? characterName[0].toUpperCase() : '?',
+                      style: TextStyle(
+                        fontSize: 48,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Material(
+              color: colorScheme.primary,
+              shape: const CircleBorder(),
+              elevation: 4,
+              child: IconButton(
+                icon: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                onPressed: onPick,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

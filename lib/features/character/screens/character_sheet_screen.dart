@@ -6,6 +6,8 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printing/printing.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/database/tables/tables.dart';
@@ -92,12 +94,25 @@ class CharacterSheetScreen extends ConsumerWidget {
           length: 5,
           child: Scaffold(
             appBar: AppBar(
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              title: Row(
                 children: [
-                  Text(character.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  if (classLine.isNotEmpty)
-                    Text(classLine, style: const TextStyle(fontSize: 12)),
+                  if (character.imageUrl != null && character.imageUrl!.isNotEmpty) ...[
+                    CircleAvatar(
+                      radius: 18,
+                      backgroundImage: NetworkImage(character.imageUrl!),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(character.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        if (classLine.isNotEmpty)
+                          Text(classLine, style: const TextStyle(fontSize: 12)),
+                      ],
+                    ),
+                  ),
                 ],
               ),
               actions: [

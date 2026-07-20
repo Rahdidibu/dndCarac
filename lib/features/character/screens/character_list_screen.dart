@@ -135,16 +135,21 @@ class _CharacterCard extends ConsumerWidget {
               CircleAvatar(
                 radius: 28,
                 backgroundColor: colorScheme.primaryContainer,
-                child: Text(
-                  character.name.isNotEmpty
-                      ? character.name[0].toUpperCase()
-                      : '?',
-                  style: TextStyle(
-                    color: colorScheme.onPrimaryContainer,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                backgroundImage: (character.imageUrl != null && character.imageUrl!.isNotEmpty)
+                    ? NetworkImage(character.imageUrl!)
+                    : null,
+                child: (character.imageUrl != null && character.imageUrl!.isNotEmpty)
+                    ? null
+                    : Text(
+                        character.name.isNotEmpty
+                            ? character.name[0].toUpperCase()
+                            : '?',
+                        style: TextStyle(
+                          color: colorScheme.onPrimaryContainer,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
               const SizedBox(width: 16),
               Expanded(

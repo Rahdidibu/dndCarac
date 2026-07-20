@@ -164,6 +164,7 @@ class Characters extends Table {
   TextColumn get flaws => text().withDefault(const Constant(''))();
   TextColumn get backstory => text().withDefault(const Constant(''))();
   TextColumn get appearance => text().withDefault(const Constant(''))();
+  TextColumn get imageUrl => text().nullable()();
 
   // Currency (JSON)
   TextColumn get currency => text().withDefault(const Constant('{"cp":0,"sp":0,"ep":0,"gp":0,"pp":0}'))();

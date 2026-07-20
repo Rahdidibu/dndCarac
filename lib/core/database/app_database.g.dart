@@ -5857,6 +5857,17 @@ class $CharactersTable extends Characters
     requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
+  static const VerificationMeta _imageUrlMeta = const VerificationMeta(
+    'imageUrl',
+  );
+  @override
+  late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
+    'image_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _currencyMeta = const VerificationMeta(
     'currency',
   );
@@ -5917,6 +5928,7 @@ class $CharactersTable extends Characters
     flaws,
     backstory,
     appearance,
+    imageUrl,
     currency,
     createdAt,
     updatedAt,
@@ -6088,6 +6100,12 @@ class $CharactersTable extends Characters
         appearance.isAcceptableOrUnknown(data['appearance']!, _appearanceMeta),
       );
     }
+    if (data.containsKey('image_url')) {
+      context.handle(
+        _imageUrlMeta,
+        imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta),
+      );
+    }
     if (data.containsKey('currency')) {
       context.handle(
         _currencyMeta,
@@ -6217,6 +6235,10 @@ class $CharactersTable extends Characters
         DriftSqlType.string,
         data['${effectivePrefix}appearance'],
       )!,
+      imageUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_url'],
+      ),
       currency: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}currency'],
@@ -6266,6 +6288,7 @@ class Character extends DataClass implements Insertable<Character> {
   final String flaws;
   final String backstory;
   final String appearance;
+  final String? imageUrl;
   final String currency;
   final String createdAt;
   final String updatedAt;
@@ -6294,6 +6317,7 @@ class Character extends DataClass implements Insertable<Character> {
     required this.flaws,
     required this.backstory,
     required this.appearance,
+    this.imageUrl,
     required this.currency,
     required this.createdAt,
     required this.updatedAt,
@@ -6335,6 +6359,9 @@ class Character extends DataClass implements Insertable<Character> {
     map['flaws'] = Variable<String>(flaws);
     map['backstory'] = Variable<String>(backstory);
     map['appearance'] = Variable<String>(appearance);
+    if (!nullToAbsent || imageUrl != null) {
+      map['image_url'] = Variable<String>(imageUrl);
+    }
     map['currency'] = Variable<String>(currency);
     map['created_at'] = Variable<String>(createdAt);
     map['updated_at'] = Variable<String>(updatedAt);
@@ -6373,6 +6400,9 @@ class Character extends DataClass implements Insertable<Character> {
       flaws: Value(flaws),
       backstory: Value(backstory),
       appearance: Value(appearance),
+      imageUrl: imageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imageUrl),
       currency: Value(currency),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
@@ -6411,6 +6441,7 @@ class Character extends DataClass implements Insertable<Character> {
       flaws: serializer.fromJson<String>(json['flaws']),
       backstory: serializer.fromJson<String>(json['backstory']),
       appearance: serializer.fromJson<String>(json['appearance']),
+      imageUrl: serializer.fromJson<String?>(json['imageUrl']),
       currency: serializer.fromJson<String>(json['currency']),
       createdAt: serializer.fromJson<String>(json['createdAt']),
       updatedAt: serializer.fromJson<String>(json['updatedAt']),
@@ -6446,6 +6477,7 @@ class Character extends DataClass implements Insertable<Character> {
       'flaws': serializer.toJson<String>(flaws),
       'backstory': serializer.toJson<String>(backstory),
       'appearance': serializer.toJson<String>(appearance),
+      'imageUrl': serializer.toJson<String?>(imageUrl),
       'currency': serializer.toJson<String>(currency),
       'createdAt': serializer.toJson<String>(createdAt),
       'updatedAt': serializer.toJson<String>(updatedAt),
@@ -6477,6 +6509,7 @@ class Character extends DataClass implements Insertable<Character> {
     String? flaws,
     String? backstory,
     String? appearance,
+    Value<String?> imageUrl = const Value.absent(),
     String? currency,
     String? createdAt,
     String? updatedAt,
@@ -6505,6 +6538,7 @@ class Character extends DataClass implements Insertable<Character> {
     flaws: flaws ?? this.flaws,
     backstory: backstory ?? this.backstory,
     appearance: appearance ?? this.appearance,
+    imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
     currency: currency ?? this.currency,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
@@ -6555,6 +6589,7 @@ class Character extends DataClass implements Insertable<Character> {
       appearance: data.appearance.present
           ? data.appearance.value
           : this.appearance,
+      imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
       currency: data.currency.present ? data.currency.value : this.currency,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -6588,6 +6623,7 @@ class Character extends DataClass implements Insertable<Character> {
           ..write('flaws: $flaws, ')
           ..write('backstory: $backstory, ')
           ..write('appearance: $appearance, ')
+          ..write('imageUrl: $imageUrl, ')
           ..write('currency: $currency, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -6621,6 +6657,7 @@ class Character extends DataClass implements Insertable<Character> {
     flaws,
     backstory,
     appearance,
+    imageUrl,
     currency,
     createdAt,
     updatedAt,
@@ -6653,6 +6690,7 @@ class Character extends DataClass implements Insertable<Character> {
           other.flaws == this.flaws &&
           other.backstory == this.backstory &&
           other.appearance == this.appearance &&
+          other.imageUrl == this.imageUrl &&
           other.currency == this.currency &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -6683,6 +6721,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<String> flaws;
   final Value<String> backstory;
   final Value<String> appearance;
+  final Value<String?> imageUrl;
   final Value<String> currency;
   final Value<String> createdAt;
   final Value<String> updatedAt;
@@ -6711,6 +6750,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.flaws = const Value.absent(),
     this.backstory = const Value.absent(),
     this.appearance = const Value.absent(),
+    this.imageUrl = const Value.absent(),
     this.currency = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -6740,6 +6780,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.flaws = const Value.absent(),
     this.backstory = const Value.absent(),
     this.appearance = const Value.absent(),
+    this.imageUrl = const Value.absent(),
     this.currency = const Value.absent(),
     required String createdAt,
     required String updatedAt,
@@ -6772,6 +6813,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Expression<String>? flaws,
     Expression<String>? backstory,
     Expression<String>? appearance,
+    Expression<String>? imageUrl,
     Expression<String>? currency,
     Expression<String>? createdAt,
     Expression<String>? updatedAt,
@@ -6802,6 +6844,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       if (flaws != null) 'flaws': flaws,
       if (backstory != null) 'backstory': backstory,
       if (appearance != null) 'appearance': appearance,
+      if (imageUrl != null) 'image_url': imageUrl,
       if (currency != null) 'currency': currency,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -6833,6 +6876,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Value<String>? flaws,
     Value<String>? backstory,
     Value<String>? appearance,
+    Value<String?>? imageUrl,
     Value<String>? currency,
     Value<String>? createdAt,
     Value<String>? updatedAt,
@@ -6862,6 +6906,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       flaws: flaws ?? this.flaws,
       backstory: backstory ?? this.backstory,
       appearance: appearance ?? this.appearance,
+      imageUrl: imageUrl ?? this.imageUrl,
       currency: currency ?? this.currency,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -6945,6 +6990,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     if (appearance.present) {
       map['appearance'] = Variable<String>(appearance.value);
     }
+    if (imageUrl.present) {
+      map['image_url'] = Variable<String>(imageUrl.value);
+    }
     if (currency.present) {
       map['currency'] = Variable<String>(currency.value);
     }
@@ -6984,6 +7032,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
           ..write('flaws: $flaws, ')
           ..write('backstory: $backstory, ')
           ..write('appearance: $appearance, ')
+          ..write('imageUrl: $imageUrl, ')
           ..write('currency: $currency, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -15528,6 +15577,7 @@ typedef $$CharactersTableCreateCompanionBuilder =
       Value<String> flaws,
       Value<String> backstory,
       Value<String> appearance,
+      Value<String?> imageUrl,
       Value<String> currency,
       required String createdAt,
       required String updatedAt,
@@ -15558,6 +15608,7 @@ typedef $$CharactersTableUpdateCompanionBuilder =
       Value<String> flaws,
       Value<String> backstory,
       Value<String> appearance,
+      Value<String?> imageUrl,
       Value<String> currency,
       Value<String> createdAt,
       Value<String> updatedAt,
@@ -15969,6 +16020,11 @@ class $$CharactersTableFilterComposer
 
   ColumnFilters<String> get appearance => $composableBuilder(
     column: $table.appearance,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -16394,6 +16450,11 @@ class $$CharactersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get currency => $composableBuilder(
     column: $table.currency,
     builder: (column) => ColumnOrderings(column),
@@ -16510,6 +16571,9 @@ class $$CharactersTableAnnotationComposer
     column: $table.appearance,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get imageUrl =>
+      $composableBuilder(column: $table.imageUrl, builder: (column) => column);
 
   GeneratedColumn<String> get currency =>
       $composableBuilder(column: $table.currency, builder: (column) => column);
@@ -16866,6 +16930,7 @@ class $$CharactersTableTableManager
                 Value<String> flaws = const Value.absent(),
                 Value<String> backstory = const Value.absent(),
                 Value<String> appearance = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
                 Value<String> currency = const Value.absent(),
                 Value<String> createdAt = const Value.absent(),
                 Value<String> updatedAt = const Value.absent(),
@@ -16894,6 +16959,7 @@ class $$CharactersTableTableManager
                 flaws: flaws,
                 backstory: backstory,
                 appearance: appearance,
+                imageUrl: imageUrl,
                 currency: currency,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -16924,6 +16990,7 @@ class $$CharactersTableTableManager
                 Value<String> flaws = const Value.absent(),
                 Value<String> backstory = const Value.absent(),
                 Value<String> appearance = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
                 Value<String> currency = const Value.absent(),
                 required String createdAt,
                 required String updatedAt,
@@ -16952,6 +17019,7 @@ class $$CharactersTableTableManager
                 flaws: flaws,
                 backstory: backstory,
                 appearance: appearance,
+                imageUrl: imageUrl,
                 currency: currency,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
