@@ -12,6 +12,7 @@ git pull
 
 echo "🛠️ Relance et reconstruction du conteneur Docker (sans cache)..."
 docker compose -f deploy/docker-compose.yml down
+docker builder prune -f
 docker compose -f deploy/docker-compose.yml build --no-cache
 docker compose -f deploy/docker-compose.yml up -d
 
