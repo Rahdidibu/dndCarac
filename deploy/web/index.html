@@ -32,15 +32,19 @@
   <title>dnd_character_manager</title>
   <link rel="manifest" href="manifest.json">
   <script>
+    // Supprimer tous les caches du navigateur liés à l'application
+    if (window.caches) {
+      caches.keys().then(function(names) {
+        for (let name of names) {
+          caches.delete(name);
+        }
+      });
+    }
+    // Désenregistrer tous les service workers actifs
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for (let registration of registrations) {
-          registration.unregister().then(function(boolean) {
-            if (boolean) {
-              console.log('Ancien service worker désenregistré avec succès.');
-              window.location.reload();
-            }
-          });
+          registration.unregister();
         }
       });
     }
