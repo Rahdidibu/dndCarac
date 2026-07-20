@@ -171,11 +171,24 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _StatChip(label: 'CA', value: '${char.armorClass}'),
-              _StatChip(label: 'Vitesse', value: '${char.speed}m'),
-              _StatChip(
-                  label: 'Épuisement',
-                  value: '${char.exhaustionLevel}/6'),
+              HexagonStatBadge(
+                label: 'CA',
+                value: '${char.armorClass}',
+                icon: Icons.shield_outlined,
+                glowColor: AppTheme.neonCyan,
+              ),
+              HexagonStatBadge(
+                label: 'Vitesse',
+                value: '${char.speed}m',
+                icon: Icons.directions_run_outlined,
+                glowColor: AppTheme.neonPurple,
+              ),
+              HexagonStatBadge(
+                label: 'Épuisement',
+                value: '${char.exhaustionLevel}/6',
+                icon: Icons.warning_amber_outlined,
+                glowColor: AppTheme.neonRed,
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -743,11 +756,14 @@ class _WeaponCard extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          attack.name,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: isActive ? colorScheme.primary : null,
+                        Flexible(
+                          child: Text(
+                            attack.name,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: isActive ? colorScheme.primary : null,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         if (isActive) ...[
@@ -1001,7 +1017,6 @@ class _HpTracker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final hpPct = hpMax > 0 ? (hpCurrent / hpMax).clamp(0.0, 1.0) : 0.0;
     final hpColor = hpPct > 0.5
         ? Colors.green
@@ -1009,67 +1024,131 @@ class _HpTracker extends StatelessWidget {
             ? Colors.orange
             : Colors.red;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+    return GlassContainer(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+      border: Border.all(color: AppTheme.neonRed.withValues(alpha: 0.2), width: 1.2),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              // Minus HP button
+              Column(
+                children: [
+                  Material(
+                    color: AppTheme.neonRed.withValues(alpha: 0.12),
+                    shape: const CircleBorder(),
+                    child: IconButton(
+                      icon: const Icon(Icons.remove, color: AppTheme.neonRed, size: 28),
+                      onPressed: () => onCurrentChanged(hpCurrent - 1),
+                      tooltip: 'Dégâts (-1 PV)',
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text('Dégâts', style: TextStyle(fontSize: 11, color: AppTheme.neonRed)),
+                ],
+              ),
+              
+              // Circular progress
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    width: 130,
+                    height: 130,
+                    child: CircularProgressIndicator(
+                      value: hpPct,
+                      strokeWidth: 8,
+                      color: hpColor,
+                      backgroundColor: Colors.white.withValues(alpha: 0.04),
+                    ),
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('PV actuels / maximum', style: TextStyle(fontSize: 12)),
-                      const SizedBox(height: 4),
-                      LinearProgressIndicator(
-                        value: hpPct,
-                        color: hpColor,
-                        backgroundColor: colorScheme.surfaceContainerHighest,
-                        minHeight: 8,
-                        borderRadius: BorderRadius.circular(4),
+                      Text(
+                        '$hpCurrent',
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 0.5,
+                        ),
                       ),
-                      const SizedBox(height: 4),
-                      Text('$hpCurrent / $hpMax',
-                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      Text(
+                        'sur $hpMax',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      if (hpTemp > 0) ...[
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppTheme.neonCyan.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppTheme.neonCyan.withValues(alpha: 0.3), width: 0.8),
+                          ),
+                          child: Text(
+                            '+$hpTemp Temp',
+                            style: const TextStyle(fontSize: 10, color: AppTheme.neonCyan, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
-                ),
-                const SizedBox(width: 8),
-                Column(
-                  children: [
-                    IconButton.filled(
-                      icon: const Icon(Icons.add, size: 18),
+                ],
+              ),
+
+              // Plus HP button
+              Column(
+                children: [
+                  Material(
+                    color: AppTheme.neonCyan.withValues(alpha: 0.12),
+                    shape: const CircleBorder(),
+                    child: IconButton(
+                      icon: const Icon(Icons.add, color: AppTheme.neonCyan, size: 28),
                       onPressed: () => onCurrentChanged(hpCurrent + 1),
+                      tooltip: 'Soins (+1 PV)',
                     ),
-                    IconButton.filled(
-                      icon: const Icon(Icons.remove, size: 18),
-                      onPressed: () => onCurrentChanged(hpCurrent - 1),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const Divider(),
-            Row(
-              children: [
-                const Text('PV temp: ', style: TextStyle(fontSize: 12)),
-                const SizedBox(width: 8),
-                Text('$hpTemp',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.add, size: 18),
-                  onPressed: () => onTempChanged(hpTemp + 1),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.remove, size: 18),
-                  onPressed: () => onTempChanged(hpTemp - 1),
-                ),
-              ],
-            ),
-          ],
-        ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text('Soins', style: TextStyle(fontSize: 11, color: AppTheme.neonCyan)),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 8),
+          
+          // Temp HP management
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Points de vie temporaires : ',
+                style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.7)),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '$hpTemp',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.neonCyan),
+              ),
+              const SizedBox(width: 16),
+              IconButton(
+                icon: const Icon(Icons.remove, size: 18, color: AppTheme.neonRed),
+                onPressed: () => onTempChanged((hpTemp - 1).clamp(0, 99)),
+              ),
+              IconButton(
+                icon: const Icon(Icons.add, size: 18, color: AppTheme.neonCyan),
+                onPressed: () => onTempChanged(hpTemp + 1),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -1209,4 +1288,100 @@ class _ResourceRow extends ConsumerWidget {
       ),
     );
   }
+}
+
+class HexagonStatBadge extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color glowColor;
+
+  const HexagonStatBadge({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.icon,
+    this.glowColor = AppTheme.neonCyan,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 90,
+      height: 105,
+      child: CustomPaint(
+        painter: _HexagonPainter(color: glowColor),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: glowColor.withValues(alpha: 0.8), size: 18),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label.toUpperCase(),
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w600,
+                color: Colors.white.withValues(alpha: 0.5),
+                letterSpacing: 0.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HexagonPainter extends CustomPainter {
+  final Color color;
+
+  _HexagonPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AppTheme.cardDark.withValues(alpha: 0.5)
+      ..style = PaintingStyle.fill;
+
+    final borderPaint = Paint()
+      ..color = color.withValues(alpha: 0.35)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final path = Path();
+    final w = size.width;
+    final h = size.height;
+
+    // Hexagon vertices
+    path.moveTo(w * 0.5, 0);
+    path.lineTo(w, h * 0.25);
+    path.lineTo(w, h * 0.75);
+    path.lineTo(w * 0.5, h);
+    path.lineTo(0, h * 0.75);
+    path.lineTo(0, h * 0.25);
+    path.close();
+
+    // Draw shadow/glow
+    canvas.drawShadow(path.shift(const Offset(0, 2)), color.withValues(alpha: 0.1), 6, true);
+    
+    // Draw fill
+    canvas.drawPath(path, paint);
+    
+    // Draw border
+    canvas.drawPath(path, borderPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

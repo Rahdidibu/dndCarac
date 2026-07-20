@@ -277,20 +277,31 @@ class _AbilityScoreGrid extends StatelessWidget {
         final score = scoreMap[key]!;
         final mod = DndRules.modifier(score);
         final modStr = mod >= 0 ? '+$mod' : '$mod';
-        final colorScheme = Theme.of(context).colorScheme;
-        return Card(
+        return Container(
+          margin: const EdgeInsets.all(4),
+          decoration: AppTheme.neonBorderDecoration(accentColor: AppTheme.neonCyan, borderRadius: 12),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(_abilityAbbr[key]!,
-                  style: TextStyle(
-                      fontSize: 11,
+                  style: const TextStyle(
+                      fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: colorScheme.primary)),
+                      color: AppTheme.neonCyan,
+                      letterSpacing: 0.5)),
+              const SizedBox(height: 2),
               Text('$score',
                   style: const TextStyle(
-                      fontSize: 24, fontWeight: FontWeight.bold)),
-              Text(modStr, style: const TextStyle(fontSize: 13)),
+                      fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+              const SizedBox(height: 2),
+              Text(
+                modStr,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white.withValues(alpha: 0.6),
+                ),
+              ),
             ],
           ),
         );

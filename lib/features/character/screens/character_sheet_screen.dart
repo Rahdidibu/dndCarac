@@ -18,6 +18,8 @@ import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/starting_equipment_helper.dart';
 import '../../export/pdf_generator.dart';
 import '../providers/character_providers.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../core/providers/forge_navigation_provider.dart';
 
 part 'sheet_tabs/tab_stats.dart';
 part 'sheet_tabs/tab_combat.dart';
@@ -90,74 +92,120 @@ class CharacterSheetScreen extends ConsumerWidget {
           }).join(' / ');
         }).valueOrNull ?? '';
 
-        return DefaultTabController(
-          length: 5,
-          child: Scaffold(
-            appBar: AppBar(
-              title: Row(
-                children: [
-                  if (character.imageUrl != null && character.imageUrl!.isNotEmpty) ...[
-                    CircleAvatar(
+        final isDesktop = MediaQuery.of(context).size.width > 1100;
+
+        final mainScaffold = Scaffold(
+          appBar: AppBar(
+            title: Row(
+              children: [
+                if (character.imageUrl != null && character.imageUrl!.isNotEmpty) ...[
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppTheme.neonCyan.withValues(alpha: 0.4),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: CircleAvatar(
                       radius: 18,
                       backgroundImage: NetworkImage(character.imageUrl!),
                     ),
-                    const SizedBox(width: 10),
-                  ],
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(character.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        if (classLine.isNotEmpty)
-                          Text(classLine, style: const TextStyle(fontSize: 12)),
-                      ],
-                    ),
                   ),
+                  const SizedBox(width: 10),
                 ],
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_upward),
-                  tooltip: l10n.levelUp,
-                  onPressed: () => Navigator.of(context).pushNamed(
-                    '/character/levelup',
-                    arguments: characterId,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(character.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      if (classLine.isNotEmpty)
+                        Text(classLine, style: const TextStyle(fontSize: 12)),
+                    ],
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline),
-                  tooltip: l10n.characterDelete,
-                  onPressed: () => _confirmDelete(context, ref, character),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.picture_as_pdf),
-                  tooltip: l10n.exportCharacterSheet,
-                  onPressed: () => _exportPdf(context, ref),
-                ),
               ],
-              bottom: TabBar(
-                isScrollable: true,
-                tabAlignment: TabAlignment.start,
-                tabs: [
-                  Tab(text: l10n.sheetTabStats),
-                  Tab(text: l10n.sheetTabCombat),
-                  Tab(text: l10n.sheetTabMagic),
-                  Tab(text: l10n.sheetTabEquipment),
-                  Tab(text: l10n.sheetTabProfile),
-                ],
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.gavel, color: AppTheme.neonCyan),
+                tooltip: 'Accéder à la Forge',
+                onPressed: () {
+                  ref.read(forgeSelectedCharacterIdProvider.notifier).state = character.id;
+                  ref.read(mainTabNavigationProvider.notifier).state = 1;
+                  Navigator.of(context).pop();
+                },
               ),
-            ),
-            body: TabBarView(
-              children: [
-                _StatsTab(characterId: characterId, character: character, totalLevel: totalLevel),
-                _CombatTab(characterId: characterId, character: character, totalLevel: totalLevel),
-                _MagicTab(characterId: characterId, character: character),
-                _EquipmentTab(characterId: characterId, character: character),
-                _ProfileTab(characterId: characterId, character: character),
-              ],
-            ),
+              IconButton(
+                icon: const Icon(Icons.arrow_upward, color: AppTheme.neonPurple),
+                tooltip: l10n.levelUp,
+                onPressed: () => Navigator.of(context).pushNamed(
+                  '/character/levelup',
+                  arguments: characterId,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: AppTheme.neonRed),
+                tooltip: l10n.characterDelete,
+                onPressed: () => _confirmDelete(context, ref, character),
+              ),
+              IconButton(
+                icon: const Icon(Icons.picture_as_pdf, color: AppTheme.neonCyan),
+                tooltip: l10n.exportCharacterSheet,
+                onPressed: () => _exportPdf(context, ref),
+              ),
+            ],
+            bottom: isDesktop
+                ? null
+                : TabBar(
+                    isScrollable: true,
+                    tabAlignment: TabAlignment.start,
+                    tabs: [
+                      Tab(text: l10n.sheetTabStats),
+                      Tab(text: l10n.sheetTabCombat),
+                      Tab(text: l10n.sheetTabMagic),
+                      Tab(text: l10n.sheetTabEquipment),
+                      Tab(text: l10n.sheetTabProfile),
+                    ],
+                  ),
           ),
+          body: isDesktop
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: _StatsTab(characterId: characterId, character: character, totalLevel: totalLevel),
+                    ),
+                    VerticalDivider(width: 1, color: Colors.white.withValues(alpha: 0.08)),
+                    Expanded(
+                      flex: 4,
+                      child: _CombatTab(characterId: characterId, character: character, totalLevel: totalLevel),
+                    ),
+                    VerticalDivider(width: 1, color: Colors.white.withValues(alpha: 0.08)),
+                    Expanded(
+                      flex: 4,
+                      child: _RightTabbedPanel(characterId: characterId, character: character),
+                    ),
+                  ],
+                )
+              : TabBarView(
+                  children: [
+                    _StatsTab(characterId: characterId, character: character, totalLevel: totalLevel),
+                    _CombatTab(characterId: characterId, character: character, totalLevel: totalLevel),
+                    _MagicTab(characterId: characterId, character: character),
+                    _EquipmentTab(characterId: characterId, character: character),
+                    _ProfileTab(characterId: characterId, character: character),
+                  ],
+                ),
         );
+
+        return isDesktop
+            ? mainScaffold
+            : DefaultTabController(
+                length: 5,
+                child: mainScaffold,
+              );
       },
     );
   }
@@ -194,6 +242,58 @@ class CharacterSheetScreen extends ConsumerWidget {
         Navigator.of(context).pop();
       }
     }
+  }
+}
+
+class _RightTabbedPanel extends StatefulWidget {
+  final int characterId;
+  final Character character;
+  const _RightTabbedPanel({required this.characterId, required this.character});
+
+  @override
+  State<_RightTabbedPanel> createState() => _RightTabbedPanelState();
+}
+
+class _RightTabbedPanelState extends State<_RightTabbedPanel> with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      children: [
+        TabBar(
+          controller: _tabController,
+          tabs: [
+            Tab(text: l10n.sheetTabMagic),
+            Tab(text: l10n.sheetTabEquipment),
+            Tab(text: l10n.sheetTabProfile),
+          ],
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              _MagicTab(characterId: widget.characterId, character: widget.character),
+              _EquipmentTab(characterId: widget.characterId, character: widget.character),
+              _ProfileTab(characterId: widget.characterId, character: widget.character),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
 

@@ -173,11 +173,11 @@ class _SpellSlotRow extends ConsumerWidget {
                     child: GestureDetector(
                       onTap: () => _toggleSlot(ref, i),
                       child: Icon(
-                        used ? Icons.radio_button_unchecked : Icons.circle,
-                        size: 20,
+                        used ? Icons.diamond_outlined : Icons.diamond,
+                        size: 22,
                         color: used
-                            ? colorScheme.onSurfaceVariant
-                            : colorScheme.primary,
+                            ? Colors.white.withValues(alpha: 0.15)
+                            : AppTheme.neonPurple,
                       ),
                     ),
                   );

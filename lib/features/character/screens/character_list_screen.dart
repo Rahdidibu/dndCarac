@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/tables/tables.dart';
 import '../../../core/providers/database_provider.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
 import '../providers/character_providers.dart';
 
@@ -42,21 +43,49 @@ class CharacterListScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: charactersAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(e.toString())),
-        data: (characters) {
-          if (characters.isEmpty) {
-            return _EmptyState(l10n: l10n);
-          }
-          return ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 88),
-            itemCount: characters.length,
-            itemBuilder: (context, index) {
-              return _CharacterCard(character: characters[index]);
+      body: Stack(
+        children: [
+          Positioned(
+            top: -100,
+            right: -50,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppTheme.neonCyan.withValues(alpha: 0.08),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -50,
+            left: -100,
+            child: Container(
+              width: 350,
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppTheme.neonPurple.withValues(alpha: 0.08),
+              ),
+            ),
+          ),
+          charactersAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, _) => Center(child: Text(e.toString())),
+            data: (characters) {
+              if (characters.isEmpty) {
+                return _EmptyState(l10n: l10n);
+              }
+              return ListView.builder(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 88),
+                itemCount: characters.length,
+                itemBuilder: (context, index) {
+                  return _CharacterCard(character: characters[index]);
+                },
+              );
             },
-          );
-        },
+          ),
+        ],
       ),
     );
   }
@@ -116,93 +145,118 @@ class _CharacterCard extends ConsumerWidget {
     final classesAsync = ref.watch(characterClassesProvider(character.id));
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final isBatman = character.ruleset == RulesetVersion.batman;
+    final accentColor = isBatman ? Colors.amber : AppTheme.neonCyan;
 
-
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: () {
-          final route = character.ruleset == RulesetVersion.batman
-              ? '/batman/sheet'
-              : '/character/sheet';
-          Navigator.of(context).pushNamed(route, arguments: character.id);
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 28,
-                backgroundColor: colorScheme.primaryContainer,
-                backgroundImage: (character.imageUrl != null && character.imageUrl!.isNotEmpty)
-                    ? NetworkImage(character.imageUrl!)
-                    : null,
-                child: (character.imageUrl != null && character.imageUrl!.isNotEmpty)
-                    ? null
-                    : Text(
-                        character.name.isNotEmpty
-                            ? character.name[0].toUpperCase()
-                            : '?',
-                        style: TextStyle(
-                          color: colorScheme.onPrimaryContainer,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      character.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const SizedBox(height: 4),
-                    classesAsync.when(
-                      loading: () => const SizedBox(
-                          height: 16,
-                          width: 80,
-                          child: LinearProgressIndicator()),
-                      error: (e, stack) => const SizedBox.shrink(),
-                      data: (classes) => Text(
-                        _buildClassLine(classes),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurface.withValues(alpha: 0.7),
-                            ),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    _RulesetChip(ruleset: character.ruleset),
-                  ],
-                ),
-              ),
-              PopupMenuButton<String>(
-                icon: Icon(Icons.more_vert, color: colorScheme.onSurfaceVariant),
-                onSelected: (value) {
-                  if (value == 'delete') {
-                    _confirmDelete(context, ref);
-                  }
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'delete',
-                    child: Row(
-                      children: [
-                        Icon(Icons.delete_outline, color: colorScheme.error, size: 20),
-                        const SizedBox(width: 8),
-                        Text(l10n.actionDelete, style: TextStyle(color: colorScheme.error)),
-                      ],
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withValues(alpha: 0.04),
+            blurRadius: 10,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: GlassContainer(
+        borderRadius: 16,
+        border: Border.all(
+          color: accentColor.withValues(alpha: 0.15),
+          width: 1.2,
+        ),
+        child: InkWell(
+          onTap: () {
+            final route = isBatman ? '/batman/sheet' : '/character/sheet';
+            Navigator.of(context).pushNamed(route, arguments: character.id);
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: accentColor.withValues(alpha: 0.3),
+                      width: 2,
                     ),
                   ),
-                ],
-              ),
-              const Icon(Icons.chevron_right),
-            ],
+                  child: CircleAvatar(
+                    radius: 28,
+                    backgroundColor: isBatman ? Colors.black : colorScheme.primaryContainer,
+                    backgroundImage: (character.imageUrl != null && character.imageUrl!.isNotEmpty)
+                        ? NetworkImage(character.imageUrl!)
+                        : null,
+                    child: (character.imageUrl != null && character.imageUrl!.isNotEmpty)
+                        ? null
+                        : Text(
+                            character.name.isNotEmpty
+                                ? character.name[0].toUpperCase()
+                                : '?',
+                            style: TextStyle(
+                              color: isBatman ? Colors.amber : colorScheme.onPrimaryContainer,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        character.name,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                      ),
+                      const SizedBox(height: 4),
+                      classesAsync.when(
+                        loading: () => const SizedBox(
+                            height: 16,
+                            width: 80,
+                            child: LinearProgressIndicator()),
+                        error: (e, stack) => const SizedBox.shrink(),
+                        data: (classes) => Text(
+                          _buildClassLine(classes),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      _RulesetChip(ruleset: character.ruleset),
+                    ],
+                  ),
+                ),
+                PopupMenuButton<String>(
+                  icon: Icon(Icons.more_vert, color: colorScheme.onSurface.withValues(alpha: 0.6)),
+                  onSelected: (value) {
+                    if (value == 'delete') {
+                      _confirmDelete(context, ref);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete_outline, color: colorScheme.error, size: 20),
+                          const SizedBox(width: 8),
+                          Text(l10n.actionDelete, style: TextStyle(color: colorScheme.error)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const Icon(Icons.chevron_right, size: 20),
+              ],
+            ),
           ),
         ),
       ),

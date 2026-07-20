@@ -5,7 +5,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/database/app_database.dart';
 import 'core/providers/database_provider.dart';
+import 'core/theme/app_theme.dart';
 import 'core/seed/srd_seeder.dart';
+import 'core/providers/forge_navigation_provider.dart';
 import 'core/seed/batman_seeder.dart';
 import 'features/auth/screens/auth_screen.dart';
 import 'features/character/screens/character_list_screen.dart';
@@ -69,13 +71,7 @@ class DndApp extends ConsumerWidget {
         Locale("fr"),
         Locale("en"),
       ],
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF8B0000),
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.darkTheme,
       routes: {
         '/character/create': (ctx) => const CharacterCreationWizard(),
         '/character/sheet': (ctx) {
@@ -120,15 +116,8 @@ class DndApp extends ConsumerWidget {
   }
 }
 
-class MainScaffold extends StatefulWidget {
+class MainScaffold extends ConsumerWidget {
   const MainScaffold({super.key});
-
-  @override
-  State<MainScaffold> createState() => _MainScaffoldState();
-}
-
-class _MainScaffoldState extends State<MainScaffold> {
-  int _selectedIndex = 0;
 
   static const List<Widget> _screens = [
     CharacterListScreen(),
@@ -137,13 +126,14 @@ class _MainScaffoldState extends State<MainScaffold> {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedIndex = ref.watch(mainTabNavigationProvider);
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: _screens[selectedIndex],
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (i) => setState(() => _selectedIndex = i),
+        selectedIndex: selectedIndex,
+        onDestinationSelected: (i) => ref.read(mainTabNavigationProvider.notifier).state = i,
         destinations: [
           NavigationDestination(
             icon: const Icon(Icons.people_outline),

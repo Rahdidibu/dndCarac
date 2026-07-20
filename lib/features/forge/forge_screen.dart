@@ -7,6 +7,10 @@ import '../character/providers/character_providers.dart';
 import '../../core/utils/dnd_rules.dart';
 import '../../core/database/app_database.dart';
 import '../../core/providers/database_provider.dart';
+import '../../core/providers/forge_navigation_provider.dart';
+import '../../core/database/tables/tables.dart';
+import '../../core/theme/app_theme.dart';
+import '../../core/utils/character_service.dart';
 
 
 // --- DATA STRUCTURES ---
@@ -179,6 +183,8 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
 
   // Selected character link
   int? _selectedCharacterId;
+  String _forgeMode = 'create'; // 'create', 'improve', 'repair'
+  int? _selectedInventoryItemId; // store ID only to avoid Drift equality issues
 
   // Simulator stats (for manual entry)
   int _smithToolsMod = 5;
@@ -196,6 +202,7 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedCharacterId = ref.read(forgeSelectedCharacterIdProvider);
     _resetConfig();
   }
 
@@ -207,6 +214,7 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
       (t) => t.eligibleCategories.contains(_selectedCategory) && t.id == 'none',
       orElse: () => _forgeTraits.first,
     );
+    _selectedInventoryItemId = null;
     _resetSimulation();
   }
 
@@ -224,7 +232,7 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
   // --- ACTIONS ---
 
   void _simulateSingleRoll(int activeSmithToolsMod) {
-    final targetCp = _selectedItem.baseCp + _selectedTrait.cpCost;
+    final targetCp = _calculatedTargetCp;
     if (_currentCp >= targetCp) return;
 
     final dcOffset = _selectedMaterial.dcMod + _selectedTrait.dcMod;
@@ -262,7 +270,7 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
   }
 
   void _simulateEightHours(int activeSmithToolsMod, int activeConMod) {
-    final targetCp = _selectedItem.baseCp + _selectedTrait.cpCost;
+    final targetCp = _calculatedTargetCp;
     if (_currentCp >= targetCp) return;
 
     // 8 hours yields Max(2, Con Mod - 1) attempts
@@ -278,10 +286,20 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
   // --- OUTPUT RENDER CALCULATIONS ---
 
   int get _calculatedMaterialCost {
+    if (_forgeMode == 'improve') {
+      return (((_selectedItem.baseGp * _selectedMaterial.priceMod) * 0.25).round() + (_selectedTrait.cpCost * 2)).clamp(1, 99999);
+    } else if (_forgeMode == 'repair') {
+      return (((_selectedItem.baseGp * _selectedMaterial.priceMod) * 0.1).round()).clamp(1, 99999);
+    }
     return ((_selectedItem.baseGp * _selectedMaterial.priceMod) * 0.8).round();
   }
 
   int get _calculatedTargetCp {
+    if (_forgeMode == 'improve') {
+      return max(1, _selectedTrait.cpCost);
+    } else if (_forgeMode == 'repair') {
+      return max(1, (_selectedItem.baseCp * 0.25).round());
+    }
     return _selectedItem.baseCp + _selectedTrait.cpCost;
   }
 
@@ -292,6 +310,12 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
     }
     if (_selectedTrait.id != 'none') {
       suffix += " (${_selectedTrait.name.split(' (')[0]})";
+    }
+    
+    if (_forgeMode == 'improve') {
+      return "Amélioration : ${_selectedItem.name}$suffix";
+    } else if (_forgeMode == 'repair') {
+      return "Réparation : ${_selectedItem.name}$suffix";
     }
     return "${_selectedItem.name}$suffix";
   }
@@ -345,10 +369,66 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
     return "${finalVal.toStringAsFixed(finalVal == finalVal.roundToDouble() ? 0 : 1)} lbs";
   }
 
+  ForgeItem _matchInventoryItemToForgeItem(CharacterEquipmentData eq) {
+    final nameLower = eq.itemName.toLowerCase();
+    
+    // 1. Try exact or partial matches on name
+    for (final item in _forgeItems) {
+      final itemNameLower = item.name.toLowerCase();
+      if (nameLower.contains(itemNameLower)) {
+        return item;
+      }
+    }
+    
+    // 2. Try matching english names or synonyms
+    for (final item in _forgeItems) {
+      final idLower = item.id.toLowerCase();
+      if (nameLower.contains(idLower)) {
+        return item;
+      }
+    }
+    
+    // 3. Fallback based on category heuristics
+    final armorInfo = CharacterService.parseEquipmentAsArmor(eq);
+    if (armorInfo != null) {
+      if (armorInfo.type == 'shield') {
+        return _forgeItems.firstWhere((i) => i.category == 'shield');
+      }
+      return _forgeItems.firstWhere((i) => i.category == 'armor' && i.name.toLowerCase().contains(armorInfo.name.toLowerCase()), orElse: () => _forgeItems.firstWhere((i) => i.category == 'armor'));
+    }
+    
+    return _forgeItems.firstWhere((i) => i.category == 'weapon');
+  }
+
+  ForgeMaterial _matchInventoryItemToMaterial(CharacterEquipmentData eq) {
+    final nameLower = eq.itemName.toLowerCase();
+    for (final mat in _forgeMaterials) {
+      if (nameLower.contains(mat.id.toLowerCase()) || nameLower.contains(mat.name.toLowerCase().split(' (')[0])) {
+        return mat;
+      }
+    }
+    return _forgeMaterials.first; // Default steel
+  }
+
   // --- BUILD METHOD ---
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<int?>(forgeSelectedCharacterIdProvider, (previous, next) {
+      if (next != _selectedCharacterId) {
+        setState(() {
+          _selectedCharacterId = next;
+          _resetSimulation();
+        });
+      }
+    });
+
+    final selectedId = ref.watch(forgeSelectedCharacterIdProvider);
+    final equipmentAsync = _selectedCharacterId != null
+        ? ref.watch(characterEquipmentProvider(_selectedCharacterId!))
+        : const AsyncValue<List<CharacterEquipmentData>>.data([]);
+    final inventoryItems = equipmentAsync.value ?? [];
+
     final colorScheme = Theme.of(context).colorScheme;
     final targetCp = _calculatedTargetCp;
     final progressPct = targetCp > 0 ? (_currentCp / targetCp).clamp(0.0, 1.0) : 0.0;
@@ -405,6 +485,25 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: selectedId != null
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                tooltip: "Retour au personnage",
+                onPressed: () {
+                  final charList = charactersAsync.value ?? [];
+                  final char = charList.firstWhere(
+                    (c) => c.id == selectedId,
+                    orElse: () => charList.first,
+                  );
+                  final isBatman = char.ruleset == RulesetVersion.batman;
+                  final route = isBatman ? '/batman/sheet' : '/character/sheet';
+                  
+                  ref.read(forgeSelectedCharacterIdProvider.notifier).state = null;
+                  ref.read(mainTabNavigationProvider.notifier).state = 0;
+                  Navigator.of(context).pushNamed(route, arguments: selectedId);
+                },
+              )
+            : null,
         title: const Row(
           children: [
             Icon(Icons.gavel, color: Colors.orange),
@@ -433,6 +532,7 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
                   _buildConfigPanel(
                     colorScheme, 
                     charactersAsync, 
+                    inventoryItems,
                     isSmithToolsProficient, 
                     profBonus, 
                     finalStrMod, 
@@ -473,6 +573,7 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
                     child: _buildConfigPanel(
                       colorScheme, 
                       charactersAsync, 
+                      inventoryItems,
                       isSmithToolsProficient, 
                       profBonus, 
                       finalStrMod, 
@@ -519,6 +620,7 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
   Widget _buildConfigPanel(
     ColorScheme colorScheme,
     AsyncValue<List<Character>> charactersAsync,
+    List<CharacterEquipmentData> inventoryItems,
     bool isSmithToolsProficient,
     int profBonus,
     int finalStrMod,
@@ -554,15 +656,129 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
                 },
               ),
             ),
+            const SizedBox(height: 12),
+
+            // Mode Selector
+            Text("Activité", style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.6))),
+            const SizedBox(height: 6),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: SegmentedButton<String>(
+                segments: const [
+                  ButtonSegment(value: 'create', label: Text('Forger (Neuf)'), icon: Icon(Icons.add_box_outlined)),
+                  ButtonSegment(value: 'improve', label: Text('Améliorer'), icon: Icon(Icons.auto_awesome_outlined)),
+                  ButtonSegment(value: 'repair', label: Text('Réparer'), icon: Icon(Icons.build_circle_outlined)),
+                ],
+                selected: {_forgeMode},
+                onSelectionChanged: (set) {
+                  setState(() {
+                    _forgeMode = set.first;
+                    _resetSimulation();
+                  });
+                },
+              ),
+            ),
             const SizedBox(height: 16),
+
+            // Inventory Item Picker (only in improve/repair mode with character selected)
+            if ((_forgeMode == 'improve' || _forgeMode == 'repair') && _selectedCharacterId != null) ...[
+              Text(
+                "Objet de l'inventaire",
+                style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.6)),
+              ),
+              const SizedBox(height: 6),
+              Builder(builder: (context) {
+                // Resolve current object from live list (avoids Drift equality issues)
+                final selectedEq = _selectedInventoryItemId == null
+                    ? null
+                    : inventoryItems.where((e) => e.id == _selectedInventoryItemId).firstOrNull;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    DropdownButtonFormField<int?>(
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        labelText: inventoryItems.isEmpty
+                            ? "Aucun objet dans l'inventaire"
+                            : "Choisir l'objet à ${_forgeMode == 'improve' ? 'améliorer' : 'réparer'}",
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.inventory_2_outlined),
+                      ),
+                      value: _selectedInventoryItemId,
+                      items: [
+                        const DropdownMenuItem<int?>(
+                          value: null,
+                          child: Text("— Sélection manuelle —", overflow: TextOverflow.ellipsis),
+                        ),
+                        ...inventoryItems.map((eq) => DropdownMenuItem<int?>(
+                              value: eq.id,
+                              child: Text(
+                                eq.itemName,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            )),
+                      ],
+                      onChanged: (id) {
+                        setState(() {
+                          _selectedInventoryItemId = id;
+                          if (id != null) {
+                            final eq = inventoryItems.where((e) => e.id == id).firstOrNull;
+                            if (eq != null) {
+                              final matched = _matchInventoryItemToForgeItem(eq);
+                              final matchedMaterial = _matchInventoryItemToMaterial(eq);
+                              _selectedCategory = matched.category;
+                              _selectedItem = matched;
+                              _selectedMaterial = matchedMaterial;
+                              _resetSimulation();
+                            }
+                          }
+                        });
+                      },
+                    ),
+                    if (selectedEq != null) ...[
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.orange.withValues(alpha: 0.2)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.info_outline, size: 14, color: Colors.orangeAccent),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Objet : ${selectedEq.itemName}'
+                                '${selectedEq.notes.isNotEmpty ? '\nNotes : ${selectedEq.notes}' : ''}',
+                                style: const TextStyle(fontSize: 11, color: Colors.orangeAccent),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                );
+              }),
+              const SizedBox(height: 12),
+            ],
 
             // Item Dropdown
             DropdownButtonFormField<ForgeItem>(
+              isExpanded: true,
               decoration: const InputDecoration(labelText: "Objet à forger", border: OutlineInputBorder()),
               value: _selectedItem,
               items: _forgeItems
                   .where((i) => i.category == _selectedCategory)
-                  .map((i) => DropdownMenuItem(value: i, child: Text("${i.name} (${i.baseGp} po, ${i.baseCp} PC)")))
+                  .map((i) => DropdownMenuItem(
+                        value: i,
+                        child: Text(
+                          "${i.name} (${i.baseGp} po, ${i.baseCp} PC)",
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ))
                   .toList(),
               onChanged: (val) {
                 if (val != null) {
@@ -577,10 +793,17 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
 
             // Material Dropdown
             DropdownButtonFormField<ForgeMaterial>(
+              isExpanded: true,
               decoration: const InputDecoration(labelText: "Matériau employé", border: OutlineInputBorder()),
               value: _selectedMaterial,
               items: _forgeMaterials
-                  .map((m) => DropdownMenuItem(value: m, child: Text("${m.name} (DC: ${m.dcMod >= 0 ? '+' : ''}${m.dcMod})")))
+                  .map((m) => DropdownMenuItem(
+                        value: m,
+                        child: Text(
+                          "${m.name} (DC: ${m.dcMod >= 0 ? '+' : ''}${m.dcMod})",
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ))
                   .toList(),
               onChanged: (val) {
                 if (val != null) {
@@ -595,11 +818,18 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
 
             // Trait Dropdown
             DropdownButtonFormField<ForgeTrait>(
+              isExpanded: true,
               decoration: const InputDecoration(labelText: "Trait forgé de départ", border: OutlineInputBorder()),
               value: _selectedTrait,
               items: _forgeTraits
                   .where((t) => t.eligibleCategories.contains(_selectedCategory))
-                  .map((t) => DropdownMenuItem(value: t, child: Text("${t.name} (DC: +${t.dcMod}, +${t.cpCost} PC)")))
+                  .map((t) => DropdownMenuItem(
+                        value: t,
+                        child: Text(
+                          "${t.name} (DC: +${t.dcMod}, +${t.cpCost} PC)",
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ))
                   .toList(),
               onChanged: (val) {
                 if (val != null) {
@@ -611,6 +841,30 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
               },
             ),
             
+            if (_forgeMode == 'improve' && _selectedTrait.id == 'none') ...[
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppTheme.crimsonRed.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppTheme.crimsonRed.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.warning_amber_rounded, color: AppTheme.crimsonRed, size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        "Veuillez sélectionner un trait pour l'amélioration.",
+                        style: TextStyle(fontSize: 11, color: AppTheme.crimsonRed, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            
             const SizedBox(height: 24),
             const Divider(),
             const SizedBox(height: 12),
@@ -619,6 +873,7 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
 
             // Associated Character Dropdown
             DropdownButtonFormField<int?>(
+              isExpanded: true,
               decoration: const InputDecoration(
                 labelText: "Personnage associé", 
                 border: OutlineInputBorder(),
@@ -628,13 +883,13 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
               items: [
                 const DropdownMenuItem<int?>(
                   value: null,
-                  child: Text("Saisie manuelle (Manuel)"),
+                  child: Text("Saisie manuelle (Manuel)", overflow: TextOverflow.ellipsis),
                 ),
                 if (charactersAsync.hasValue)
                   ...?charactersAsync.value?.map(
                     (c) => DropdownMenuItem<int?>(
                       value: c.id,
-                      child: Text(c.name),
+                      child: Text(c.name, overflow: TextOverflow.ellipsis),
                     ),
                   ),
               ],
@@ -787,6 +1042,7 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
     int finalSmithToolsMod,
     int finalConMod,
   ) {
+    final canForge = !(_forgeMode == 'improve' && _selectedTrait.id == 'none');
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -827,7 +1083,7 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: _currentCp >= targetCp ? null : () => _simulateSingleRoll(finalSmithToolsMod),
+                    onPressed: (_currentCp >= targetCp || !canForge) ? null : () => _simulateSingleRoll(finalSmithToolsMod),
                     icon: const Icon(Icons.casino, size: 16),
                     label: const Text("1 jet d20", style: TextStyle(fontSize: 11)),
                   ),
@@ -839,7 +1095,7 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
                       backgroundColor: Colors.deepOrange.withValues(alpha: 0.15),
                       foregroundColor: Colors.orangeAccent,
                     ),
-                    onPressed: _currentCp >= targetCp ? null : () => _simulateEightHours(finalSmithToolsMod, finalConMod),
+                    onPressed: (_currentCp >= targetCp || !canForge) ? null : () => _simulateEightHours(finalSmithToolsMod, finalConMod),
                     icon: const Icon(Icons.schedule, size: 16),
                     label: const Text("Journée 8h", style: TextStyle(fontSize: 11)),
                   ),
@@ -881,12 +1137,19 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
     int attackBonus,
     WidgetRef ref,
   ) async {
+    // Resolve the selected inventory item from the live provider snapshot (avoids Drift equality issues)
+    final allEquipment = ref.read(characterEquipmentProvider(_selectedCharacterId!));
+    final CharacterEquipmentData? selectedEq = _selectedInventoryItemId == null
+        ? null
+        : allEquipment.whenOrNull(
+            data: (list) => list.where((e) => e.id == _selectedInventoryItemId).firstOrNull,
+          );
+
     // Pre-fill damage type based on category
     String suggestedType;
     if (_selectedItem.category == 'shield') {
       suggestedType = 'contondants';
     } else {
-      // Guess based on item name/properties
       final props = _selectedItem.properties.toLowerCase();
       if (props.contains('perfor') || _selectedItem.id.contains('rapier') || _selectedItem.id.contains('spear') || _selectedItem.id.contains('arrow')) {
         suggestedType = 'perforants';
@@ -898,43 +1161,82 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
     }
 
     final damageTypeController = TextEditingController(text: suggestedType);
-    bool addToInventory = true;
+    bool addToInventory = _forgeMode == 'create' || selectedEq == null;
+
+    final String dialogTitle = _forgeMode == 'improve'
+        ? 'Appliquer l\'amélioration'
+        : _forgeMode == 'repair'
+            ? 'Appliquer la réparation'
+            : 'Ajouter à la fiche de personnage';
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setState) => AlertDialog(
-          title: const Text('Ajouter à la fiche de personnage'),
+          title: Text(dialogTitle),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ListTile(
-                  leading: const Icon(Icons.gavel, color: Colors.orangeAccent),
+                  leading: Icon(
+                    _forgeMode == 'improve' ? Icons.auto_awesome : _forgeMode == 'repair' ? Icons.build_circle : Icons.gavel,
+                    color: Colors.orangeAccent,
+                  ),
                   title: Text(_calculatedItemName, style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text('$_calculatedDamageOrAc • ${_calculatedTargetCp} PC'),
                   contentPadding: EdgeInsets.zero,
                 ),
+                if (selectedEq != null) ...[
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.inventory_2_outlined, size: 18, color: Colors.orange),
+                    title: Text(
+                      _forgeMode == 'improve'
+                          ? 'Amélioration de : ${selectedEq.itemName}'
+                          : 'Réparation de : ${selectedEq.itemName}',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    subtitle: selectedEq.notes.isNotEmpty
+                        ? Text(selectedEq.notes, style: const TextStyle(fontSize: 11))
+                        : null,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ],
                 const Divider(),
                 const SizedBox(height: 8),
-                TextField(
-                  controller: damageTypeController,
-                  decoration: InputDecoration(
-                    labelText: 'Type de dégâts',
-                    hintText: suggestedType,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.colorize),
+                if (_selectedItem.category == 'weapon')
+                  TextField(
+                    controller: damageTypeController,
+                    decoration: InputDecoration(
+                      labelText: 'Type de dégâts',
+                      hintText: suggestedType,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.colorize),
+                    ),
                   ),
-                ),
                 const SizedBox(height: 12),
-                CheckboxListTile(
-                  title: const Text('Ajouter aussi à l\'inventaire'),
-                  value: addToInventory,
-                  onChanged: (v) => setState(() => addToInventory = v ?? true),
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
-                ),
+                if (selectedEq == null)
+                  CheckboxListTile(
+                    title: const Text('Ajouter aussi à l\'inventaire'),
+                    value: addToInventory,
+                    onChanged: (v) => setState(() => addToInventory = v ?? true),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
+                  )
+                else
+                  CheckboxListTile(
+                    title: Text(
+                      _forgeMode == 'improve'
+                          ? 'Mettre à jour l\'objet dans l\'inventaire'
+                          : 'Marquer comme réparé dans l\'inventaire',
+                    ),
+                    value: addToInventory,
+                    onChanged: (v) => setState(() => addToInventory = v ?? true),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
+                  ),
               ],
             ),
           ),
@@ -945,7 +1247,7 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
             ),
             FilledButton(
               onPressed: () => Navigator.of(ctx).pop(true),
-              child: const Text('Ajouter'),
+              child: Text(_forgeMode == 'improve' ? 'Appliquer' : _forgeMode == 'repair' ? 'Valider' : 'Ajouter'),
             ),
           ],
         ),
@@ -958,40 +1260,104 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
     try {
       final db = ref.read(databaseProvider);
 
-      // Insert into CharacterAttacks
-      if (_selectedItem.category == 'weapon') {
-        final bonusStr = attackBonus >= 0 ? '+$attackBonus' : '$attackBonus';
-        await db.characterDao.insertAttack(
-          CharacterAttacksCompanion.insert(
-            characterId: characterId,
-            name: _calculatedItemName,
-            attackBonus: bonusStr,
-            damageDice: _calculatedDamageOrAc.replaceAll(' dégâts', ''),
-            damageType: damageTypeController.text.trim().isEmpty
-                ? suggestedType
-                : damageTypeController.text.trim(),
-            notes: Value('Forgé (${_selectedMaterial.name})${_selectedTrait.id != "none" ? " – ${_selectedTrait.name}" : ""}'),
-          ),
-        );
+      // --- MODE AMÉLIORATION : mise à jour de l'objet existant ---
+      if (_forgeMode == 'improve' && selectedEq != null) {
+        final traitSuffix = _selectedTrait.id != 'none' ? ' (${_selectedTrait.name.split(' (')[0]})' : '';
+        final newName = selectedEq.itemName.contains(traitSuffix.trim())
+            ? selectedEq.itemName
+            : '${selectedEq.itemName}$traitSuffix';
+        final newNotes = [
+          if (selectedEq.notes.isNotEmpty) selectedEq.notes,
+          if (_selectedTrait.id != 'none') 'Amélioré : ${_selectedTrait.effect}',
+        ].join(' | ');
+
+        if (addToInventory) {
+          await db.characterDao.updateEquipment(
+            CharacterEquipmentCompanion(
+              id: Value(selectedEq.id),
+              characterId: Value(characterId),
+              itemName: Value(newName),
+              quantity: Value(selectedEq.quantity),
+              weight: Value(selectedEq.weight),
+              equipped: Value(selectedEq.equipped),
+              attuned: Value(selectedEq.attuned),
+              notes: Value(newNotes),
+            ),
+          );
+        }
+
+        if (_selectedItem.category == 'weapon') {
+          final bonusStr = attackBonus >= 0 ? '+$attackBonus' : '$attackBonus';
+          await db.characterDao.insertAttack(
+            CharacterAttacksCompanion.insert(
+              characterId: characterId,
+              name: newName,
+              attackBonus: bonusStr,
+              damageDice: _calculatedDamageOrAc.replaceAll(' dégâts', ''),
+              damageType: damageTypeController.text.trim().isEmpty ? suggestedType : damageTypeController.text.trim(),
+              notes: Value('Amélioré – ${_selectedTrait.name}'),
+            ),
+          );
+        }
+
+      // --- MODE RÉPARATION : mise à jour des notes ---
+      } else if (_forgeMode == 'repair' && selectedEq != null) {
+        if (addToInventory) {
+          final newNotes = [
+            if (selectedEq.notes.isNotEmpty)
+              selectedEq.notes.replaceAll(RegExp(r'Endommagé[^|]*\|?\s*'), ''),
+            'Réparé',
+          ].join(' | ').replaceAll(RegExp(r'\s*\|\s*$'), '');
+          await db.characterDao.updateEquipment(
+            CharacterEquipmentCompanion(
+              id: Value(selectedEq.id),
+              characterId: Value(characterId),
+              itemName: Value(selectedEq.itemName),
+              quantity: Value(selectedEq.quantity),
+              weight: Value(selectedEq.weight),
+              equipped: Value(selectedEq.equipped),
+              attuned: Value(selectedEq.attuned),
+              notes: Value(newNotes),
+            ),
+          );
+        }
+
+      // --- MODE CRÉATION : ajout d'un nouvel objet ---
+      } else {
+        if (_selectedItem.category == 'weapon') {
+          final bonusStr = attackBonus >= 0 ? '+$attackBonus' : '$attackBonus';
+          await db.characterDao.insertAttack(
+            CharacterAttacksCompanion.insert(
+              characterId: characterId,
+              name: _calculatedItemName,
+              attackBonus: bonusStr,
+              damageDice: _calculatedDamageOrAc.replaceAll(' dégâts', ''),
+              damageType: damageTypeController.text.trim().isEmpty ? suggestedType : damageTypeController.text.trim(),
+              notes: Value('Forgé (${_selectedMaterial.name})${_selectedTrait.id != "none" ? " – ${_selectedTrait.name}" : ""}'),
+            ),
+          );
+        }
+        if (addToInventory) {
+          await db.characterDao.insertEquipment(
+            CharacterEquipmentCompanion.insert(
+              characterId: characterId,
+              itemName: _calculatedItemName,
+              weight: Value(double.tryParse(_calculatedWeight.replaceAll(' lbs', '')) ?? 0.0),
+              equipped: const Value(false),
+              notes: Value('${_selectedItem.properties}${_selectedMaterial.id != "steel" ? " | ${_selectedMaterial.effect}" : ""}'),
+            ),
+          );
+        }
       }
 
-      // Insert into CharacterEquipment if checkbox is checked
-      if (addToInventory) {
-        await db.characterDao.insertEquipment(
-          CharacterEquipmentCompanion.insert(
-            characterId: characterId,
-            itemName: _calculatedItemName,
-            weight: Value(double.tryParse(_calculatedWeight.replaceAll(' lbs', '')) ?? 0.0),
-            equipped: const Value(false),
-            notes: Value('${_selectedItem.properties}${_selectedMaterial.id != "steel" ? " | ${_selectedMaterial.effect}" : ""}'),
-          ),
-        );
-      }
+      // Reset inventory selection after successful operation
+      if (mounted) setState(() => _selectedInventoryItemId = null);
 
       if (context.mounted) {
+        final verb = _forgeMode == 'improve' ? 'amélioré' : _forgeMode == 'repair' ? 'réparé' : 'ajouté';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('✅ "$_calculatedItemName" ajouté à la fiche !'),
+            content: Text('✅ "${selectedEq?.itemName ?? _calculatedItemName}" $verb avec succès !'),
             backgroundColor: Colors.green.shade700,
             duration: const Duration(seconds: 3),
           ),
@@ -1000,7 +1366,7 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur lors de l\'ajout : $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Erreur : $e'), backgroundColor: Colors.red),
         );
       }
     }

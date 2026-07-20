@@ -863,7 +863,6 @@ class _AvatarPicker extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hasImage = imageUrl != null && imageUrl!.isNotEmpty;
-    final colorScheme = Theme.of(context).colorScheme;
 
     return Center(
       child: Stack(
@@ -871,20 +870,27 @@ class _AvatarPicker extends ConsumerWidget {
           Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: colorScheme.primary, width: 3),
+              border: Border.all(color: AppTheme.neonCyan, width: 3),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.neonCyan.withValues(alpha: 0.2),
+                  blurRadius: 15,
+                  spreadRadius: 2,
+                ),
+              ],
             ),
             child: CircleAvatar(
               radius: 60,
-              backgroundColor: colorScheme.primaryContainer,
+              backgroundColor: AppTheme.cardDark,
               backgroundImage: hasImage ? NetworkImage(imageUrl!) : null,
               child: hasImage
                   ? null
                   : Text(
                       characterName.isNotEmpty ? characterName[0].toUpperCase() : '?',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 48,
                         fontWeight: FontWeight.bold,
-                        color: colorScheme.onPrimaryContainer,
+                        color: AppTheme.neonCyan,
                       ),
                     ),
             ),
@@ -893,11 +899,11 @@ class _AvatarPicker extends ConsumerWidget {
             bottom: 0,
             right: 0,
             child: Material(
-              color: colorScheme.primary,
+              color: AppTheme.neonCyan,
               shape: const CircleBorder(),
               elevation: 4,
               child: IconButton(
-                icon: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                icon: const Icon(Icons.camera_alt, color: Colors.black, size: 20),
                 onPressed: onPick,
               ),
             ),
