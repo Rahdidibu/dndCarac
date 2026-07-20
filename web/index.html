@@ -31,6 +31,20 @@
 
   <title>dnd_character_manager</title>
   <link rel="manifest" href="manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for (let registration of registrations) {
+          registration.unregister().then(function(boolean) {
+            if (boolean) {
+              console.log('Ancien service worker désenregistré avec succès.');
+              window.location.reload();
+            }
+          });
+        }
+      });
+    }
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
