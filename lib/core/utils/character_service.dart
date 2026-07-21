@@ -54,15 +54,30 @@ class CharacterService {
       }
     }
 
-    // 1 — Resolve HP at level 1
+    // 1 — Resolve HP (handling multiclassing and starting levels > 1)
     final primaryClass = wizard.classes.first;
-    final cls = await db.compendiumDao
-        .getClassById(primaryClass.classId, wizard.ruleset);
-    final hitDie = cls?.hitDie ?? 8;
-
-    // We'll use final CON score
     final con = finalScores['con'] ?? 10;
-    final hpMax = DndRules.hpAtLevel1(hitDie, con);
+    int hpMax = 0;
+    bool isFirstLevelResolved = false;
+
+    for (int i = 0; i < wizard.classes.length; i++) {
+      final classEntry = wizard.classes[i];
+      final cls = await db.compendiumDao.getClassById(classEntry.classId, wizard.ruleset);
+      final hitDie = cls?.hitDie ?? 8;
+
+      if (!isFirstLevelResolved) {
+        // First level of primary class gives max hit die value
+        hpMax += DndRules.hpAtLevel1(hitDie, con);
+        isFirstLevelResolved = true;
+        // Remaining levels of primary class (if any) give average value
+        if (classEntry.level > 1) {
+          hpMax += (classEntry.level - 1) * DndRules.hpAverageOnLevelUp(hitDie, con);
+        }
+      } else {
+        // All levels of subsequent classes (multiclassing) give average value
+        hpMax += classEntry.level * DndRules.hpAverageOnLevelUp(hitDie, con);
+      }
+    }
 
     // 2 — Insert character row
     final characterId = await db.characterDao.insertCharacter(

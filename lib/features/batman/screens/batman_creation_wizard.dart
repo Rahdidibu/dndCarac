@@ -399,7 +399,7 @@ class _StepProfileMode extends ConsumerWidget {
                     Wrap(
                       spacing: 6,
                       children: [
-                        _chip('${profile.hitDie}'),
+                        _chip(profile.hitDie),
                         if (profile.atcBonus > 0) _chip('ATC +${profile.atcBonus}'),
                         if (profile.atdBonus > 0) _chip('ATD +${profile.atdBonus}'),
                         _chip('PC: ${profile.capabilityPoints}'),

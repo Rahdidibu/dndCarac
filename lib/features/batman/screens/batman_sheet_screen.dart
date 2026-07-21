@@ -264,7 +264,7 @@ class _HeroTab extends ConsumerWidget {
                                     fontSize: 14)),
                           profileAsync.when(
                             loading: () => const SizedBox.shrink(),
-                            error: (_, __) => const SizedBox.shrink(),
+                            error: (_, _) => const SizedBox.shrink(),
                             data: (profiles) {
                               final profile = profiles
                                   .where((p) => p.id == bat.profileId)

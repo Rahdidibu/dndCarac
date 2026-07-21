@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/database/tables/tables.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/utils/markdown_text.dart';
 import '../../providers/character_providers.dart';
 import '../../providers/wizard_provider.dart';
 
@@ -34,6 +35,7 @@ class _Step4OriginState extends ConsumerState<Step4Origin> {
     final l10n = AppLocalizations.of(context)!;
     final wizard = ref.watch(wizardProvider);
     final notifier = ref.read(wizardProvider.notifier);
+    final colorScheme = Theme.of(context).colorScheme;
 
     final racesAsync = ref.watch(srdRacesProvider(wizard.ruleset));
     final backgroundsAsync = ref.watch(srdBackgroundsProvider(wizard.ruleset));
@@ -43,188 +45,198 @@ class _Step4OriginState extends ConsumerState<Step4Origin> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-        Text(
-          l10n.wizardStepOrigin,
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        const SizedBox(height: 8),
-        if (wizard.ruleset == RulesetVersion.dnd2024)
-          Card(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
+          Text(
+            l10n.wizardStepOrigin,
+            style: const TextStyle(fontFamily: 'Cinzel', fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          if (wizard.ruleset == RulesetVersion.dnd2024)
+            Card(
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, size: 18, color: colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        l10n.step4AsiInfoText,
+                        style: TextStyle(fontFamily: 'Lora', fontSize: 12, color: colorScheme.onSurface.withValues(alpha: 0.8)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          const SizedBox(height: 24),
+
+          // ── Species / Race ───────────────────────────────────────────────
+          Text(
+            wizard.ruleset == RulesetVersion.dnd2024 ? l10n.step4SpeciesLabel : l10n.step4RaceLabel,
+            style: const TextStyle(fontFamily: 'Cinzel', fontSize: 15, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          racesAsync.when(
+            loading: () => const LinearProgressIndicator(),
+            error: (e, _) => Text('Erreur: $e'),
+            data: (races) => DropdownButtonFormField<String>(
+              key: const ValueKey('species-dropdown'),
+              style: TextStyle(fontFamily: 'Lora', color: colorScheme.onSurface),
+              decoration: InputDecoration(
+                labelText: wizard.ruleset == RulesetVersion.dnd2024
+                    ? l10n.step4SpeciesLabel
+                    : l10n.step4RaceLabel,
+                labelStyle: const TextStyle(fontFamily: 'Cinzel', fontSize: 13),
+                border: const OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: colorScheme.primary, width: 2),
+                ),
+              ),
+              initialValue: wizard.speciesId,
+              items: races
+                  .map((r) => DropdownMenuItem(value: r.id, child: Text(r.name)))
+                  .toList(),
+              onChanged: (v) => notifier.setSpecies(v),
+            ),
+          ),
+
+          // Sub-race / subspecies (if species selected)
+          if (wizard.speciesId != null) ...[
+            const SizedBox(height: 12),
+            _SubraceDropdown(
+              speciesId: wizard.speciesId!,
+              ruleset: wizard.ruleset,
+              selectedSubraceId: wizard.subspeciesId,
+              onChanged: notifier.setSubspecies,
+            ),
+          ],
+
+          const SizedBox(height: 24),
+
+          // ── Background ───────────────────────────────────────────────────
+          Text(
+            'Background',
+            style: const TextStyle(fontFamily: 'Cinzel', fontSize: 15, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+
+          if (wizard.ruleset == RulesetVersion.dnd2024) ...[
+            Text(
+              'Filtrer par bonus de caractéristique',
+              style: TextStyle(fontFamily: 'Lora', fontSize: 11, color: colorScheme.onSurface.withValues(alpha: 0.6)),
+            ),
+            const SizedBox(height: 6),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline, size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      l10n.step4AsiInfoText,
-                      style: Theme.of(context).textTheme.bodySmall,
+                  'Toutes', 'str', 'dex', 'con', 'int', 'wis', 'cha'
+                ].map((ability) {
+                  final isAll = ability == 'Toutes';
+                  final isSelected = isAll 
+                      ? _selectedFilterAbility == null 
+                      : _selectedFilterAbility == ability;
+                  final label = isAll ? 'Toutes' : _abilityLabel(ability);
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: ChoiceChip(
+                      label: Text(label, style: const TextStyle(fontFamily: 'Cinzel', fontSize: 11)),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        setState(() {
+                          _selectedFilterAbility = isAll ? null : (selected ? ability : null);
+                        });
+                      },
                     ),
-                  ),
-                ],
+                  );
+                }).toList(),
               ),
             ),
-          ),
-        const SizedBox(height: 24),
+            const SizedBox(height: 12),
+          ],
 
-        // ── Species / Race ───────────────────────────────────────────────
-        Text(
-          wizard.ruleset == RulesetVersion.dnd2024 ? l10n.step4SpeciesLabel : l10n.step4RaceLabel,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 8),
-        racesAsync.when(
-          loading: () => const LinearProgressIndicator(),
-          error: (e, _) => Text('Erreur: $e'),
-          data: (races) => DropdownButtonFormField<String>(
-            key: const ValueKey('species-dropdown'),
-            decoration: InputDecoration(
-              labelText: wizard.ruleset == RulesetVersion.dnd2024
-                  ? l10n.step4SpeciesLabel
-                  : l10n.step4RaceLabel,
-              border: const OutlineInputBorder(),
-            ),
-            value: wizard.speciesId,
-            items: races
-                .map((r) => DropdownMenuItem(value: r.id, child: Text(r.name)))
-                .toList(),
-            onChanged: (v) => notifier.setSpecies(v),
-          ),
-        ),
-
-        // Sub-race / subspecies (if species selected)
-        if (wizard.speciesId != null) ...[
-          const SizedBox(height: 12),
-          _SubraceDropdown(
-            speciesId: wizard.speciesId!,
-            ruleset: wizard.ruleset,
-            selectedSubraceId: wizard.subspeciesId,
-            onChanged: notifier.setSubspecies,
-          ),
-        ],
-
-        const SizedBox(height: 24),
-
-        // ── Background ───────────────────────────────────────────────────
-        Text(
-          'Background',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 8),
-
-        if (wizard.ruleset == RulesetVersion.dnd2024) ...[
-          Text(
-            'Filtrer par bonus de caractéristique',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
-          ),
-          const SizedBox(height: 4),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                'Toutes', 'str', 'dex', 'con', 'int', 'wis', 'cha'
-              ].map((ability) {
-                final isAll = ability == 'Toutes';
-                final isSelected = isAll 
-                    ? _selectedFilterAbility == null 
-                    : _selectedFilterAbility == ability;
-                final label = isAll ? 'Toutes' : _abilityLabel(ability);
-                return Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: ChoiceChip(
-                    label: Text(label, style: const TextStyle(fontSize: 12)),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        _selectedFilterAbility = isAll ? null : (selected ? ability : null);
-                      });
-                    },
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-          const SizedBox(height: 12),
-        ],
-
-        backgroundsAsync.when(
-          loading: () => const LinearProgressIndicator(),
-          error: (e, _) => Text('Erreur: $e'),
-          data: (backgrounds) {
-            var filteredBackgrounds = backgrounds;
-            if (wizard.ruleset == RulesetVersion.dnd2024 && _selectedFilterAbility != null) {
-              filteredBackgrounds = backgrounds.where((bg) {
-                if (bg.asiJson == null) return false;
-                try {
-                  final List<dynamic> list = json.decode(bg.asiJson!);
-                  return list.cast<String>().contains(_selectedFilterAbility);
-                } catch (_) {
-                  return false;
-                }
-              }).toList();
-            }
-
-            final currentVal = filteredBackgrounds.any((b) => b.id == wizard.backgroundId)
-                ? wizard.backgroundId
-                : null;
-
-            return DropdownButtonFormField<String>(
-              key: ValueKey('background-dropdown-${_selectedFilterAbility ?? "all"}'),
-              decoration: const InputDecoration(
-                labelText: 'Background',
-                border: OutlineInputBorder(),
-              ),
-              value: currentVal,
-              items: filteredBackgrounds
-                  .map((b) =>
-                      DropdownMenuItem(value: b.id, child: Text(b.name)))
-                  .toList(),
-              onChanged: (v) {
-                notifier.setBackground(v);
-                if (wizard.ruleset == RulesetVersion.dnd2024 && v != null) {
-                  final bg = backgrounds.firstWhere((b) => b.id == v);
-                  notifier.setChosenFeatId(bg.originFeatId);
-                  notifier.setBackgroundAsi({});
-                }
-              },
-            );
-          },
-        ),
-
-        // 2024: Origin Feat display
-        if (wizard.ruleset == RulesetVersion.dnd2024 &&
-            wizard.chosenFeatId != null) ...[
-          const SizedBox(height: 16),
-          _OriginFeatCard(
-            featId: wizard.chosenFeatId!,
-            ruleset: wizard.ruleset,
-          ),
-        ],
-
-        // 2024: ASI choice from background
-        if (wizard.ruleset == RulesetVersion.dnd2024 &&
-            wizard.backgroundId != null) ...[
-          const SizedBox(height: 16),
           backgroundsAsync.when(
-            loading: () => const SizedBox.shrink(),
-            error: (e, _) => const SizedBox.shrink(),
+            loading: () => const LinearProgressIndicator(),
+            error: (e, _) => Text('Erreur: $e'),
             data: (backgrounds) {
-              final bg = backgrounds
-                  .where((b) => b.id == wizard.backgroundId)
-                  .firstOrNull;
-              if (bg?.asiJson == null) return const SizedBox.shrink();
-              final eligible = (json.decode(bg!.asiJson!) as List)
-                  .cast<String>();
-              return _BackgroundAsiPicker(
-                eligibleAbilities: eligible,
-                currentChoices: wizard.backgroundAsiChoices,
-                onChanged: notifier.setBackgroundAsi,
+              var filteredBackgrounds = backgrounds;
+              if (wizard.ruleset == RulesetVersion.dnd2024 && _selectedFilterAbility != null) {
+                filteredBackgrounds = backgrounds.where((bg) {
+                  if (bg.asiJson == null) return false;
+                  try {
+                    final List<dynamic> list = json.decode(bg.asiJson!);
+                    return list.cast<String>().contains(_selectedFilterAbility);
+                  } catch (_) {
+                    return false;
+                  }
+                }).toList();
+              }
+
+              final currentVal = filteredBackgrounds.any((b) => b.id == wizard.backgroundId)
+                  ? wizard.backgroundId
+                  : null;
+
+              return DropdownButtonFormField<String>(
+                key: ValueKey('background-dropdown-${_selectedFilterAbility ?? "all"}'),
+                style: TextStyle(fontFamily: 'Lora', color: colorScheme.onSurface),
+                decoration: InputDecoration(
+                  labelText: 'Background',
+                  labelStyle: const TextStyle(fontFamily: 'Cinzel', fontSize: 13),
+                  border: const OutlineInputBorder(),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: colorScheme.primary, width: 2),
+                  ),
+                ),
+                initialValue: currentVal,
+                items: filteredBackgrounds
+                    .map((b) =>
+                        DropdownMenuItem(value: b.id, child: Text(b.name)))
+                    .toList(),
+                onChanged: (v) {
+                  notifier.setBackground(v);
+                  if (wizard.ruleset == RulesetVersion.dnd2024 && v != null) {
+                    final bg = backgrounds.firstWhere((b) => b.id == v);
+                    notifier.setChosenFeatId(bg.originFeatId);
+                    notifier.setBackgroundAsi({});
+                  }
+                },
               );
             },
           ),
-        ],
+
+          // 2024: Origin Feat display
+          if (wizard.ruleset == RulesetVersion.dnd2024 &&
+              wizard.chosenFeatId != null) ...[
+            const SizedBox(height: 16),
+            _OriginFeatCard(
+              featId: wizard.chosenFeatId!,
+              ruleset: wizard.ruleset,
+            ),
+          ],
+
+          // 2024: ASI choice from background
+          if (wizard.ruleset == RulesetVersion.dnd2024 &&
+              wizard.backgroundId != null) ...[
+            const SizedBox(height: 16),
+            backgroundsAsync.when(
+              loading: () => const SizedBox.shrink(),
+              error: (e, _) => const SizedBox.shrink(),
+              data: (backgrounds) {
+                final bg = backgrounds
+                    .where((b) => b.id == wizard.backgroundId)
+                    .firstOrNull;
+                if (bg?.asiJson == null) return const SizedBox.shrink();
+                final eligible = (json.decode(bg!.asiJson!) as List)
+                    .cast<String>();
+                return _BackgroundAsiPicker(
+                  eligibleAbilities: eligible,
+                  currentChoices: wizard.backgroundAsiChoices,
+                  onChanged: notifier.setBackgroundAsi,
+                );
+              },
+            ),
+          ],
         ],
       ),
     );
@@ -240,12 +252,19 @@ class _OriginFeatCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final featAsync = ref.watch(srdFeatByIdProvider((featId: featId, ruleset: ruleset)));
+    final colorScheme = Theme.of(context).colorScheme;
+
     return featAsync.when(
       loading: () => const SizedBox(height: 50, child: Center(child: CircularProgressIndicator())),
       error: (e, _) => Text('Erreur chargement don: $e'),
       data: (feat) {
         if (feat == null) return const SizedBox.shrink();
         return Card(
+          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.15),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.3), width: 1),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -253,20 +272,26 @@ class _OriginFeatCard extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.star, color: Colors.amber, size: 20),
+                    Icon(Icons.auto_awesome, color: colorScheme.primary, size: 20),
                     const SizedBox(width: 8),
                     Text(
                       'Don d\'origine : ${feat.name}',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: const TextStyle(
+                        fontFamily: 'Cinzel',
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  feat.description,
-                  style: Theme.of(context).textTheme.bodySmall,
+                const SizedBox(height: 10),
+                MarkdownText(
+                  text: feat.description,
+                  style: const TextStyle(
+                    fontFamily: 'Lora',
+                    fontSize: 12.5,
+                    height: 1.4,
+                  ),
                 ),
               ],
             ),
@@ -296,6 +321,7 @@ class _SubraceDropdown extends ConsumerWidget {
     final subracesAsync = ref.watch(
       srdSubracesProvider((raceId: speciesId, ruleset: ruleset)),
     );
+    final colorScheme = Theme.of(context).colorScheme;
 
     return subracesAsync.when(
       loading: () => const LinearProgressIndicator(),
@@ -304,13 +330,18 @@ class _SubraceDropdown extends ConsumerWidget {
         if (subraces.isEmpty) return const SizedBox.shrink();
         return DropdownButtonFormField<String>(
           key: ValueKey(selectedSubraceId),
+          style: TextStyle(fontFamily: 'Lora', color: colorScheme.onSurface),
           decoration: InputDecoration(
             labelText: ruleset == RulesetVersion.dnd2024
                 ? l10n.step4SubspeciesLabel
                 : l10n.step4SubraceLabel,
+            labelStyle: const TextStyle(fontFamily: 'Cinzel', fontSize: 13),
             border: const OutlineInputBorder(),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: colorScheme.primary, width: 2),
+            ),
           ),
-          value: selectedSubraceId,
+          initialValue: selectedSubraceId,
           items: [
             DropdownMenuItem(value: null, child: Text(l10n.step4NoneOption)),
             ...subraces.map(
@@ -350,32 +381,39 @@ class _BackgroundAsiPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final total = _totalAssigned();
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Card(
+      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.2), width: 1),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Bonus de background (ASI) — Répartissez +2 et +1',
-              style: Theme.of(context).textTheme.titleSmall,
+            const Text(
+              'Bonus de background (ASI)',
+              style: TextStyle(fontFamily: 'Cinzel', fontSize: 14, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 4),
             Text(
-              'Points attribués: $total / 3  (+2 sur une, +1 sur une autre)',
-              style: Theme.of(context).textTheme.bodySmall,
+              'Répartissez +2 et +1 sur les caractéristiques éligibles.\n'
+              'Points attribués: $total / 3',
+              style: TextStyle(fontFamily: 'Lora', fontSize: 12, color: colorScheme.onSurface.withValues(alpha: 0.7)),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             ...eligibleAbilities.map((ability) {
               final current = currentChoices[ability] ?? 0;
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
+                padding: const EdgeInsets.symmetric(vertical: 6),
                 child: Row(
                   children: [
-                    SizedBox(
-                      width: 100,
-                      child: Text(
-                        _abilityLabels[ability] ?? ability,
-                      ),
+                    Text(
+                      _abilityLabels[ability] ?? ability,
+                      style: const TextStyle(fontFamily: 'Lora', fontSize: 13.5, fontWeight: FontWeight.w600),
                     ),
                     const Spacer(),
                     _AsiChip(
@@ -383,9 +421,7 @@ class _BackgroundAsiPicker extends StatelessWidget {
                       selected: current == 2,
                       onTap: () {
                         final updated = Map<String, int>.from(currentChoices);
-                        // Remove +2 from any other ability
-                        updated.removeWhere(
-                            (k, v) => v == 2 && k != ability);
+                        updated.removeWhere((k, v) => v == 2 && k != ability);
                         if (current == 2) {
                           updated.remove(ability);
                         } else {
@@ -400,8 +436,7 @@ class _BackgroundAsiPicker extends StatelessWidget {
                       selected: current == 1,
                       onTap: () {
                         final updated = Map<String, int>.from(currentChoices);
-                        updated.removeWhere(
-                            (k, v) => v == 1 && k != ability);
+                        updated.removeWhere((k, v) => v == 1 && k != ability);
                         if (current == 1) {
                           updated.remove(ability);
                         } else {
@@ -436,17 +471,22 @@ class _AsiChip extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: selected ? colorScheme.primary : colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(16),
+          color: selected ? colorScheme.primary : colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected ? Colors.white.withValues(alpha: 0.5) : colorScheme.outline.withValues(alpha: 0.1),
+            width: 1,
+          ),
         ),
         child: Text(
           label,
           style: TextStyle(
+            fontFamily: 'Cinzel',
             color: selected ? colorScheme.onPrimary : colorScheme.onSurface,
             fontWeight: FontWeight.bold,
-            fontSize: 13,
+            fontSize: 12,
           ),
         ),
       ),

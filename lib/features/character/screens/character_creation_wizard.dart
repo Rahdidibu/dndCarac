@@ -90,6 +90,7 @@ class _CharacterCreationWizardState
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final wizard = ref.watch(wizardProvider);
@@ -109,69 +110,104 @@ class _CharacterCreationWizardState
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.characterCreate),
+        title: Text(
+          l10n.characterCreate,
+          style: const TextStyle(fontFamily: 'Cinzel', fontWeight: FontWeight.bold),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => _confirmDiscard(context, l10n),
         ),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(64),
-          child: _StepIndicator(
-            titles: stepTitles,
-            currentStep: _currentStep,
-            onTap: (i) {
-              // Only allow going back to previous steps
-              if (i <= _currentStep) _goTo(i);
-            },
+          preferredSize: const Size.fromHeight(70),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 800),
+              child: _StepIndicator(
+                titles: stepTitles,
+                currentStep: _currentStep,
+                onTap: (i) {
+                  if (i <= _currentStep) _goTo(i);
+                },
+              ),
+            ),
           ),
         ),
       ),
-      body: PageView(
-        controller: _pageController,
-        physics: const NeverScrollableScrollPhysics(),
-        children: const [
-          Step1System(),
-          Step2Identity(),
-          Step3Class(),
-          Step4Origin(),
-          Step5Abilities(),
-          Step6Proficiencies(),
-          Step7Summary(),
-        ],
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: PageView(
+            controller: _pageController,
+            physics: const NeverScrollableScrollPhysics(),
+            children: const [
+              Step1System(),
+              Step2Identity(),
+              Step3Class(),
+              Step4Origin(),
+              Step5Abilities(),
+              Step6Proficiencies(),
+              Step7Summary(),
+            ],
+          ),
+        ),
       ),
       bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-          child: Row(
-            children: [
-              if (_currentStep > 0)
-                OutlinedButton.icon(
-                  onPressed: _saving ? null : _previous,
-                  icon: const Icon(Icons.arrow_back),
-                  label: Text(l10n.wizardPrevious),
-                )
-              else
-                const SizedBox.shrink(),
-              const Spacer(),
-              if (isLastStep)
-                FilledButton.icon(
-                  onPressed: _saving ? null : _finish,
-                  icon: _saving
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.check),
-                  label: Text(l10n.wizardFinish),
-                )
-              else
-                FilledButton.icon(
-                  onPressed: canNext ? _next : null,
-                  icon: const Icon(Icons.arrow_forward),
-                  label: Text(l10n.wizardNext),
-                ),
-            ],
+        child: Center(
+          heightFactor: 1.0,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+              child: Row(
+                children: [
+                  if (_currentStep > 0)
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        side: BorderSide(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      onPressed: _saving ? null : _previous,
+                      icon: const Icon(Icons.arrow_back, size: 18),
+                      label: Text(l10n.wizardPrevious, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    )
+                  else
+                    const SizedBox.shrink(),
+                  const Spacer(),
+                  if (isLastStep)
+                    FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      onPressed: _saving ? null : _finish,
+                      icon: _saving
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Icon(Icons.check, size: 18),
+                      label: Text(l10n.wizardFinish, style: const TextStyle(fontFamily: 'Cinzel', fontWeight: FontWeight.bold)),
+                    )
+                  else
+                    FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      onPressed: canNext ? _next : null,
+                      icon: const Icon(Icons.arrow_forward, size: 18),
+                      label: Text(l10n.wizardNext, style: const TextStyle(fontFamily: 'Cinzel', fontWeight: FontWeight.bold)),
+                    ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -183,7 +219,7 @@ class _CharacterCreationWizardState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Abandonner la création ?'),
+        title: const Text('Abandonner la création ?', style: TextStyle(fontFamily: 'Cinzel')),
         content: const Text('Toutes les modifications seront perdues.'),
         actions: [
           TextButton(
@@ -215,62 +251,192 @@ class _StepIndicator extends StatelessWidget {
     required this.onTap,
   });
 
+  IconData _getIconForStep(int step) {
+    switch (step) {
+      case 0:
+        return Icons.menu_book_outlined; // Système
+      case 1:
+        return Icons.person_outline; // Identité
+      case 2:
+        return Icons.shield_outlined; // Classe
+      case 3:
+        return Icons.explore_outlined; // Origine
+      case 4:
+        return Icons.casino_outlined; // Caractéristiques
+      case 5:
+        return Icons.construction_outlined; // Maîtrises
+      case 6:
+        return Icons.history_edu_outlined; // Résumé
+      default:
+        return Icons.help_outline;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Row(
-        children: List.generate(titles.length, (i) {
-          final isDone = i < currentStep;
-          final isCurrent = i == currentStep;
-          return GestureDetector(
-            onTap: () => onTap(i),
-            child: Row(
-              children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isDone || isCurrent
-                        ? colorScheme.primary
-                        : colorScheme.surfaceContainerHighest,
-                    border: isCurrent
-                        ? Border.all(
-                            color: colorScheme.onPrimary, width: 2)
-                        : null,
-                  ),
-                  child: Center(
-                    child: isDone
-                        ? Icon(Icons.check,
-                            size: 16, color: colorScheme.onPrimary)
-                        : Text(
-                            '${i + 1}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth > 700;
+
+    return Container(
+      height: 64,
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: colorScheme.primary.withValues(alpha: 0.15),
+            width: 1,
+          ),
+        ),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (isDesktop) {
+            // Only show all texts if we have enough available width in this widget (e.g. > 950px)
+            final showAllTexts = constraints.maxWidth > 950;
+
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: List.generate(titles.length, (i) {
+                final isDone = i < currentStep;
+                final isCurrent = i == currentStep;
+                final activeColor = colorScheme.primary;
+                final inactiveColor = colorScheme.onSurface.withValues(alpha: 0.4);
+                final showText = isCurrent || showAllTexts;
+
+                return Tooltip(
+                  message: titles[i],
+                  child: InkWell(
+                    onTap: i <= currentStep ? () => onTap(i) : null,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isCurrent
+                                  ? activeColor
+                                  : isDone
+                                      ? activeColor.withValues(alpha: 0.2)
+                                      : colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                              border: Border.all(
+                                color: isCurrent
+                                    ? Colors.white
+                                    : isDone
+                                        ? activeColor.withValues(alpha: 0.6)
+                                        : colorScheme.outline.withValues(alpha: 0.2),
+                                width: isCurrent ? 2 : 1,
+                              ),
+                            ),
+                            child: Icon(
+                              isDone ? Icons.check : _getIconForStep(i),
+                              size: 16,
                               color: isCurrent
                                   ? colorScheme.onPrimary
-                                  : colorScheme.onSurfaceVariant,
+                                  : isDone
+                                      ? activeColor
+                                      : inactiveColor,
                             ),
                           ),
+                          if (showText) ...[
+                            const SizedBox(width: 8),
+                            Text(
+                              titles[i],
+                              style: TextStyle(
+                                fontFamily: 'Cinzel',
+                                fontSize: 11,
+                                fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+                                color: isCurrent
+                                    ? activeColor
+                                    : isDone
+                                        ? colorScheme.onSurface
+                                        : inactiveColor,
+                              ),
+                            ),
+                          ],
+                          if (i < titles.length - 1) ...[
+                            const SizedBox(width: 12),
+                            Icon(
+                              Icons.chevron_right,
+                              size: 14,
+                              color: colorScheme.onSurface.withValues(alpha: 0.2),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                if (i < titles.length - 1)
-                  Container(
-                    width: 24,
-                    height: 2,
-                    color: isDone
-                        ? colorScheme.primary
-                        : colorScheme.surfaceContainerHighest,
-                  ),
-              ],
-            ),
-          );
-        }),
+                );
+              }),
+            );
+          } else {
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: List.generate(titles.length, (i) {
+                  final isDone = i < currentStep;
+                  final isCurrent = i == currentStep;
+                  final activeColor = colorScheme.primary;
+                  final inactiveColor = colorScheme.onSurface.withValues(alpha: 0.4);
+
+                  return GestureDetector(
+                    onTap: i <= currentStep ? () => onTap(i) : null,
+                    child: Row(
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isCurrent
+                                ? activeColor
+                                : isDone
+                                    ? activeColor.withValues(alpha: 0.15)
+                                    : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                            border: Border.all(
+                              color: isCurrent
+                                  ? Colors.white
+                                  : isDone
+                                      ? activeColor.withValues(alpha: 0.5)
+                                      : colorScheme.outline.withValues(alpha: 0.2),
+                              width: isCurrent ? 2 : 1,
+                            ),
+                          ),
+                          child: Icon(
+                            isDone ? Icons.check : _getIconForStep(i),
+                            size: 18,
+                            color: isCurrent
+                                ? colorScheme.onPrimary
+                                : isDone
+                                    ? activeColor
+                                    : inactiveColor,
+                          ),
+                        ),
+                        if (i < titles.length - 1)
+                          Container(
+                            width: 28,
+                            height: 2,
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            color: isDone
+                                ? activeColor.withValues(alpha: 0.5)
+                                : colorScheme.surfaceContainerHighest,
+                          ),
+                      ],
+                    ),
+                  );
+                }),
+              ),
+            );
+          }
+        },
       ),
     );
   }

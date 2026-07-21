@@ -122,7 +122,7 @@ class SrdSeeder {
         isCustom: const Value(false),
       );
     }).toList();
-    await db.compendiumDao.insertAllSpells(companions);
+    await _insertSpellsInChunks(companions);
   }
 
   Future<void> _seedClasses(RulesetVersion ruleset, String assetPath) async {
@@ -269,7 +269,7 @@ class SrdSeeder {
             Value((f['desc'] as List?)?.join('\n') ?? ''),
       );
     }).toList();
-    await db.compendiumDao.insertAllFeatures(companions);
+    await _insertFeaturesInChunks(companions);
   }
 
   // ── 2024 ────────────────────────────────────────────────
@@ -314,7 +314,7 @@ class SrdSeeder {
         isCustom: const Value(false),
       );
     }).toList();
-    await db.compendiumDao.insertAllSpells(companions);
+    await _insertSpellsInChunks(companions);
   }
 
   Future<void> _seedSpecies2024() async {
@@ -408,7 +408,7 @@ class SrdSeeder {
         repeatable: Value(f['repeatable'] != null),
       );
     }).toList();
-    await db.compendiumDao.insertAllFeats(companions);
+    await _insertFeatsInChunks(companions);
   }
 
   static const _masteryTranslations = {
@@ -461,6 +461,33 @@ class SrdSeeder {
       );
     }).toList();
     await db.compendiumDao.insertAllWeaponMasteries(companions);
+  }
+
+  Future<void> _insertSpellsInChunks(List<SrdSpellsCompanion> companions) async {
+    const chunkSize = 50;
+    for (var i = 0; i < companions.length; i += chunkSize) {
+      final end = (i + chunkSize < companions.length) ? i + chunkSize : companions.length;
+      await db.compendiumDao.insertAllSpells(companions.sublist(i, end));
+      await Future.delayed(const Duration(milliseconds: 5));
+    }
+  }
+
+  Future<void> _insertFeaturesInChunks(List<SrdFeaturesCompanion> companions) async {
+    const chunkSize = 50;
+    for (var i = 0; i < companions.length; i += chunkSize) {
+      final end = (i + chunkSize < companions.length) ? i + chunkSize : companions.length;
+      await db.compendiumDao.insertAllFeatures(companions.sublist(i, end));
+      await Future.delayed(const Duration(milliseconds: 5));
+    }
+  }
+
+  Future<void> _insertFeatsInChunks(List<SrdFeatsCompanion> companions) async {
+    const chunkSize = 50;
+    for (var i = 0; i < companions.length; i += chunkSize) {
+      final end = (i + chunkSize < companions.length) ? i + chunkSize : companions.length;
+      await db.compendiumDao.insertAllFeats(companions.sublist(i, end));
+      await Future.delayed(const Duration(milliseconds: 5));
+    }
   }
 }
 

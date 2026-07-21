@@ -137,49 +137,202 @@ class Step3Class extends ConsumerWidget {
     AppLocalizations l10n,
   ) async {
     String? selectedClassId;
+
+    IconData getClassIcon(String classId) {
+      switch (classId) {
+        case 'barbarian':
+          return Icons.gavel;
+        case 'bard':
+          return Icons.music_note;
+        case 'cleric':
+          return Icons.favorite;
+        case 'druid':
+          return Icons.nature;
+        case 'fighter':
+          return Icons.shield;
+        case 'monk':
+          return Icons.sports_martial_arts;
+        case 'paladin':
+          return Icons.workspace_premium;
+        case 'ranger':
+          return Icons.explore;
+        case 'rogue':
+          return Icons.vpn_key;
+        case 'sorcerer':
+          return Icons.bolt;
+        case 'warlock':
+          return Icons.auto_awesome;
+        case 'wizard':
+          return Icons.menu_book;
+        default:
+          return Icons.help_outline;
+      }
+    }
+
     await showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setState) => AlertDialog(
-          title: const Text('Choisir une classe'),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView(
-              shrinkWrap: true,
-              children: available.map((cls) {
-                final isSelected = selectedClassId == cls.id;
-                return ListTile(
-                  title: Text(CharacterService.classDisplayName(cls.id as String, l10n)),
-                  subtitle: Text('Dé de vie : d${cls.hitDie}'),
-                  leading: Radio<String>(
-                    value: cls.id as String,
-                    groupValue: selectedClassId,
-                    onChanged: (v) => setState(() => selectedClassId = v),
-                  ),
-                  onTap: () =>
-                      setState(() => selectedClassId = cls.id as String),
-                  selected: isSelected,
-                );
-              }).toList(),
+        builder: (ctx, setState) {
+          final colorScheme = Theme.of(context).colorScheme;
+          final isLarge = MediaQuery.of(context).size.width > 600;
+
+          return AlertDialog(
+            title: const Text('Choisir une classe', style: TextStyle(fontFamily: 'Cinzel', fontWeight: FontWeight.bold)),
+            content: SizedBox(
+              width: 600,
+              child: GridView.builder(
+                shrinkWrap: true,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: isLarge ? 3 : 2,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  childAspectRatio: 1.15,
+                ),
+                itemCount: available.length,
+                itemBuilder: (context, index) {
+                  final cls = available[index];
+                  final isSelected = selectedClassId == cls.id;
+                  final classIcon = getClassIcon(cls.id as String);
+                  final className = CharacterService.classDisplayName(cls.id as String, l10n);
+
+                  return _ClassSelectCard(
+                    className: className,
+                    hitDie: cls.hitDie as int,
+                    icon: classIcon,
+                    selected: isSelected,
+                    onTap: () => setState(() => selectedClassId = cls.id as String),
+                  );
+                },
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: Text(l10n.actionCancel),
+              ),
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                ),
+                onPressed: selectedClassId == null
+                    ? null
+                    : () {
+                        notifier.addClass(
+                          WizardClassEntry(classId: selectedClassId!),
+                        );
+                        Navigator.of(ctx).pop();
+                      },
+                child: Text(l10n.actionAdd, style: const TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _ClassSelectCard extends StatefulWidget {
+  final String className;
+  final int hitDie;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ClassSelectCard({
+    required this.className,
+    required this.hitDie,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  State<_ClassSelectCard> createState() => _ClassSelectCardState();
+}
+
+class _ClassSelectCardState extends State<_ClassSelectCard> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final primaryColor = colorScheme.primary;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            if (widget.selected || _isHovered)
+              BoxShadow(
+                color: primaryColor.withValues(alpha: 0.15),
+                blurRadius: 8,
+                spreadRadius: 0.5,
+              ),
+          ],
+        ),
+        child: Card(
+          margin: EdgeInsets.zero,
+          color: widget.selected
+              ? primaryColor.withValues(alpha: 0.2)
+              : _isHovered
+                  ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
+                  : colorScheme.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(
+              color: widget.selected
+                  ? primaryColor
+                  : _isHovered
+                      ? primaryColor.withValues(alpha: 0.5)
+                      : colorScheme.outline.withValues(alpha: 0.15),
+              width: widget.selected ? 1.5 : 1,
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: Text(l10n.actionCancel),
+          child: InkWell(
+            onTap: widget.onTap,
+            borderRadius: BorderRadius.circular(10),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    widget.icon,
+                    size: 24,
+                    color: widget.selected ? primaryColor : colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    widget.className,
+                    style: TextStyle(
+                      fontFamily: 'Cinzel',
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: widget.selected ? primaryColor : colorScheme.onSurface,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'd${widget.hitDie} PV',
+                    style: TextStyle(
+                      fontFamily: 'Lora',
+                      fontSize: 10,
+                      color: colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            FilledButton(
-              onPressed: selectedClassId == null
-                  ? null
-                  : () {
-                      notifier.addClass(
-                        WizardClassEntry(classId: selectedClassId!),
-                      );
-                      Navigator.of(ctx).pop();
-                    },
-              child: Text(l10n.actionAdd),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -275,7 +428,7 @@ class _ClassEntryTile extends ConsumerWidget {
                           border: OutlineInputBorder(),
                           isDense: true,
                         ),
-                        value: entry.subclassId,
+                        initialValue: entry.subclassId,
                         items: [
                           const DropdownMenuItem(
                               value: null, child: Text('— Choisir plus tard —')),
@@ -382,7 +535,7 @@ class _WeaponMasteriesPanel extends ConsumerWidget {
                         ? (_) => notifier.toggleWeaponMastery(m.id)
                         : null,
                     tooltip: m.description.length > 80
-                        ? m.description.substring(0, 80) + '...'
+                        ? '${m.description.substring(0, 80)}...'
                         : m.description,
                   );
                 }).toList(),

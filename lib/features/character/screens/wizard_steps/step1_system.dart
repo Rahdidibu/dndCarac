@@ -56,7 +56,7 @@ class Step1System extends ConsumerWidget {
   }
 }
 
-class _SystemCard extends StatelessWidget {
+class _SystemCard extends StatefulWidget {
   final String title;
   final String subtitle;
   final RulesetVersion version;
@@ -72,56 +72,97 @@ class _SystemCard extends StatelessWidget {
   });
 
   @override
+  State<_SystemCard> createState() => _SystemCardState();
+}
+
+class _SystemCardState extends State<_SystemCard> {
+  bool _isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Card(
-      color: selected ? colorScheme.primaryContainer : null,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: selected
-            ? BorderSide(color: colorScheme.primary, width: 2)
-            : BorderSide.none,
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                selected ? Icons.radio_button_checked : Icons.radio_button_off,
-                color: selected ? colorScheme.primary : colorScheme.outline,
+    final primaryColor = colorScheme.primary;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            if (widget.selected || _isHovered)
+              BoxShadow(
+                color: primaryColor.withValues(alpha: 0.15),
+                blurRadius: 10,
+                spreadRadius: 1,
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: selected
-                                ? colorScheme.onPrimaryContainer
-                                : null,
+          ],
+        ),
+        child: Card(
+          margin: EdgeInsets.zero,
+          color: widget.selected
+              ? colorScheme.primaryContainer.withValues(alpha: 0.25)
+              : _isHovered
+                  ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.4)
+                  : colorScheme.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: widget.selected
+                  ? primaryColor
+                  : _isHovered
+                      ? primaryColor.withValues(alpha: 0.5)
+                      : primaryColor.withValues(alpha: 0.15),
+              width: widget.selected ? 2 : 1,
+            ),
+          ),
+          child: InkWell(
+            onTap: widget.onTap,
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    widget.selected ? Icons.radio_button_checked : Icons.radio_button_off,
+                    color: widget.selected ? primaryColor : colorScheme.onSurface.withValues(alpha: 0.4),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.title,
+                          style: TextStyle(
+                            fontFamily: 'Cinzel',
+                            fontSize: 16,
+                            color: widget.selected
+                                ? colorScheme.primary
+                                : colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
                           ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      subtitle,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: selected
-                                ? colorScheme.onPrimaryContainer
-                                    .withValues(alpha: 0.8)
-                                : colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          widget.subtitle,
+                          style: TextStyle(
+                            fontFamily: 'Lora',
+                            fontSize: 12.5,
+                            height: 1.4,
+                            color: widget.selected
+                                ? colorScheme.onSurface
+                                : colorScheme.onSurface.withValues(alpha: 0.75),
                           ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

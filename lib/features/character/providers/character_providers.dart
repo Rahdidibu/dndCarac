@@ -308,3 +308,32 @@ final srdWeaponMasteryByIdProvider = FutureProvider.family<SrdWeaponMastery?, St
   return db.compendiumDao.getWeaponMasteryById(id);
 });
 
+final characterSpeciesNameProvider = FutureProvider.family<String?, int>((ref, characterId) async {
+  final charAsync = ref.watch(characterByIdProvider(characterId));
+  final character = charAsync.valueOrNull;
+  if (character == null || character.speciesId == null) return null;
+  final db = ref.watch(databaseProvider);
+  final race = await db.compendiumDao.getRaceById(character.speciesId!, character.ruleset);
+  return race?.name;
+});
+
+final characterSubspeciesNameProvider = FutureProvider.family<String?, int>((ref, characterId) async {
+  final charAsync = ref.watch(characterByIdProvider(characterId));
+  final character = charAsync.valueOrNull;
+  if (character == null || character.speciesId == null || character.subspeciesId == null) return null;
+  final db = ref.watch(databaseProvider);
+  final subraces = await db.compendiumDao.getSubraces(character.speciesId!, character.ruleset);
+  final subrace = subraces.where((s) => s.id == character.subspeciesId).firstOrNull;
+  return subrace?.name;
+});
+
+final characterBackgroundNameProvider = FutureProvider.family<String?, int>((ref, characterId) async {
+  final charAsync = ref.watch(characterByIdProvider(characterId));
+  final character = charAsync.valueOrNull;
+  if (character == null || character.backgroundId == null) return null;
+  final db = ref.watch(databaseProvider);
+  final bg = await db.compendiumDao.getBackgroundById(character.backgroundId!, character.ruleset);
+  return bg?.name;
+});
+
+

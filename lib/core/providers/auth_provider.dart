@@ -16,6 +16,6 @@ final userIdProvider = Provider<String?>((ref) {
   return sessionAsync.when(
     data: (session) => session?.user.id,
     loading: () => null,
-    error: (_, __) => null,
+    error: (_, _) => null,
   );
 });

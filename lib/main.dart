@@ -75,25 +75,30 @@ class DndApp extends ConsumerWidget {
       routes: {
         '/character/create': (ctx) => const CharacterCreationWizard(),
         '/character/sheet': (ctx) {
-          final id = ModalRoute.of(ctx)!.settings.arguments as int;
-          return CharacterSheetScreen(characterId: id);
+          final id = ModalRoute.of(ctx)?.settings.arguments;
+          if (id is int) return CharacterSheetScreen(characterId: id);
+          return const Scaffold(body: Center(child: Text('Navigation invalide. Veuillez retourner à l\'accueil.')));
         },
         '/character/levelup': (ctx) {
-          final id = ModalRoute.of(ctx)!.settings.arguments as int;
-          return LevelUpScreen(characterId: id);
+          final id = ModalRoute.of(ctx)?.settings.arguments;
+          if (id is int) return LevelUpScreen(characterId: id);
+          return const Scaffold(body: Center(child: Text('Navigation invalide. Veuillez retourner à l\'accueil.')));
         },
         '/spells': (ctx) {
-          final id = ModalRoute.of(ctx)!.settings.arguments as int;
-          return SpellManagementScreen(characterId: id);
+          final id = ModalRoute.of(ctx)?.settings.arguments;
+          if (id is int) return SpellManagementScreen(characterId: id);
+          return const Scaffold(body: Center(child: Text('Navigation invalide. Veuillez retourner à l\'accueil.')));
         },
         '/batman/create': (ctx) => const BatmanCreationWizard(),
         '/batman/sheet': (ctx) {
-          final id = ModalRoute.of(ctx)!.settings.arguments as int;
-          return BatmanSheetScreen(characterId: id);
+          final id = ModalRoute.of(ctx)?.settings.arguments;
+          if (id is int) return BatmanSheetScreen(characterId: id);
+          return const Scaffold(body: Center(child: Text('Navigation invalide. Veuillez retourner à l\'accueil.')));
         },
         '/batman/levelup': (ctx) {
-          final id = ModalRoute.of(ctx)!.settings.arguments as int;
-          return BatmanLevelUpScreen(characterId: id);
+          final id = ModalRoute.of(ctx)?.settings.arguments;
+          if (id is int) return BatmanLevelUpScreen(characterId: id);
+          return const Scaffold(body: Center(child: Text('Navigation invalide. Veuillez retourner à l\'accueil.')));
         },
       },
       home: sessionAsync.when(

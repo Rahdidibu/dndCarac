@@ -220,11 +220,11 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
 
               return scoresAsync.when(
                 loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
                 data: (scores) {
                   return classesAsync.when(
                     loading: () => const SizedBox.shrink(),
-                    error: (_, __) => const SizedBox.shrink(),
+                    error: (_, _) => const SizedBox.shrink(),
                     data: (classes) {
                       final dexScore = scores?.dexterity ?? 10;
                       final conScore = scores?.constitution ?? 10;
@@ -563,7 +563,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                       child: ListView.separated(
                         shrinkWrap: true,
                         itemCount: _combatLog.length,
-                        separatorBuilder: (_, __) => const Divider(height: 4),
+                        separatorBuilder: (_, _) => const Divider(height: 4),
                         itemBuilder: (_, i) => Text(
                           _combatLog[i],
                           style: TextStyle(fontSize: 11, fontFamily: 'monospace', color: colorScheme.onSurface),
@@ -615,7 +615,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                           labelText: 'Maîtrise d\'arme (2024)',
                           border: OutlineInputBorder(),
                         ),
-                        value: selectedMastery,
+                        initialValue: selectedMastery,
                         items: [
                           const DropdownMenuItem(value: null, child: Text('Aucune')),
                           ...list.map((m) => DropdownMenuItem(
@@ -791,7 +791,7 @@ class _WeaponCard extends ConsumerWidget {
                           style: TextStyle(
                             fontSize: 10,
                             fontStyle: FontStyle.italic,
-                            color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+                            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                           ),
                         ),
                       ),
@@ -937,7 +937,7 @@ class _WeaponMasteryBadge extends ConsumerWidget {
 
     return masteryAsync.when(
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
       data: (mastery) {
         if (mastery == null) return const SizedBox.shrink();
         return InkWell(

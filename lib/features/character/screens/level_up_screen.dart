@@ -168,7 +168,7 @@ class _LevelUpScreenState extends ConsumerState<LevelUpScreen> {
                 labelText: 'Choisir une nouvelle classe',
                 border: OutlineInputBorder(),
               ),
-              value: _selectedClassId,
+              initialValue: _selectedClassId,
               items: availableNew
                   .map((id) => DropdownMenuItem(
                         value: id,
@@ -365,7 +365,7 @@ class _SubclassPicker extends ConsumerWidget {
                 labelText: 'Choisir un archétype',
                 border: OutlineInputBorder(),
               ),
-              value: selectedSubclassId,
+              initialValue: selectedSubclassId,
               items: [
                 const DropdownMenuItem(value: null, child: Text('— Aucun pour l\'instant —')),
                 ...subclasses.map((s) => DropdownMenuItem(

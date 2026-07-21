@@ -336,8 +336,9 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
       int baseAc = 0;
       bool isArmor = _selectedItem.category == 'armor';
       if (isArmor) {
-        if (_selectedItem.id == 'breastplate') baseAc = 14;
-        else if (_selectedItem.id == 'chainmail') baseAc = 16;
+        if (_selectedItem.id == 'breastplate') {
+          baseAc = 14;
+        } else if (_selectedItem.id == 'chainmail') baseAc = 16;
         else if (_selectedItem.id == 'chainshirt') baseAc = 13;
         else if (_selectedItem.id == 'halfplate') baseAc = 15;
         else if (_selectedItem.id == 'scalemail') baseAc = 14;
@@ -345,8 +346,9 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
         else if (_selectedItem.id == 'plate') baseAc = 18;
       } else {
         // Shield
-        if (_selectedItem.id == 'buckler') baseAc = 1;
-        else if (_selectedItem.id == 'shield') baseAc = 2;
+        if (_selectedItem.id == 'buckler') {
+          baseAc = 1;
+        } else if (_selectedItem.id == 'shield') baseAc = 2;
         else if (_selectedItem.id == 'towershield') baseAc = 3;
       }
       int finalAc = baseAc;
@@ -704,7 +706,7 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
                         border: const OutlineInputBorder(),
                         prefixIcon: const Icon(Icons.inventory_2_outlined),
                       ),
-                      value: _selectedInventoryItemId,
+                      initialValue: _selectedInventoryItemId,
                       items: [
                         const DropdownMenuItem<int?>(
                           value: null,
@@ -766,61 +768,65 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
             ],
 
             // Item Dropdown
-            DropdownButtonFormField<ForgeItem>(
-              isExpanded: true,
-              decoration: const InputDecoration(labelText: "Objet à forger", border: OutlineInputBorder()),
-              value: _selectedItem,
-              items: _forgeItems
-                  .where((i) => i.category == _selectedCategory)
-                  .map((i) => DropdownMenuItem(
-                        value: i,
-                        child: Text(
-                          "${i.name} (${i.baseGp} po, ${i.baseCp} PC)",
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ))
-                  .toList(),
-              onChanged: (val) {
-                if (val != null) {
-                  setState(() {
-                    _selectedItem = val;
-                    _resetSimulation();
-                  });
-                }
-              },
-            ),
-            const SizedBox(height: 12),
+            if (_forgeMode != 'improve' || _selectedInventoryItemId == null) ...[
+              DropdownButtonFormField<ForgeItem>(
+                isExpanded: true,
+                decoration: const InputDecoration(labelText: "Objet à forger", border: OutlineInputBorder()),
+                initialValue: _selectedItem,
+                items: _forgeItems
+                    .where((i) => i.category == _selectedCategory)
+                    .map((i) => DropdownMenuItem(
+                          value: i,
+                          child: Text(
+                            "${i.name} (${i.baseGp} po, ${i.baseCp} PC)",
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ))
+                    .toList(),
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() {
+                      _selectedItem = val;
+                      _resetSimulation();
+                    });
+                  }
+                },
+              ),
+              const SizedBox(height: 12),
+            ],
 
             // Material Dropdown
-            DropdownButtonFormField<ForgeMaterial>(
-              isExpanded: true,
-              decoration: const InputDecoration(labelText: "Matériau employé", border: OutlineInputBorder()),
-              value: _selectedMaterial,
-              items: _forgeMaterials
-                  .map((m) => DropdownMenuItem(
-                        value: m,
-                        child: Text(
-                          "${m.name} (DC: ${m.dcMod >= 0 ? '+' : ''}${m.dcMod})",
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ))
-                  .toList(),
-              onChanged: (val) {
-                if (val != null) {
-                  setState(() {
-                    _selectedMaterial = val;
-                    _resetSimulation();
-                  });
-                }
-              },
-            ),
-            const SizedBox(height: 12),
+            if (_forgeMode != 'improve' || _selectedInventoryItemId == null) ...[
+              DropdownButtonFormField<ForgeMaterial>(
+                isExpanded: true,
+                decoration: const InputDecoration(labelText: "Matériau employé", border: OutlineInputBorder()),
+                initialValue: _selectedMaterial,
+                items: _forgeMaterials
+                    .map((m) => DropdownMenuItem(
+                          value: m,
+                          child: Text(
+                            "${m.name} (DC: ${m.dcMod >= 0 ? '+' : ''}${m.dcMod})",
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ))
+                    .toList(),
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() {
+                      _selectedMaterial = val;
+                      _resetSimulation();
+                    });
+                  }
+                },
+              ),
+              const SizedBox(height: 12),
+            ],
 
             // Trait Dropdown
             DropdownButtonFormField<ForgeTrait>(
               isExpanded: true,
               decoration: const InputDecoration(labelText: "Trait forgé de départ", border: OutlineInputBorder()),
-              value: _selectedTrait,
+              initialValue: _selectedTrait,
               items: _forgeTraits
                   .where((t) => t.eligibleCategories.contains(_selectedCategory))
                   .map((t) => DropdownMenuItem(
@@ -879,7 +885,7 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.person),
               ),
-              value: _selectedCharacterId,
+              initialValue: _selectedCharacterId,
               items: [
                 const DropdownMenuItem<int?>(
                   value: null,
@@ -1001,7 +1007,7 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(color: Colors.orange.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(4)),
-                  child: Text("${_calculatedTargetCp} PC requis", style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                  child: Text("$_calculatedTargetCp PC requis", style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -1185,7 +1191,7 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
                     color: Colors.orangeAccent,
                   ),
                   title: Text(_calculatedItemName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text('$_calculatedDamageOrAc • ${_calculatedTargetCp} PC'),
+                  subtitle: Text('$_calculatedDamageOrAc • $_calculatedTargetCp PC'),
                   contentPadding: EdgeInsets.zero,
                 ),
                 if (selectedEq != null) ...[
@@ -1393,8 +1399,9 @@ class _ForgeScreenState extends ConsumerState<ForgeScreen> {
                   itemBuilder: (ctx, i) {
                     final item = _log[i];
                     Color col = Colors.white;
-                    if (item.contains("💥")) col = Colors.redAccent;
-                    else if (item.contains("🔨")) col = Colors.orangeAccent;
+                    if (item.contains("💥")) {
+                      col = Colors.redAccent;
+                    } else if (item.contains("🔨")) col = Colors.orangeAccent;
                     else if (item.contains("🔥")) col = Colors.yellowAccent;
                     else if (item.contains("🎉")) col = Colors.greenAccent;
                     else if (item.contains("⏱️")) col = Colors.lightBlueAccent;

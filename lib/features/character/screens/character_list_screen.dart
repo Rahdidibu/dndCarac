@@ -6,6 +6,7 @@ import '../../../core/database/tables/tables.dart';
 import '../../../core/providers/database_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../core/utils/character_service.dart';
 import '../providers/character_providers.dart';
 
 
@@ -223,7 +224,7 @@ class _CharacterCard extends ConsumerWidget {
                             child: LinearProgressIndicator()),
                         error: (e, stack) => const SizedBox.shrink(),
                         data: (classes) => Text(
-                          _buildClassLine(classes),
+                          _buildClassLine(classes, l10n),
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: colorScheme.onSurface.withValues(alpha: 0.7),
                               ),
@@ -263,15 +264,13 @@ class _CharacterCard extends ConsumerWidget {
     );
   }
 
-  String _buildClassLine(List<CharacterClassesData> classes) {
+  String _buildClassLine(List<CharacterClassesData> classes, AppLocalizations l10n) {
     if (classes.isEmpty) return '—';
     return classes
-        .map((c) => '${_capitalize(c.classId)} ${c.level}')
+        .map((c) => '${CharacterService.classDisplayName(c.classId, l10n)} ${c.level}')
         .join(' / ');
   }
 
-  String _capitalize(String s) =>
-      s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context)!;

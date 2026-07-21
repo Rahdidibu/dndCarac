@@ -5,6 +5,7 @@ import '../../../../core/utils/character_service.dart';
 import '../../../../core/utils/dnd_rules.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/database/tables/tables.dart';
+import '../../../../core/utils/markdown_text.dart';
 import '../../providers/character_providers.dart';
 import '../../providers/wizard_provider.dart';
 
@@ -306,7 +307,14 @@ class _SectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Card(
+      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.15),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.35), width: 1.2),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -314,13 +322,17 @@ class _SectionCard extends StatelessWidget {
           children: [
             Text(
               title,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(color: Theme.of(context).colorScheme.primary),
+              style: TextStyle(
+                fontFamily: 'Cinzel',
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: colorScheme.primary,
+                letterSpacing: 0.5,
+              ),
             ),
-            const Divider(),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
+            Divider(color: colorScheme.primary.withValues(alpha: 0.2)),
+            const SizedBox(height: 6),
             ...children,
           ],
         ),
@@ -337,8 +349,10 @@ class _SummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -346,18 +360,21 @@ class _SummaryRow extends StatelessWidget {
             width: 120,
             child: Text(
               label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.6),
-                  ),
+              style: TextStyle(
+                fontFamily: 'Cinzel',
+                fontSize: 11.5,
+                fontWeight: FontWeight.bold,
+                color: colorScheme.onSurface.withValues(alpha: 0.65),
+              ),
             ),
           ),
           Expanded(
-            child: Text(
-              value,
-              style: Theme.of(context).textTheme.bodyMedium,
+            child: MarkdownText(
+              text: value,
+              style: const TextStyle(
+                fontFamily: 'Lora',
+                fontSize: 13,
+              ),
             ),
           ),
         ],

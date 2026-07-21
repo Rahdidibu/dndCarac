@@ -98,6 +98,7 @@ class Step6Proficiencies extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final wizard = ref.watch(wizardProvider);
     final notifier = ref.read(wizardProvider.notifier);
+    final colorScheme = Theme.of(context).colorScheme;
 
     final classesAsync = ref.watch(srdClassesProvider(wizard.ruleset));
 
@@ -163,31 +164,30 @@ class Step6Proficiencies extends ConsumerWidget {
                 children: [
                   const SizedBox(height: 24),
                   const Divider(),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   Text(
                     featName,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: const TextStyle(fontFamily: 'Cinzel', fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Choisissez 3 maîtrises ($chosenExtra/3 sélectionnées)',
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: TextStyle(fontFamily: 'Lora', fontSize: 12, color: colorScheme.onSurface.withValues(alpha: 0.7)),
                   ),
                   const SizedBox(height: 12),
                   ...eligibleItems.map((item) {
                     final isChecked = wizard.chosenFeatExtraProficiencies.contains(item.key);
                     final canAdd = !isChecked && chosenExtra < maxExtra;
-                    return CheckboxListTile(
-                      title: Text(item.name),
-                      subtitle: Text(item.subtitle),
-                      value: isChecked,
-                      onChanged: (canAdd || isChecked)
-                          ? (v) => notifier.toggleFeatExtraProficiency(item.key)
-                          : null,
-                      controlAffinity: ListTileControlAffinity.leading,
-                      dense: true,
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: _ProficiencyCard(
+                        title: item.name,
+                        subtitle: item.subtitle,
+                        selected: isChecked,
+                        onTap: (canAdd || isChecked)
+                            ? () => notifier.toggleFeatExtraProficiency(item.key)
+                            : null,
+                      ),
                     );
                   }),
                 ],
@@ -199,21 +199,24 @@ class Step6Proficiencies extends ConsumerWidget {
               children: [
                 if (availableSkillKeys != null)
                   Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: 0.5),
+                      color: colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.info_outline, size: 16, color: Theme.of(context).colorScheme.onSecondaryContainer),
+                        Icon(Icons.info_outline, size: 16, color: colorScheme.primary),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Compétences disponibles pour votre classe',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onSecondaryContainer,
+                            'Compétences de départ suggérées pour votre classe.',
+                            style: TextStyle(
+                              fontFamily: 'Lora',
+                              fontSize: 12,
+                              color: colorScheme.onSurface.withValues(alpha: 0.85),
                             ),
                           ),
                         ),
@@ -222,27 +225,25 @@ class Step6Proficiencies extends ConsumerWidget {
                   ),
                 Text(
                   'Choisissez $maxSkills compétences ($chosen/$maxSkills sélectionnées)',
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: const TextStyle(fontFamily: 'Cinzel', fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
                 ...displaySkills.map((skill) {
                   final isChosen = wizard.chosenSkillProficiencies.contains(skill.key);
                   final canAdd = !isChosen && chosen < maxSkills;
-                  return CheckboxListTile(
-                    title: Text(skill.name),
-                    subtitle: Text(
-                      _abilityLabel(skill.ability),
-                      style: Theme.of(context).textTheme.bodySmall,
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _ProficiencyCard(
+                      title: skill.name,
+                      subtitle: 'Caractéristique associée : ${_abilityLabel(skill.ability)}',
+                      selected: isChosen,
+                      onTap: (canAdd || isChosen)
+                          ? () => notifier.toggleSkillProficiency(skill.key)
+                          : null,
                     ),
-                    value: isChosen,
-                    onChanged: (canAdd || isChosen)
-                        ? (v) => notifier.toggleSkillProficiency(skill.key)
-                        : null,
-                    controlAffinity: ListTileControlAffinity.leading,
-                    dense: true,
                   );
                 }),
-                if (extraSection != null) extraSection,
+                ?extraSection,
               ],
             );
           },
@@ -271,4 +272,124 @@ String _abilityLabel(String key) {
     'cha': 'CHA',
   };
   return labels[key] ?? key;
+}
+
+class _ProficiencyCard extends StatefulWidget {
+  final String title;
+  final String subtitle;
+  final bool selected;
+  final VoidCallback? onTap;
+
+  const _ProficiencyCard({
+    required this.title,
+    required this.subtitle,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  State<_ProficiencyCard> createState() => _ProficiencyCardState();
+}
+
+class _ProficiencyCardState extends State<_ProficiencyCard> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final primaryColor = colorScheme.primary;
+    final isDisabled = widget.onTap == null;
+
+    return MouseRegion(
+      onEnter: isDisabled ? null : (_) => setState(() => _isHovered = true),
+      onExit: isDisabled ? null : (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            if (widget.selected || _isHovered)
+              BoxShadow(
+                color: primaryColor.withValues(alpha: 0.1),
+                blurRadius: 6,
+                spreadRadius: 0.5,
+              ),
+          ],
+        ),
+        child: Card(
+          margin: EdgeInsets.zero,
+          color: widget.selected
+              ? primaryColor.withValues(alpha: 0.15)
+              : _isHovered
+                  ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
+                  : colorScheme.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(
+              color: widget.selected
+                  ? primaryColor
+                  : _isHovered
+                      ? primaryColor.withValues(alpha: 0.5)
+                      : colorScheme.outline.withValues(alpha: 0.1),
+              width: widget.selected ? 1.5 : 1,
+            ),
+          ),
+          child: InkWell(
+            onTap: widget.onTap,
+            borderRadius: BorderRadius.circular(10),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  // Checked indicator
+                  Container(
+                    width: 22,
+                    height: 22,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: widget.selected ? primaryColor : Colors.transparent,
+                      border: Border.all(
+                        color: widget.selected ? primaryColor : colorScheme.onSurface.withValues(alpha: 0.3),
+                        width: 2,
+                      ),
+                    ),
+                    child: widget.selected
+                        ? Icon(Icons.check, size: 14, color: colorScheme.onPrimary)
+                        : null,
+                  ),
+                  const SizedBox(width: 16),
+                  // Details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.title,
+                          style: TextStyle(
+                            fontFamily: 'Cinzel',
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.bold,
+                            color: widget.selected ? primaryColor : colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          widget.subtitle,
+                          style: TextStyle(
+                            fontFamily: 'Lora',
+                            fontSize: 11,
+                            color: colorScheme.onSurface.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

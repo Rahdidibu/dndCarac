@@ -208,7 +208,7 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
             data: (profs) {
               return ref.watch(srdWeaponMasteriesProvider).when(
                 loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
                 data: (masteries) {
                   final racesAsync = ref.watch(srdRacesProvider(widget.character.ruleset));
                   final backgroundsAsync = ref.watch(srdBackgroundsProvider(widget.character.ruleset));
@@ -237,8 +237,12 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
                   final List<dynamic> speciesLangs = (species != null && species.languages.isNotEmpty) ? json.decode(species.languages) : [];
                   final List<dynamic> bgLangs = (background != null && background.languages.isNotEmpty) ? json.decode(background.languages) : [];
                   final languagesSet = <String>{};
-                  for (final l in speciesLangs) languagesSet.add(_translateLanguage(l.toString()));
-                  for (final l in bgLangs) languagesSet.add(_translateLanguage(l.toString()));
+                  for (final l in speciesLangs) {
+                    languagesSet.add(_translateLanguage(l.toString()));
+                  }
+                  for (final l in bgLangs) {
+                    languagesSet.add(_translateLanguage(l.toString()));
+                  }
 
                   return Card(
                     margin: const EdgeInsets.only(bottom: 16),
@@ -365,8 +369,8 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
                                   ],
                                 ),
                                 const SizedBox(height: 4),
-                                Text(
-                                  feat.description,
+                                MarkdownText(
+                                  text: feat.description,
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ],
@@ -495,8 +499,50 @@ String _translateProficiency(String key, List<SrdWeaponMastery> weaponMasteries)
   if (key == 'armor_heavy') return 'Armures lourdes';
   if (key == 'armor_shield') return 'Boucliers';
   
-  if (key == 'weapon_simple') return 'Armes simples';
-  if (key == 'weapon_martial') return 'Armes de guerre';
+  if (key.startsWith('weapon_')) {
+    final weapon = key.substring(7);
+    if (weapon == 'simple') return 'Armes simples';
+    if (weapon == 'martial') return 'Armes de guerre';
+    
+    const weaponMap = {
+      'longsword': 'Épée longue',
+      'shortsword': 'Épée courte',
+      'greatsword': 'Épée à deux mains',
+      'rapier': 'Rapière',
+      'dagger': 'Dague',
+      'hand_crossbow': 'Arbalète de poing',
+      'heavy_crossbow': 'Arbalète lourde',
+      'light_crossbow': 'Arbalète légère',
+      'shortbow': 'Arc court',
+      'longbow': 'Arc long',
+      'halberd': 'Hallebarde',
+      'glaive': 'Glaive',
+      'greataxe': 'Grande hache',
+      'battleaxe': 'Hache d\'armes',
+      'handaxe': 'Hachette',
+      'mace': 'Massue',
+      'quarterstaff': 'Bâton',
+      'spear': 'Lance',
+      'javelin': 'Javelot',
+      'warhammer': 'Marteau de guerre',
+      'maul': 'Grand marteau',
+      'whip': 'Fouet',
+      'blowgun': 'Sarbacane',
+      'flail': 'Fléau',
+      'lance': 'Lance d\'arçon',
+      'morningstar': 'Matin de fer (Morgensztern)',
+      'pike': 'Pique',
+      'scimitar': 'Cimeterre',
+      'sickle': 'Faucille',
+      'trident': 'Trident',
+      'club': 'Gourdin',
+      'greatclub': 'Grand gourdin',
+      'light_hammer': 'Marteau léger',
+      'dart': 'Fléchette',
+      'sling': 'Fronde',
+    };
+    return weaponMap[weapon.toLowerCase()] ?? 'Arme : ${weapon[0].toUpperCase()}${weapon.substring(1).replaceAll('_', ' ')}';
+  }
   
   if (key.startsWith('save_')) {
     final stat = key.substring(5);
@@ -512,8 +558,49 @@ String _translateProficiency(String key, List<SrdWeaponMastery> weaponMasteries)
   }
   
   if (key.startsWith('tool_')) {
-    final tool = key.substring(5).replaceAll('_', ' ');
-    return 'Outils : ${tool[0].toUpperCase()}${tool.substring(1)}';
+    final tool = key.substring(5);
+    const toolMap = {
+      'thieves_tools': 'Outils de voleur',
+      'artisan_tools': 'Outils d\'artisan',
+      'artisan-tools': 'Outils d\'artisan',
+      'disguise_kit': 'Nécessaire de déguisement',
+      'forgery_kit': 'Nécessaire de faussaire',
+      'herbalism_kit': 'Nécessaire d\'herboriste',
+      'poisoners_kit': 'Nécessaire de poisonnier',
+      'alchemists_supplies': 'Matériel d\'alchimiste',
+      'brewers_supplies': 'Matériel de brasseur',
+      'calligraphers_supplies': 'Matériel de calligraphe',
+      'carpenters_tools': 'Outils de charpentier',
+      'cartographers_tools': 'Outils de cartographe',
+      'cobblers_tools': 'Outils de cordonnier',
+      'cooks_utensils': 'Ustensiles de cuisinier',
+      'glassblowers_tools': 'Outils de souffleur de verre',
+      'jewelers_tools': 'Outils de joaillier',
+      'leatherworkers_tools': 'Outils de travail du cuir',
+      'masons_tools': 'Outils de maçon',
+      'painters_supplies': 'Matériel de peintre',
+      'potters_tools': 'Outils de potier',
+      'smiths_tools': 'Outils de forgeron',
+      'tinkers_tools': 'Outils de raccommodeur',
+      'weavers_tools': 'Outils de tisserand',
+      'woodcarvers_tools': 'Outils de sculpteur sur bois',
+      'bagpipes': 'Cornemuse',
+      'drum': 'Tambour',
+      'flute': 'Flûte',
+      'lute': 'Luth',
+      'lyre': 'Lyre',
+      'horn': 'Cor',
+      'pan_flute': 'Flûte de Pan',
+      'dulcimer': 'Tympanon',
+      'viol': 'Viole',
+      'shawm': 'Chalémie',
+      'playing_card_set': 'Jeu de cartes',
+      'dice_set': 'Jeu de dés',
+      'three_dragon_ante_set': 'Jeu des trois dragons',
+      'chess_set': 'Jeu d\'échecs',
+      'navigators_tools': 'Outils de navigateur',
+    };
+    return toolMap[tool.toLowerCase()] ?? 'Outils : ${tool[0].toUpperCase()}${tool.substring(1).replaceAll('_', ' ')}';
   }
   
   if (key.startsWith('mastery_')) {
@@ -617,12 +704,12 @@ class _AddFeatDialogState extends ConsumerState<_AddFeatDialog> {
                           final feat = availableFeats[index];
                           return ListTile(
                             title: Text(feat.name),
-                            subtitle: Text(
-                              feat.description,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 11),
-                            ),
+                            subtitle: MarkdownText(
+                               text: feat.description,
+                               maxLines: 2,
+                               overflow: TextOverflow.ellipsis,
+                               style: const TextStyle(fontSize: 11, color: Colors.white70),
+                             ),
                             onTap: () => _addFeat(feat.id),
                           );
                         },

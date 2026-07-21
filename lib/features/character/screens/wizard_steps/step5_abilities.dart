@@ -135,8 +135,8 @@ class _RollSection extends ConsumerStatefulWidget {
 }
 
 class _RollSectionState extends ConsumerState<_RollSection> {
-  // Store roll results per ability key
   Map<String, List<int>> _rolls = {};
+  bool _isRolling = false;
 
   @override
   void initState() {
@@ -148,16 +148,42 @@ class _RollSectionState extends ConsumerState<_RollSection> {
     final rand = Random();
     final dice = List.generate(4, (_) => rand.nextInt(6) + 1);
     dice.sort();
-    final result = dice.sublist(1); // drop lowest
+    final result = dice.sublist(1);
     final total = result.fold(0, (s, d) => s + d);
     setState(() => _rolls[key] = dice);
     widget.notifier.setAbilityScore(key, total.clamp(3, 18));
   }
 
-  void _rollAll() {
-    for (final key in DndRules.abilityKeys) {
-      _rollForAbility(key);
+  Future<void> _rollAll() async {
+    if (_isRolling) return;
+    setState(() => _isRolling = true);
+
+    final rand = Random();
+    for (int steps = 0; steps < 8; steps++) {
+      final tempRolls = <String, List<int>>{};
+      for (final key in DndRules.abilityKeys) {
+        final dice = List.generate(4, (_) => rand.nextInt(6) + 1);
+        dice.sort();
+        tempRolls[key] = dice;
+      }
+      setState(() => _rolls = tempRolls);
+      await Future.delayed(const Duration(milliseconds: 60));
     }
+
+    final finalRolls = <String, List<int>>{};
+    for (final key in DndRules.abilityKeys) {
+      final dice = List.generate(4, (_) => rand.nextInt(6) + 1);
+      dice.sort();
+      finalRolls[key] = dice;
+      final result = dice.sublist(1);
+      final total = result.fold(0, (s, d) => s + d);
+      widget.notifier.setAbilityScore(key, total.clamp(3, 18));
+    }
+
+    setState(() {
+      _rolls = finalRolls;
+      _isRolling = false;
+    });
   }
 
   @override
@@ -167,15 +193,31 @@ class _RollSectionState extends ConsumerState<_RollSection> {
       data: (map) => map,
       orElse: () => <String, int>{},
     );
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Column(
       children: [
         FilledButton.icon(
-          onPressed: _rollAll,
-          icon: const Icon(Icons.casino),
-          label: const Text('Tout relancer (4d6 drop lowest)'),
+          style: FilledButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+            backgroundColor: colorScheme.primary,
+            foregroundColor: colorScheme.onPrimary,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          onPressed: _isRolling ? null : _rollAll,
+          icon: _isRolling 
+              ? const SizedBox(
+                  width: 18, 
+                  height: 18, 
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                )
+              : const Icon(Icons.casino),
+          label: Text(
+            _isRolling ? 'Lancement des dés...' : 'Tout relancer (4d6 drop lowest)',
+            style: const TextStyle(fontFamily: 'Cinzel', fontWeight: FontWeight.bold),
+          ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         ...DndRules.abilityKeys.map((key) {
           final score = widget.wizard.abilityScores[key] ?? 8;
           final diceResults = _rolls[key] ?? [];
@@ -185,69 +227,75 @@ class _RollSectionState extends ConsumerState<_RollSection> {
           final mod = DndRules.modifier(finalScore);
 
           return Card(
-            margin: const EdgeInsets.only(bottom: 8),
+            margin: const EdgeInsets.only(bottom: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: BorderSide(
+                color: diceResults.isNotEmpty ? colorScheme.primary.withValues(alpha: 0.15) : colorScheme.outline.withValues(alpha: 0.05),
+                width: 1,
+              ),
+            ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
                 children: [
                   SizedBox(
-                    width: 110,
+                    width: 120,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           _abilityLabel(key, l10n),
-                          style: Theme.of(context).textTheme.bodyLarge,
+                          style: const TextStyle(fontFamily: 'Cinzel', fontSize: 13.5, fontWeight: FontWeight.bold),
                         ),
-                        if (diceResults.isNotEmpty)
+                        if (diceResults.isNotEmpty && !_isRolling) ...[
+                          const SizedBox(height: 2),
                           Text(
                             'Mod final : ${mod >= 0 ? '+' : ''}$mod',
                             style: TextStyle(
+                              fontFamily: 'Lora',
                               fontSize: 11,
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                              color: colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                           ),
+                        ],
                       ],
                     ),
                   ),
                   if (diceResults.isNotEmpty)
                     Expanded(
                       child: Wrap(
-                        spacing: 4,
+                        spacing: 6,
+                        runSpacing: 4,
                         children: diceResults.asMap().entries.map((e) {
-                          // First die (index 0 after sort = lowest) is dropped
                           final isDropped = e.key == 0;
                           return Container(
-                            width: 28,
-                            height: 28,
+                            width: 32,
+                            height: 32,
                             decoration: BoxDecoration(
                               color: isDropped
-                                  ? Theme.of(context)
-                                      .colorScheme
-                                      .surfaceContainerHighest
-                                  : Theme.of(context)
-                                      .colorScheme
-                                      .primaryContainer,
-                              borderRadius: BorderRadius.circular(4),
+                                  ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
+                                  : colorScheme.primary.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: isDropped
+                                    ? colorScheme.outline.withValues(alpha: 0.1)
+                                    : colorScheme.primary.withValues(alpha: 0.4),
+                                width: isDropped ? 1 : 1.5,
+                              ),
                             ),
                             child: Center(
                               child: Text(
                                 '${e.value}',
                                 style: TextStyle(
+                                  fontFamily: 'Cinzel',
                                   color: isDropped
-                                      ? Theme.of(context)
-                                          .colorScheme
-                                          .onSurface
-                                          .withValues(alpha: 0.4)
-                                      : Theme.of(context)
-                                          .colorScheme
-                                          .onPrimaryContainer,
-                                  fontSize: 12,
+                                      ? colorScheme.onSurface.withValues(alpha: 0.3)
+                                      : colorScheme.primary,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.bold,
-                                  decoration: isDropped
-                                      ? TextDecoration.lineThrough
-                                      : null,
+                                  decoration: isDropped ? TextDecoration.lineThrough : null,
                                 ),
                               ),
                             ),
@@ -257,48 +305,54 @@ class _RollSectionState extends ConsumerState<_RollSection> {
                     )
                   else
                     const Expanded(
-                        child: Text('—', style: TextStyle(fontSize: 18))),
+                        child: Text('—', style: TextStyle(fontSize: 18, color: Colors.grey))),
                   const SizedBox(width: 8),
-                  if (modifierVal > 0 && diceResults.isNotEmpty)
+                  if (modifierVal > 0 && diceResults.isNotEmpty && !_isRolling)
                     Padding(
-                      padding: const EdgeInsets.only(right: 4),
-                      child: Chip(
-                        label: Text('+$modifierVal'),
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        padding: EdgeInsets.zero,
+                      padding: const EdgeInsets.only(right: 6),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '+$modifierVal',
+                          style: TextStyle(fontFamily: 'Cinzel', fontSize: 11, color: colorScheme.primary, fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
-                  SizedBox(
-                    width: 48,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          diceResults.isEmpty ? '—' : '$finalScore',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: modifierVal > 0 && diceResults.isNotEmpty
-                                    ? Theme.of(context).colorScheme.primary
-                                    : null,
-                              ),
-                          textAlign: TextAlign.center,
-                        ),
-                        if (modifierVal > 0 && diceResults.isNotEmpty)
-                          Text(
-                            'Base : $score',
-                            style: const TextStyle(fontSize: 10, color: Colors.grey),
-                            textAlign: TextAlign.center,
-                          ),
-                      ],
+                  Container(
+                    width: 44,
+                    height: 44,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: diceResults.isEmpty || _isRolling
+                          ? Colors.transparent
+                          : colorScheme.primary.withValues(alpha: 0.25),
+                      border: Border.all(
+                        color: diceResults.isEmpty || _isRolling
+                            ? colorScheme.outline.withValues(alpha: 0.15)
+                            : colorScheme.primary,
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Text(
+                      diceResults.isEmpty || _isRolling ? '—' : '$finalScore',
+                      style: TextStyle(
+                        fontFamily: 'Cinzel',
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: diceResults.isEmpty || _isRolling ? colorScheme.onSurface.withValues(alpha: 0.3) : colorScheme.primary,
+                      ),
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: () => _rollForAbility(key),
-                  ),
+                  if (!_isRolling)
+                    IconButton(
+                      icon: const Icon(Icons.refresh, size: 20),
+                      onPressed: () => _rollForAbility(key),
+                    ),
                 ],
               ),
             ),
@@ -407,6 +461,7 @@ class _AbilityRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
     final modifiersAsync = ref.watch(wizardAbilityModifiersProvider);
     final int modifierVal = modifiersAsync.maybeWhen(
       data: (map) => map[abilityKey] ?? 0,
@@ -416,11 +471,19 @@ class _AbilityRow extends ConsumerWidget {
     final mod = DndRules.modifier(finalScore);
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: modifierVal > 0 ? colorScheme.primary.withValues(alpha: 0.3) : colorScheme.outline.withValues(alpha: 0.1),
+          width: 1,
+        ),
+      ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
+            // Ability details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -431,67 +494,84 @@ class _AbilityRow extends ConsumerWidget {
                     children: [
                       Text(
                         _abilityLabel(abilityKey, l10n),
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style: const TextStyle(
+                          fontFamily: 'Cinzel',
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       if (modifierVal > 0) ...[
                         const SizedBox(width: 6),
                         Text(
                           '(+$modifierVal)',
                           style: TextStyle(
+                            fontFamily: 'Cinzel',
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: colorScheme.primary,
                           ),
                         ),
                       ],
                     ],
                   ),
+                  const SizedBox(height: 2),
                   Text(
-                    'Mod final : ${mod >= 0 ? '+' : ''}$mod',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.6),
-                        ),
-                  ),
-                ],
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.remove_circle_outline),
-              onPressed: onDecrement,
-            ),
-            SizedBox(
-              width: 48,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '$finalScore',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge
-                        ?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: modifierVal > 0 ? Theme.of(context).colorScheme.primary : null,
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
-                  if (modifierVal > 0)
-                    Text(
-                      'Base : $score',
-                      style: const TextStyle(fontSize: 10, color: Colors.grey),
-                      textAlign: TextAlign.center,
+                    'Modificateur : ${mod >= 0 ? '+' : ''}$mod',
+                    style: TextStyle(
+                      fontFamily: 'Lora',
+                      fontSize: 12,
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
+                  ),
                 ],
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.add_circle_outline),
-              onPressed: onIncrement,
+
+            // Controls
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.remove_circle_outline,
+                    color: onDecrement != null ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.2),
+                    size: 22,
+                  ),
+                  onPressed: onDecrement,
+                ),
+                Container(
+                  width: 44,
+                  height: 44,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: modifierVal > 0 
+                        ? colorScheme.primary.withValues(alpha: 0.15)
+                        : colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                    border: Border.all(
+                      color: modifierVal > 0 ? colorScheme.primary : colorScheme.outline.withValues(alpha: 0.15),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    '$finalScore',
+                    style: TextStyle(
+                      fontFamily: 'Cinzel',
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: modifierVal > 0 ? colorScheme.primary : colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.add_circle_outline,
+                    color: onIncrement != null ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.2),
+                    size: 22,
+                  ),
+                  onPressed: onIncrement,
+                ),
+              ],
             ),
           ],
         ),

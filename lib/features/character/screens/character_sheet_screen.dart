@@ -20,6 +20,7 @@ import '../../export/pdf_generator.dart';
 import '../providers/character_providers.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/providers/forge_navigation_provider.dart';
+import '../../../core/utils/markdown_text.dart';
 
 part 'sheet_tabs/tab_stats.dart';
 part 'sheet_tabs/tab_combat.dart';
@@ -92,6 +93,22 @@ class CharacterSheetScreen extends ConsumerWidget {
           }).join(' / ');
         }).valueOrNull ?? '';
 
+        final speciesName = ref.watch(characterSpeciesNameProvider(characterId)).valueOrNull;
+        final subspeciesName = ref.watch(characterSubspeciesNameProvider(characterId)).valueOrNull;
+        final backgroundName = ref.watch(characterBackgroundNameProvider(characterId)).valueOrNull;
+
+        final speciesPart = speciesName != null
+            ? '$speciesName${subspeciesName != null ? ' ($subspeciesName)' : ''}'
+            : '';
+        final backgroundPart = backgroundName ?? '';
+
+        final parts = <String>[];
+        if (speciesPart.isNotEmpty) parts.add(speciesPart);
+        if (backgroundPart.isNotEmpty) parts.add(backgroundPart);
+        if (classLine.isNotEmpty) parts.add(classLine);
+
+        final subtitleText = parts.join(' • ');
+
         final isDesktop = MediaQuery.of(context).size.width > 1100;
 
         final mainScaffold = Scaffold(
@@ -119,8 +136,8 @@ class CharacterSheetScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(character.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      if (classLine.isNotEmpty)
-                        Text(classLine, style: const TextStyle(fontSize: 12)),
+                      if (subtitleText.isNotEmpty)
+                        Text(subtitleText, style: const TextStyle(fontSize: 12, color: Colors.white70)),
                     ],
                   ),
                 ),
