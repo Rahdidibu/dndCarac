@@ -192,15 +192,32 @@ class _CharacterCard extends ConsumerWidget {
                         : null,
                     child: (character.imageUrl != null && character.imageUrl!.isNotEmpty)
                         ? null
-                        : Text(
-                            character.name.isNotEmpty
-                                ? character.name[0].toUpperCase()
-                                : '?',
-                            style: TextStyle(
-                              color: isBatman ? Colors.amber : colorScheme.onPrimaryContainer,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
+                        : classesAsync.when(
+                            loading: () => const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             ),
+                            error: (_, __) => const Icon(Icons.person),
+                            data: (classes) {
+                              if (classes.isEmpty) {
+                                return Text(
+                                  character.name.isNotEmpty
+                                      ? character.name[0].toUpperCase()
+                                      : '?',
+                                  style: TextStyle(
+                                    color: isBatman ? Colors.amber : colorScheme.onPrimaryContainer,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                );
+                              }
+                              return Icon(
+                                CharacterService.getClassIcon(classes.first.classId),
+                                color: isBatman ? Colors.amber : colorScheme.onPrimaryContainer,
+                                size: 28,
+                              );
+                            },
                           ),
                   ),
                 ),

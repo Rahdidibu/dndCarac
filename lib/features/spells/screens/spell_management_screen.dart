@@ -9,6 +9,8 @@ import '../../../core/database/tables/tables.dart';
 import '../../../core/providers/database_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../character/providers/character_providers.dart';
+import '../../../core/utils/dnd_rules.dart';
+import '../../../core/utils/character_service.dart';
 
 class SpellManagementScreen extends ConsumerStatefulWidget {
   final int characterId;
@@ -109,6 +111,7 @@ class _CompendiumTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final mySpellsAsync = ref.watch(characterSpellsProvider(characterId));
+    final classesAsync = ref.watch(characterClassesProvider(characterId));
     final colorScheme = Theme.of(context).colorScheme;
 
     return mySpellsAsync.when(
@@ -117,134 +120,203 @@ class _CompendiumTab extends ConsumerWidget {
       data: (mySpells) {
         final mySpellIds = mySpells.map((s) => s.spellId).toSet();
 
-        return FutureBuilder<List<SrdSpell>>(
-          future: ref.read(databaseProvider).compendiumDao.getAllSpells(ruleset),
-          builder: (context, snap) {
-            if (!snap.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            var spells = snap.data!;
+        return classesAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Center(child: Text('Erreur: $e')),
+          data: (classes) {
+            return FutureBuilder<List<SrdSpell>>(
+              future: ref.read(databaseProvider).compendiumDao.getAllSpells(ruleset),
+              builder: (context, snap) {
+                if (!snap.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                var spells = snap.data!;
 
-            // Apply filters
-            if (searchQuery.isNotEmpty) {
-              final q = searchQuery.toLowerCase();
-              spells = spells
-                  .where((s) => s.name.toLowerCase().contains(q))
-                  .toList();
-            }
-            if (filterLevel != null) {
-              spells = spells.where((s) => s.level == filterLevel).toList();
-            }
-            if (filterSchool != null) {
-              spells = spells
-                  .where((s) =>
-                      s.school.toLowerCase() == filterSchool!.toLowerCase())
-                  .toList();
-            }
+                // Compute allowed classes and their max levels
+                final allowedClasses = <String, int>{};
+                for (final c in classes) {
+                  final cid = c.classId;
+                  final lvl = c.level;
+                  if (cid == 'wizard' ||
+                      cid == 'sorcerer' ||
+                      cid == 'warlock' ||
+                      cid == 'bard' ||
+                      cid == 'cleric' ||
+                      cid == 'druid' ||
+                      cid == 'paladin' ||
+                      cid == 'ranger') {
+                    final maxL = DndRules.maxSpellLevelForClass(cid, lvl);
+                    final existingMax = allowedClasses[cid];
+                    allowedClasses[cid] = (existingMax == null || maxL > existingMax) ? maxL : existingMax;
+                  } else if (cid == 'rogue' && c.subclassId == 'arcane-trickster') {
+                    final maxL = DndRules.maxSpellLevelForClass('rogue', lvl);
+                    final existingMax = allowedClasses['wizard'];
+                    allowedClasses['wizard'] = (existingMax == null || maxL > existingMax) ? maxL : existingMax;
+                  } else if (cid == 'fighter' && c.subclassId == 'eldritch-knight') {
+                    final maxL = DndRules.maxSpellLevelForClass('fighter', lvl);
+                    final existingMax = allowedClasses['wizard'];
+                    allowedClasses['wizard'] = (existingMax == null || maxL > existingMax) ? maxL : existingMax;
+                  }
+                }
 
-            // Schools list for filter
-            final allSchools = snap.data!
-                .map((s) => s.school)
-                .toSet()
-                .toList()
-              ..sort();
-
-            return Column(
-              children: [
-                // ── Filter bar ──────────────────────────────────────
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          decoration: const InputDecoration(
-                            hintText: 'Rechercher…',
-                            prefixIcon: Icon(Icons.search, size: 18),
-                            isDense: true,
-                            border: OutlineInputBorder(),
+                if (allowedClasses.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.warning_amber_rounded, size: 48, color: colorScheme.error),
+                          const SizedBox(height: 16),
+                          Text(
+                            "Votre personnage n'a pas de classe ou de sous-classe lui permettant d'apprendre des sorts.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: colorScheme.onSurfaceVariant),
                           ),
-                          onChanged: onSearchChanged,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      PopupMenuButton<int?>(
-                        icon: const Icon(Icons.filter_list),
-                        tooltip: 'Filtrer par niveau',
-                        onSelected: onLevelChanged,
-                        itemBuilder: (_) => [
-                          const PopupMenuItem(value: null, child: Text('Tous niveaux')),
-                          ...List.generate(10, (i) => PopupMenuItem(
-                                value: i,
-                                child: Text(i == 0 ? 'Tour de magie' : 'Niv. $i'),
-                              )),
                         ],
                       ),
-                      PopupMenuButton<String?>(
-                        icon: const Icon(Icons.school_outlined),
-                        tooltip: 'Filtrer par école',
-                        onSelected: onSchoolChanged,
-                        itemBuilder: (_) => [
-                          const PopupMenuItem(value: null, child: Text('Toutes écoles')),
-                          ...allSchools.map((s) => PopupMenuItem(
-                                value: s,
-                                child: Text(s),
-                              )),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                // Active filter chips
-                if (filterLevel != null || filterSchool != null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Row(
-                      children: [
-                        if (filterLevel != null)
-                          Padding(
-                            padding: const EdgeInsets.only(right: 4),
-                            child: FilterChip(
-                              label: Text(filterLevel == 0
-                                  ? 'Tour de magie'
-                                  : 'Niv. $filterLevel'),
-                              onSelected: (_) => onLevelChanged(null),
-                              selected: true,
+                    ),
+                  );
+                }
+
+                // Filter spells list
+                spells = spells.where((s) {
+                  try {
+                    final spellClassesList = jsonDecode(s.classes) as List;
+                    for (final sc in spellClassesList) {
+                      final scStr = sc.toString();
+                      if (allowedClasses.containsKey(scStr)) {
+                        if (s.level <= allowedClasses[scStr]!) {
+                          return true;
+                        }
+                      }
+                    }
+                  } catch (_) {}
+                  return false;
+                }).toList();
+
+                // Apply filters
+                if (searchQuery.isNotEmpty) {
+                  final q = searchQuery.toLowerCase();
+                  spells = spells
+                      .where((s) => s.name.toLowerCase().contains(q))
+                      .toList();
+                }
+                if (filterLevel != null) {
+                  spells = spells.where((s) => s.level == filterLevel).toList();
+                }
+                if (filterSchool != null) {
+                  spells = spells
+                      .where((s) =>
+                          s.school.toLowerCase() == filterSchool!.toLowerCase())
+                      .toList();
+                }
+
+                // Schools list for filter
+                final allSchools = snap.data!
+                    .map((s) => s.school)
+                    .toSet()
+                    .toList()
+                  ..sort();
+
+                return Column(
+                  children: [
+                    // ── Filter bar ──────────────────────────────────────
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              decoration: const InputDecoration(
+                                hintText: 'Rechercher…',
+                                prefixIcon: Icon(Icons.search, size: 18),
+                                isDense: true,
+                                border: OutlineInputBorder(),
+                              ),
+                              onChanged: onSearchChanged,
                             ),
                           ),
-                        if (filterSchool != null)
-                          FilterChip(
-                            label: Text(filterSchool!),
-                            onSelected: (_) => onSchoolChanged(null),
-                            selected: true,
+                          const SizedBox(width: 8),
+                          PopupMenuButton<int?>(
+                            icon: const Icon(Icons.filter_list),
+                            tooltip: 'Filtrer par niveau',
+                            onSelected: onLevelChanged,
+                            itemBuilder: (_) => [
+                              const PopupMenuItem(value: null, child: Text('Tous niveaux')),
+                              ...List.generate(10, (i) => PopupMenuItem(
+                                    value: i,
+                                    child: Text(i == 0 ? 'Tour de magie' : 'Niv. $i'),
+                                  )),
+                            ],
                           ),
-                      ],
+                          PopupMenuButton<String?>(
+                            icon: const Icon(Icons.school_outlined),
+                            tooltip: 'Filtrer par école',
+                            onSelected: onSchoolChanged,
+                            itemBuilder: (_) => [
+                              const PopupMenuItem(value: null, child: Text('Toutes écoles')),
+                              ...allSchools.map((s) => PopupMenuItem(
+                                    value: s,
+                                    child: Text(s),
+                                  )),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                const Divider(height: 1),
-                // ── Spell list ───────────────────────────────────────
-                Expanded(
-                  child: spells.isEmpty
-                      ? Center(
-                          child: Text('Aucun sort trouvé.',
-                              style: TextStyle(
-                                  color: colorScheme.onSurfaceVariant)),
-                        )
-                      : ListView.builder(
-                          itemCount: spells.length,
-                          itemBuilder: (context, index) {
-                            final spell = spells[index];
-                            final alreadyAdded = mySpellIds.contains(spell.id);
-                            return _CompendiumSpellTile(
-                              spell: spell,
-                              alreadyAdded: alreadyAdded,
-                              characterId: characterId,
-                              ruleset: ruleset,
-                            );
-                          },
+                    // Active filter chips
+                    if (filterLevel != null || filterSchool != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Row(
+                          children: [
+                            if (filterLevel != null)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 4),
+                                child: FilterChip(
+                                  label: Text(filterLevel == 0
+                                      ? 'Tour de magie'
+                                      : 'Niv. $filterLevel'),
+                                  onSelected: (_) => onLevelChanged(null),
+                                  selected: true,
+                                ),
+                              ),
+                            if (filterSchool != null)
+                              FilterChip(
+                                label: Text(filterSchool!),
+                                onSelected: (_) => onSchoolChanged(null),
+                                selected: true,
+                                ),
+                          ],
                         ),
-                ),
-              ],
+                      ),
+                    const Divider(height: 1),
+                    // ── Spell list ───────────────────────────────────────
+                    Expanded(
+                      child: spells.isEmpty
+                          ? Center(
+                              child: Text('Aucun sort trouvé.',
+                                  style: TextStyle(
+                                      color: colorScheme.onSurfaceVariant)),
+                            )
+                          : ListView.builder(
+                              itemCount: spells.length,
+                              itemBuilder: (context, index) {
+                                final spell = spells[index];
+                                final alreadyAdded = mySpellIds.contains(spell.id);
+                                return _CompendiumSpellTile(
+                                  spell: spell,
+                                  alreadyAdded: alreadyAdded,
+                                  characterId: characterId,
+                                  ruleset: ruleset,
+                                );
+                              },
+                            ),
+                    ),
+                  ],
+                );
+              },
             );
           },
         );

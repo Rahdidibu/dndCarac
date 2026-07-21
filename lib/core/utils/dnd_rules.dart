@@ -172,6 +172,22 @@ class DndRules {
     }
   }
 
+  /// Get the maximum spell level a class can cast at a given level.
+  /// Returns 0 for cantrips only, -1 for non-casters.
+  static int maxSpellLevelForClass(String classId, int level) {
+    if (classId == 'warlock') {
+      final slots = warlockPactSlots(level);
+      return slots.isEmpty ? 0 : slots.keys.reduce((a, b) => a > b ? a : b);
+    }
+    final slots = singleClassSpellSlots(classId, level);
+    if (slots.isEmpty) {
+      if (classId == 'paladin' || classId == 'ranger') return 0;
+      if (classId == 'fighter' || classId == 'rogue') return 0;
+      return -1;
+    }
+    return slots.keys.reduce((a, b) => a > b ? a : b);
+  }
+
   /// Point buy cost table (standard 27 points, scores 8-15)
   static const Map<int, int> pointBuyCost = {
     8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9,

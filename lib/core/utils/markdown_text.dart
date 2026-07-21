@@ -39,13 +39,13 @@ class MarkdownText extends StatelessWidget {
       ));
     }
 
-    return RichText(
-      maxLines: maxLines,
-      overflow: overflow,
-      text: TextSpan(
-        style: style ?? DefaultTextStyle.of(context).style,
+    return Text.rich(
+      TextSpan(
+        style: style,
         children: spans,
       ),
+      maxLines: maxLines,
+      overflow: overflow,
     );
   }
 }

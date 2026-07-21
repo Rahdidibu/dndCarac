@@ -69,5 +69,22 @@ void main() {
       // d6, constitution 8 (mod -1) -> moyenne de 4 - 1 = 3
       expect(DndRules.hpAverageOnLevelUp(6, 8), 3);
     });
+
+    test('Calcul du niveau de sort max par classe (maxSpellLevelForClass)', () {
+      // Wizard lvl 1 -> max lvl 1
+      expect(DndRules.maxSpellLevelForClass('wizard', 1), 1);
+      // Wizard lvl 3 -> max lvl 2
+      expect(DndRules.maxSpellLevelForClass('wizard', 3), 2);
+      // Warlock lvl 3 -> max lvl 2
+      expect(DndRules.maxSpellLevelForClass('warlock', 3), 2);
+      // Paladin lvl 1 -> max lvl 0 (pas de sorts mais cantrips possibles)
+      expect(DndRules.maxSpellLevelForClass('paladin', 1), 0);
+      // Paladin lvl 2 -> max lvl 1
+      expect(DndRules.maxSpellLevelForClass('paladin', 2), 1);
+      // Fighter (non-caster par défaut sans sous-classe dans dnd_rules) -> max lvl 0
+      expect(DndRules.maxSpellLevelForClass('fighter', 1), 0);
+      // Barbarian -> max lvl -1 (non lanceur de sorts)
+      expect(DndRules.maxSpellLevelForClass('barbarian', 1), -1);
+    });
   });
 }

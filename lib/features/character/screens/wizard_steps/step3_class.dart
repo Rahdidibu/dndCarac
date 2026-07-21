@@ -138,37 +138,6 @@ class Step3Class extends ConsumerWidget {
   ) async {
     String? selectedClassId;
 
-    IconData getClassIcon(String classId) {
-      switch (classId) {
-        case 'barbarian':
-          return Icons.gavel;
-        case 'bard':
-          return Icons.music_note;
-        case 'cleric':
-          return Icons.favorite;
-        case 'druid':
-          return Icons.nature;
-        case 'fighter':
-          return Icons.shield;
-        case 'monk':
-          return Icons.sports_martial_arts;
-        case 'paladin':
-          return Icons.workspace_premium;
-        case 'ranger':
-          return Icons.explore;
-        case 'rogue':
-          return Icons.vpn_key;
-        case 'sorcerer':
-          return Icons.bolt;
-        case 'warlock':
-          return Icons.auto_awesome;
-        case 'wizard':
-          return Icons.menu_book;
-        default:
-          return Icons.help_outline;
-      }
-    }
-
     await showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
@@ -192,7 +161,7 @@ class Step3Class extends ConsumerWidget {
                 itemBuilder: (context, index) {
                   final cls = available[index];
                   final isSelected = selectedClassId == cls.id;
-                  final classIcon = getClassIcon(cls.id as String);
+                  final classIcon = CharacterService.getClassIcon(cls.id as String);
                   final className = CharacterService.classDisplayName(cls.id as String, l10n);
 
                   return _ClassSelectCard(
@@ -371,6 +340,12 @@ class _ClassEntryTile extends ConsumerWidget {
           children: [
             Row(
               children: [
+                Icon(
+                  CharacterService.getClassIcon(entry.classId),
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     CharacterService.classDisplayName(entry.classId, l10n),

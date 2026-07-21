@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
+import 'package:flutter/material.dart';
 
 import '../database/app_database.dart';
 import '../database/tables/tables.dart';
@@ -491,6 +492,38 @@ class CharacterService {
         (classId.isEmpty
             ? '?'
             : classId[0].toUpperCase() + classId.substring(1));
+  }
+
+  /// Get the icon for a class ID
+  static IconData getClassIcon(String classId) {
+    switch (classId.toLowerCase().trim()) {
+      case 'barbarian':
+        return Icons.gavel;
+      case 'bard':
+        return Icons.music_note;
+      case 'cleric':
+        return Icons.favorite;
+      case 'druid':
+        return Icons.nature;
+      case 'fighter':
+        return Icons.shield;
+      case 'monk':
+        return Icons.sports_martial_arts;
+      case 'paladin':
+        return Icons.workspace_premium;
+      case 'ranger':
+        return Icons.explore;
+      case 'rogue':
+        return Icons.vpn_key;
+      case 'sorcerer':
+        return Icons.bolt;
+      case 'warlock':
+        return Icons.auto_awesome;
+      case 'wizard':
+        return Icons.menu_book;
+      default:
+        return Icons.help_outline;
+    }
   }
 
   /// Convert a resource key to a display-friendly name
