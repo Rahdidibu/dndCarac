@@ -218,6 +218,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         // Email input
                         TextFormField(
                           controller: _emailController,
+                          textInputAction: TextInputAction.next,
                           decoration: const InputDecoration(
                             labelText: 'Adresse e-mail / Username',
                             prefixIcon: Icon(Icons.email_outlined),
@@ -238,6 +239,10 @@ class _AuthScreenState extends State<AuthScreen> {
                         // Password input
                         TextFormField(
                           controller: _passwordController,
+                          textInputAction: _isSignUp ? TextInputAction.next : TextInputAction.done,
+                          onFieldSubmitted: (_) {
+                            if (!_isSignUp) _submit();
+                          },
                           decoration: const InputDecoration(
                             labelText: 'Mot de passe',
                             prefixIcon: Icon(Icons.lock_outline),
@@ -259,6 +264,8 @@ class _AuthScreenState extends State<AuthScreen> {
                         if (_isSignUp) ...[
                           TextFormField(
                             controller: _confirmPasswordController,
+                            textInputAction: TextInputAction.done,
+                            onFieldSubmitted: (_) => _submit(),
                             decoration: const InputDecoration(
                               labelText: 'Confirmer le mot de passe',
                               prefixIcon: Icon(Icons.lock_reset_outlined),
