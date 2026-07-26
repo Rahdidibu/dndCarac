@@ -181,7 +181,7 @@ class _StatsTab extends ConsumerWidget {
                         }
                         final nameA = _skillNames[a.key]!;
                         final nameB = _skillNames[b.key]!;
-                        return nameA.compareTo(nameB);
+                        return StringUtils.compareAlphabetically(nameA, nameB);
                       });
                     return sortedEntries.map((entry) {
                       final skill = entry.key;

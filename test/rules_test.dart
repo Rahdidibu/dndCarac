@@ -1,7 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dnd_character_manager/core/utils/dnd_rules.dart';
+import 'package:dnd_character_manager/core/utils/string_utils.dart';
 
 void main() {
+  group('StringUtils Tests', () {
+    test('Tri alphabétique insensible aux accents (é -> e, à -> a, etc.)', () {
+      final list = ['Épée', 'Arc', 'Éclair', 'Bâton', 'Épieu'];
+      list.sort(StringUtils.compareAlphabetically);
+      expect(list, ['Arc', 'Bâton', 'Éclair', 'Épée', 'Épieu']);
+    });
+  });
+
   group('DndRules Tests', () {
     test('Calcul des modificateurs de caractéristiques', () {
       expect(DndRules.modifier(1), -5);

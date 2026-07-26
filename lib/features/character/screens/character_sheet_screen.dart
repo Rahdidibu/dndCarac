@@ -16,6 +16,7 @@ import '../../../core/utils/character_service.dart';
 import '../../../core/utils/dnd_rules.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/starting_equipment_helper.dart';
+import '../../../core/utils/string_utils.dart';
 import '../../export/pdf_generator.dart';
 import '../providers/character_providers.dart';
 import '../../../core/theme/app_theme.dart';

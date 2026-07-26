@@ -11,6 +11,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../character/providers/character_providers.dart';
 import '../../../core/utils/dnd_rules.dart';
 import '../../../core/utils/character_service.dart';
+import '../../../core/utils/string_utils.dart';
 
 class SpellManagementScreen extends ConsumerStatefulWidget {
   final int characterId;
@@ -211,6 +212,13 @@ class _CompendiumTab extends ConsumerWidget {
                           s.school.toLowerCase() == filterSchool!.toLowerCase())
                       .toList();
                 }
+
+                // Sort by level ascending, then name ascending (accent insensitive)
+                spells.sort((a, b) {
+                  final levelCmp = a.level.compareTo(b.level);
+                  if (levelCmp != 0) return levelCmp;
+                  return StringUtils.compareAlphabetically(a.name, b.name);
+                });
 
                 // Schools list for filter
                 final allSchools = snap.data!
@@ -488,12 +496,24 @@ class _MySpellsTab extends ConsumerWidget {
         for (final s in snap.data ?? []) {
           srdMap[s.id] = s;
         }
+        final sortedMySpells = List<CharacterSpell>.from(mySpells);
+        sortedMySpells.sort((a, b) {
+          final srdA = srdMap[a.spellId];
+          final srdB = srdMap[b.spellId];
+          final levelA = srdA?.level ?? 0;
+          final levelB = srdB?.level ?? 0;
+          final levelCmp = levelA.compareTo(levelB);
+          if (levelCmp != 0) return levelCmp;
+          final nameA = srdA?.name ?? a.spellId;
+          final nameB = srdB?.name ?? b.spellId;
+          return StringUtils.compareAlphabetically(nameA, nameB);
+        });
 
         return ListView.builder(
           padding: const EdgeInsets.all(8),
-          itemCount: mySpells.length,
+          itemCount: sortedMySpells.length,
           itemBuilder: (context, i) {
-            final cs = mySpells[i];
+            final cs = sortedMySpells[i];
             final srd = srdMap[cs.spellId];
             final name = srd?.name ?? cs.spellId;
             final levelLabel = srd == null

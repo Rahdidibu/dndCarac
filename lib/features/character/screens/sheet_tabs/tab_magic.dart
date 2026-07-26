@@ -204,7 +204,8 @@ class _MagicTab extends ConsumerWidget {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: sortedLevels.map((lvl) {
-                                final list = grouped[lvl]!;
+                                final list = grouped[lvl]!
+                                  ..sort((a, b) => StringUtils.compareAlphabetically(a.srdSpell.name, b.srdSpell.name));
                                 final levelName = lvl == 0 ? 'Tours de magie (Niveau 0)' : 'Sorts de Niveau $lvl';
 
                                 return Column(
