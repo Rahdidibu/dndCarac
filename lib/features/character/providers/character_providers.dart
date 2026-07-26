@@ -192,6 +192,11 @@ final characterProficienciesProvider =
   }).toList();
 });
 
+final srdSpellsProvider = FutureProvider.family<List<SrdSpell>, RulesetVersion>((ref, ruleset) {
+  final db = ref.read(databaseProvider);
+  return db.compendiumDao.getAllSpells(ruleset);
+});
+
 final characterSpellsProvider =
     StreamProvider.family<List<CharacterSpell>, int>((ref, characterId) {
   final client = Supabase.instance.client;

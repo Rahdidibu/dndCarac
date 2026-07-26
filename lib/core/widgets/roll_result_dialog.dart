@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../../../features/character/providers/character_providers.dart';
 import '../database/app_database.dart';
+import '../utils/character_service.dart';
 
 enum RollType {
   ability,
@@ -178,6 +179,8 @@ class _RollResultDialogState extends ConsumerState<RollResultDialog> {
     required List<CharacterResource> resources,
     required RollType rollType,
     required String? rollKey,
+    List<CharacterEquipmentData> equipment = const [],
+    List<CharacterProficiency> proficiencies = const [],
   }) {
     int mode = 0;
     final List<String> reasons = [];
@@ -189,6 +192,41 @@ class _RollResultDialogState extends ConsumerState<RollResultDialog> {
         .toSet();
 
     final exhaustion = char.exhaustionLevel;
+
+    // ── Armor proficiency penalty ─────────────────────────────────────────────
+    // If a STR or DEX related roll (attack, ability, skill, save) is attempted
+    // while the character is wearing armor or using a shield they are not
+    // proficient with, apply automatic disadvantage (PHB p. 144).
+    final isStrOrDex = rollKey == 'str' || rollKey == 'dex' ||
+        rollType == RollType.attack ||
+        rollType == RollType.skill ||
+        rollType == RollType.ability;
+    if (isStrOrDex) {
+      final profKeys = proficiencies.map((p) => p.proficiencyKey).toSet();
+      final hasArmorAll = profKeys.contains('armor_all');
+      final hasArmorLight = profKeys.contains('armor_light') || hasArmorAll;
+      final hasArmorMedium = profKeys.contains('armor_medium') || hasArmorAll;
+      final hasArmorHeavy = profKeys.contains('armor_heavy') || hasArmorAll;
+      final hasShield = profKeys.contains('armor_shield') || hasArmorAll;
+
+      for (final item in equipment) {
+        if (!item.equipped) continue;
+        final armor = CharacterServiceHelper.parseEquipmentKind(item.itemName);
+        if (armor == 'shield' && !hasShield) {
+          if (mode > -1) mode = -1;
+          reasons.add('Désavantage : Bouclier non maîtrisé');
+        } else if (armor == 'light' && !hasArmorLight) {
+          if (mode > -1) mode = -1;
+          reasons.add('Désavantage : Armure légère non maîtrisée');
+        } else if (armor == 'medium' && !hasArmorMedium) {
+          if (mode > -1) mode = -1;
+          reasons.add('Désavantage : Armure moyenne non maîtrisée');
+        } else if (armor == 'heavy' && !hasArmorHeavy) {
+          if (mode > -1) mode = -1;
+          reasons.add('Désavantage : Armure lourde non maîtrisée');
+        }
+      }
+    }
 
     if (rollType == RollType.save && (rollKey == 'str' || rollKey == 'dex')) {
       if (activeConditions.contains('paralyzed') ||
@@ -276,6 +314,8 @@ class _RollResultDialogState extends ConsumerState<RollResultDialog> {
     if (widget.characterId != null) {
       final charAsync = ref.watch(characterByIdProvider(widget.characterId!));
       final resourcesAsync = ref.watch(characterResourcesProvider(widget.characterId!));
+      final equipmentAsync = ref.watch(characterEquipmentProvider(widget.characterId!));
+      final proficienciesAsync = ref.watch(characterProficienciesProvider(widget.characterId!));
 
       charAsync.whenData((char) {
         if (char != null) {
@@ -285,6 +325,8 @@ class _RollResultDialogState extends ConsumerState<RollResultDialog> {
               resources: resources,
               rollType: widget.rollType,
               rollKey: widget.rollKey,
+              equipment: equipmentAsync.value ?? [],
+              proficiencies: proficienciesAsync.value ?? [],
             );
             suggestedMode = modInfo.suggestedMode;
             reasons = modInfo.reasons;

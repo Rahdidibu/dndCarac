@@ -207,20 +207,26 @@ class StartingEquipmentHelper {
     if (lower.contains('épée à deux mains') || lower.contains('greatsword')) {
       return const StartingWeaponStats(name: 'Épée à deux mains', baseDice: '2d6', damageType: 'Tranchant', scalingAbility: 'str', mastery: 'Graze');
     }
-    if (lower.contains('arbalète légère') || lower.contains('light crossbow')) {
-      return const StartingWeaponStats(name: 'Arbalète légère', baseDice: '1d8', damageType: 'Perçant', scalingAbility: 'dex', mastery: 'Vex');
-    }
     if (lower.contains('épée courte') || lower.contains('shortsword')) {
       return const StartingWeaponStats(name: 'Épée courte', baseDice: '1d6', damageType: 'Perçant', scalingAbility: 'finesse', mastery: 'Vex');
     }
     if (lower.contains('épée longue') || lower.contains('longsword')) {
       return const StartingWeaponStats(name: 'Épée longue', baseDice: '1d8', damageType: 'Tranchant', scalingAbility: 'str', mastery: 'Flex');
     }
+    if (lower.contains('arbalète légère') || lower.contains('light crossbow')) {
+      return const StartingWeaponStats(name: 'Arbalète légère', baseDice: '1d8', damageType: 'Perçant', scalingAbility: 'dex', mastery: 'Vex', requiresAmmo: true, ammoTag: 'bolt');
+    }
     if (lower.contains('arc long') || lower.contains('longbow')) {
-      return const StartingWeaponStats(name: 'Arc long', baseDice: '1d8', damageType: 'Perçant', scalingAbility: 'dex', mastery: 'Slow');
+      return const StartingWeaponStats(name: 'Arc long', baseDice: '1d8', damageType: 'Perçant', scalingAbility: 'dex', mastery: 'Slow', requiresAmmo: true, ammoTag: 'arrow');
     }
     if (lower.contains('arc court') || lower.contains('shortbow')) {
-      return const StartingWeaponStats(name: 'Arc court', baseDice: '1d6', damageType: 'Perçant', scalingAbility: 'dex', mastery: 'Vex');
+      return const StartingWeaponStats(name: 'Arc court', baseDice: '1d6', damageType: 'Perçant', scalingAbility: 'dex', mastery: 'Vex', requiresAmmo: true, ammoTag: 'arrow');
+    }
+    if (lower.contains('arbalète de poing') || lower.contains('hand crossbow')) {
+      return const StartingWeaponStats(name: 'Arbalète de poing', baseDice: '1d6', damageType: 'Perçant', scalingAbility: 'dex', mastery: 'Vex', requiresAmmo: true, ammoTag: 'bolt');
+    }
+    if (lower.contains('arbalète lourde') || lower.contains('heavy crossbow')) {
+      return const StartingWeaponStats(name: 'Arbalète lourde', baseDice: '1d10', damageType: 'Perçant', scalingAbility: 'dex', mastery: 'Push', requiresAmmo: true, ammoTag: 'bolt');
     }
     if (lower.contains('épieu') || lower.contains('spear')) {
       return const StartingWeaponStats(name: 'Épieu', baseDice: '1d6', damageType: 'Perçant', scalingAbility: 'str', mastery: 'Flex');
@@ -230,6 +236,21 @@ class StartingEquipmentHelper {
     }
     return null;
   }
+
+  /// Returns true if the given item name is an ammunition item.
+  static bool isAmmunitionItem(String name) {
+    final lower = name.toLowerCase();
+    return lower.contains('flèche') || lower.contains('arrow') ||
+           lower.contains('carreau') || lower.contains('bolt') ||
+           lower.contains('fléchette') || lower.contains('dart') ||
+           lower.contains('bille') || lower.contains('sling bullet') ||
+           lower.contains('munition');
+  }
+
+  /// Returns the ammoTag needed by a weapon, or null for melee weapons.
+  static String? ammoTagFor(String weaponName) {
+    return getWeaponStats(weaponName)?.ammoTag;
+  }
 }
 
 class StartingWeaponStats {
@@ -238,6 +259,8 @@ class StartingWeaponStats {
   final String damageType;
   final String scalingAbility; // "str", "dex", "finesse"
   final String? mastery;
+  final bool requiresAmmo;
+  final String? ammoTag; // 'arrow', 'bolt', 'dart', 'bullet'
 
   const StartingWeaponStats({
     required this.name,
@@ -245,5 +268,7 @@ class StartingWeaponStats {
     required this.damageType,
     required this.scalingAbility,
     this.mastery,
+    this.requiresAmmo = false,
+    this.ammoTag,
   });
 }

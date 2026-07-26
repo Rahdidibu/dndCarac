@@ -21,6 +21,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
 
   // Advanced combat state (session only, not persisted)
   CharacterAttack? _activeWeapon;
+  CharacterEquipmentData? _selectedAmmo; // Selected ammo for ranged weapon
   final List<String> _combatLog = [];
   int _rollMode = 0; // -1 = disadvantage, 0 = normal, 1 = advantage
 
@@ -178,10 +179,37 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
 
   void _rollAttack() {
     if (_activeWeapon == null) return;
-    
+    final weaponStats = StartingEquipmentHelper.getWeaponStats(_activeWeapon!.name);
+    final requiresAmmo = weaponStats?.requiresAmmo ?? false;
+
+    // Block if ranged weapon has no ammo selected or ammo is exhausted
+    if (requiresAmmo) {
+      if (_selectedAmmo == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('⚠️ Choisissez des munitions avant de tirer !'),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+      if (_selectedAmmo!.quantity <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Plus de ${_selectedAmmo!.itemName} !'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+    }
+
     final bonusStr = _activeWeapon!.attackBonus;
     final bonusNum = int.tryParse(bonusStr.replaceAll('+', '')) ?? 0;
     final l10n = AppLocalizations.of(context)!;
+    final ammoName = _selectedAmmo?.itemName;
 
     RollResultDialog.show(
       context,
@@ -190,14 +218,40 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
       title: l10n.rollAttackCheck(_activeWeapon!.name),
       bonus: bonusNum,
       isD20: true,
-      onRollCompleted: (total, breakdown) {
+      onRollCompleted: (total, breakdown) async {
+        // Consume 1 ammo
+        if (requiresAmmo && _selectedAmmo != null && _selectedAmmo!.quantity > 0) {
+          final db = ref.read(databaseProvider);
+          final newQty = _selectedAmmo!.quantity - 1;
+          await db.characterDao.updateEquipment(
+            CharacterEquipmentCompanion(
+              id: Value(_selectedAmmo!.id),
+              characterId: Value(widget.characterId),
+              itemName: Value(_selectedAmmo!.itemName),
+              quantity: Value(newQty),
+              weight: Value(_selectedAmmo!.weight),
+              equipped: Value(_selectedAmmo!.equipped),
+              attuned: Value(_selectedAmmo!.attuned),
+              notes: Value(_selectedAmmo!.notes),
+            ),
+          );
+          if (newQty == 0 && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('⚠️ Dernière ${ammoName ?? 'munition'} utilisée !'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        }
         final isCrit = breakdown.contains('d20(20)');
         final isFumble = breakdown.contains('d20(1)');
         final icon = isCrit ? '🎯' : isFumble ? '💀' : '⚔️';
         final suffix = isCrit ? ' CRITIQUE !' : isFumble ? ' FUMBLE !' : '';
+        final ammoSuffix = ammoName != null ? ' [$ammoName]' : '';
         setState(() {
           _combatLog.insert(0,
-            '$icon [${_activeWeapon!.name}] Attaque: $breakdown$suffix'
+            '$icon [${_activeWeapon!.name}]$ammoSuffix Attaque: $breakdown$suffix'
           );
         });
       },
@@ -679,10 +733,33 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
               final int strMod = DndRules.modifier(strScore);
               final int dexMod = DndRules.modifier(dexScore);
 
-              final List<CharacterAttack> combinedAttacks = [...dbAttacks];
+              // Helper: returns true if an attack name and an equipment item name
+              // refer to the same weapon (bidirectional partial match).
+              bool nameMatchesItem(String attackName, String itemName) {
+                final a = attackName.toLowerCase();
+                final b = itemName.toLowerCase();
+                return a == b || a.contains(b) || b.contains(a);
+              }
 
-              // Find any weapon in the inventory
+              // Determine which inventory item names are UNEQUIPPED weapons.
+              // We need to suppress any dbAttack whose name fuzzy-matches an
+              // unequipped item (regardless of whether the item was recognised
+              // by getWeaponStats — the user might have manually named the weapon).
+              final List<CharacterAttack> combinedAttacks = dbAttacks.where((a) {
+                // Find a matching inventory item for this attack.
+                final matchingItem = equipment.where(
+                  (e) => nameMatchesItem(a.name, e.itemName),
+                ).firstOrNull;
+                // If no inventory item matches, it's a manually-added attack — always show.
+                if (matchingItem == null) return true;
+                // Otherwise only show if that inventory item is equipped.
+                return matchingItem.equipped;
+              }).toList();
+
+              // Add virtual attacks for equipped inventory weapons that are not
+              // already represented in combinedAttacks.
               for (final item in equipment) {
+                if (!item.equipped) continue;
                 final weapon = StartingEquipmentHelper.getWeaponStats(item.itemName);
                 if (weapon != null) {
                   final nameLower = weapon.name.toLowerCase();
@@ -750,7 +827,13 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                       isActive: _activeWeapon?.id == a.id,
                       character: widget.character,
                       onTap: () => setState(() {
-                        _activeWeapon = _activeWeapon?.id == a.id ? null : a;
+                        if (_activeWeapon?.id == a.id) {
+                          _activeWeapon = null;
+                          _selectedAmmo = null;
+                        } else {
+                          _activeWeapon = a;
+                          _selectedAmmo = null; // Reset ammo when switching weapon
+                        }
                       }),
                       onDelete: () async {
                         final db = ref.read(databaseProvider);
@@ -760,6 +843,37 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                         }
                       },
                     )),
+
+                    // Ammo selector — shown when active weapon requires ammo
+                    if (_activeWeapon != null) ...[
+                      () {
+                        final wStats = StartingEquipmentHelper.getWeaponStats(_activeWeapon!.name);
+                        if (wStats?.requiresAmmo != true) return const SizedBox.shrink();
+                        final ammoItems = equipment
+                            .where((e) => StartingEquipmentHelper.isAmmunitionItem(e.itemName))
+                            .toList();
+                        if (ammoItems.isEmpty) {
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.warning_amber, size: 14, color: Colors.orange),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Aucune munition dans l\'inventaire',
+                                  style: TextStyle(fontSize: 12, color: Colors.orange.shade300),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                        return _AmmoSelector(
+                          ammoItems: ammoItems,
+                          selectedAmmo: _selectedAmmo,
+                          onSelected: (ammo) => setState(() => _selectedAmmo = ammo),
+                        );
+                      }(),
+                    ],
 
                     // Quick combat panel when weapon is active
                     if (_activeWeapon != null) ...[
@@ -1641,4 +1755,131 @@ class _HexagonPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// ── Ammo Selector ────────────────────────────────────────────────────────────
+
+class _AmmoSelector extends StatelessWidget {
+  final List<CharacterEquipmentData> ammoItems;
+  final CharacterEquipmentData? selectedAmmo;
+  final void Function(CharacterEquipmentData) onSelected;
+
+  const _AmmoSelector({
+    required this.ammoItems,
+    required this.selectedAmmo,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 10, bottom: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.amber.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.my_location, size: 14, color: Colors.amber),
+              const SizedBox(width: 6),
+              const Text(
+                'Munitions',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.amber,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: ammoItems.map((ammo) {
+              final isSelected = selectedAmmo?.id == ammo.id;
+              final outOfStock = ammo.quantity <= 0;
+              return GestureDetector(
+                onTap: outOfStock ? null : () => onSelected(ammo),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? Colors.amber.withValues(alpha: 0.25)
+                        : outOfStock
+                            ? Colors.red.withValues(alpha: 0.08)
+                            : Colors.white.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected
+                          ? Colors.amber
+                          : outOfStock
+                              ? Colors.red.withValues(alpha: 0.4)
+                              : Colors.white24,
+                      width: isSelected ? 1.5 : 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (isSelected)
+                        const Padding(
+                          padding: EdgeInsets.only(right: 4),
+                          child: Icon(Icons.check, size: 12, color: Colors.amber),
+                        ),
+                      Text(
+                        ammo.itemName,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isSelected
+                              ? Colors.amber
+                              : outOfStock
+                                  ? Colors.red.shade300
+                                  : Colors.white70,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          decoration: outOfStock ? TextDecoration.lineThrough : null,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: outOfStock
+                              ? Colors.red.withValues(alpha: 0.2)
+                              : Colors.white.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '${ammo.quantity}',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: outOfStock ? Colors.red : Colors.white54,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          if (selectedAmmo == null)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                '← Sélectionnez des munitions pour tirer',
+                style: TextStyle(fontSize: 10, color: Colors.orange.shade300, fontStyle: FontStyle.italic),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }

@@ -319,21 +319,96 @@ class _EquipmentTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isAmmo = StartingEquipmentHelper.isAmmunitionItem(item.itemName);
+    return isAmmo ? _buildAmmoTile(context, ref) : _buildGearTile(context, ref);
+  }
+
+  Widget _buildAmmoTile(BuildContext context, WidgetRef ref) {
+    final outOfStock = item.quantity <= 0;
     return Card(
-      child: ListTile(
-        leading: item.equipped
-            ? const Icon(Icons.shield, size: 18)
-            : const Icon(Icons.backpack_outlined, size: 18),
-        title: Text(item.itemName, style: const TextStyle(fontSize: 13)),
-        subtitle: Text('x${item.quantity} — ${item.weight.toStringAsFixed(1)} kg',
-            style: const TextStyle(fontSize: 11)),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
+      margin: const EdgeInsets.only(bottom: 6),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(
+          color: outOfStock
+              ? Colors.red.withValues(alpha: 0.4)
+              : Colors.amber.withValues(alpha: 0.35),
+          width: 1.5,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
           children: [
-            if (item.attuned)
-              const Icon(Icons.auto_awesome, size: 14, color: Colors.amber),
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: outOfStock
+                    ? Colors.red.withValues(alpha: 0.12)
+                    : Colors.amber.withValues(alpha: 0.12),
+              ),
+              child: Icon(
+                Icons.my_location,
+                size: 18,
+                color: outOfStock ? Colors.red : Colors.amber,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.itemName,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: outOfStock ? Colors.red.shade300 : Colors.white,
+                    ),
+                  ),
+                  Text(
+                    '${item.weight.toStringAsFixed(2)} kg/unité',
+                    style: const TextStyle(fontSize: 10, color: Colors.white38),
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _StepperButton(
+                  icon: Icons.remove,
+                  color: item.quantity > 0 ? Colors.red.shade300 : Colors.grey,
+                  onTap: item.quantity > 0 ? () => _adjustQuantity(ref, -1) : null,
+                ),
+                Container(
+                  constraints: const BoxConstraints(minWidth: 36),
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    '${item.quantity}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: outOfStock ? Colors.red : Colors.amber,
+                    ),
+                  ),
+                ),
+                _StepperButton(
+                  icon: Icons.add,
+                  color: Colors.green.shade300,
+                  onTap: () => _adjustQuantity(ref, 1),
+                ),
+              ],
+            ),
+            const SizedBox(width: 6),
             IconButton(
-              icon: const Icon(Icons.delete_outline, size: 18),
+              icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
               onPressed: () async {
                 final db = ref.read(databaseProvider);
                 await db.characterDao.deleteEquipment(item.id);
@@ -343,23 +418,177 @@ class _EquipmentTile extends ConsumerWidget {
             ),
           ],
         ),
-        onTap: () async {
-          final db = ref.read(databaseProvider);
-          await db.characterDao.updateEquipment(
-            CharacterEquipmentCompanion(
-              id: Value(item.id),
-              characterId: Value(characterId),
-              itemName: Value(item.itemName),
-              quantity: Value(item.quantity),
-              weight: Value(item.weight),
-              equipped: Value(!item.equipped),
-              attuned: Value(item.attuned),
-              notes: Value(item.notes),
+      ),
+    );
+  }
+
+  Widget _buildGearTile(BuildContext context, WidgetRef ref) {
+    final equipped = item.equipped;
+    return Card(
+      margin: const EdgeInsets.only(bottom: 6),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(
+          color: equipped ? AppTheme.neonCyan.withValues(alpha: 0.5) : Colors.transparent,
+          width: equipped ? 1.5 : 0,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: equipped
+                    ? AppTheme.neonCyan.withValues(alpha: 0.15)
+                    : Colors.grey.withValues(alpha: 0.1),
+              ),
+              child: Icon(
+                equipped ? Icons.shield : Icons.backpack_outlined,
+                size: 18,
+                color: equipped ? AppTheme.neonCyan : Colors.grey,
+              ),
             ),
-          );
-          await CharacterService(db).recalculateCharacterAc(characterId);
-          ref.invalidate(characterByIdProvider(characterId));
-        },
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.itemName,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: equipped ? Colors.white : Colors.white70,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Text(
+                        'x${item.quantity}  •  ${item.weight.toStringAsFixed(1)} kg',
+                        style: const TextStyle(fontSize: 11, color: Colors.white54),
+                      ),
+                      if (item.attuned) ...const [
+                        SizedBox(width: 6),
+                        Icon(Icons.auto_awesome, size: 12, color: Colors.amber),
+                        Text(' Syntonie', style: TextStyle(fontSize: 10, color: Colors.amber)),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: () => _toggleEquipped(ref),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: equipped
+                      ? AppTheme.neonCyan.withValues(alpha: 0.2)
+                      : Colors.grey.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: equipped ? AppTheme.neonCyan : Colors.grey,
+                    width: 1,
+                  ),
+                ),
+                child: Text(
+                  equipped ? '✓ Équipé' : 'Ranger',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: equipped ? AppTheme.neonCyan : Colors.grey,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
+            IconButton(
+              icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              onPressed: () async {
+                final db = ref.read(databaseProvider);
+                await db.characterDao.deleteEquipment(item.id);
+                await CharacterService(db).recalculateCharacterAc(characterId);
+                ref.invalidate(characterByIdProvider(characterId));
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _adjustQuantity(WidgetRef ref, int delta) async {
+    final newQty = (item.quantity + delta).clamp(0, 9999);
+    final db = ref.read(databaseProvider);
+    await db.characterDao.updateEquipment(
+      CharacterEquipmentCompanion(
+        id: Value(item.id),
+        characterId: Value(characterId),
+        itemName: Value(item.itemName),
+        quantity: Value(newQty),
+        weight: Value(item.weight),
+        equipped: Value(item.equipped),
+        attuned: Value(item.attuned),
+        notes: Value(item.notes),
+      ),
+    );
+    await CharacterService(db).recalculateCharacterAc(characterId);
+    ref.invalidate(characterByIdProvider(characterId));
+  }
+
+  Future<void> _toggleEquipped(WidgetRef ref) async {
+    final db = ref.read(databaseProvider);
+    await db.characterDao.updateEquipment(
+      CharacterEquipmentCompanion(
+        id: Value(item.id),
+        characterId: Value(characterId),
+        itemName: Value(item.itemName),
+        quantity: Value(item.quantity),
+        weight: Value(item.weight),
+        equipped: Value(!item.equipped),
+        attuned: Value(item.attuned),
+        notes: Value(item.notes),
+      ),
+    );
+    await CharacterService(db).recalculateCharacterAc(characterId);
+    ref.invalidate(characterByIdProvider(characterId));
+  }
+}
+
+class _StepperButton extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final VoidCallback? onTap;
+
+  const _StepperButton({required this.icon, required this.color, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        width: 28,
+        height: 28,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: onTap != null
+              ? color.withValues(alpha: 0.15)
+              : Colors.grey.withValues(alpha: 0.05),
+          border: Border.all(
+            color: onTap != null ? color.withValues(alpha: 0.5) : Colors.grey.withValues(alpha: 0.2),
+          ),
+        ),
+        child: Icon(icon, size: 16, color: onTap != null ? color : Colors.grey),
       ),
     );
   }

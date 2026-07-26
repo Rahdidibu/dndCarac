@@ -902,3 +902,43 @@ class ArmorInfo {
   ArmorInfo(this.name, this.baseAc, this.type, this.maxDex);
 }
 
+/// Static helpers that can be used by widgets without instantiating CharacterService.
+class CharacterServiceHelper {
+  /// Returns the armor category ('shield', 'light', 'medium', 'heavy')
+  /// for a given equipment item name, or null if the item is not armor.
+  static String? parseEquipmentKind(String itemName) {
+    final name = itemName.toLowerCase();
+
+    // Shield
+    if (name.contains('bouclier') || name.contains('shield') ||
+        name.contains('buckler') || name.contains('pavois')) {
+      return 'shield';
+    }
+
+    // Heavy armor
+    if (name.contains('harnois') || name.contains('plate') ||
+        name.contains('splint') || name.contains('clavandier') ||
+        name.contains('cotte de mailles') || name.contains('chain mail') ||
+        name.contains('chainmail')) {
+      return 'heavy';
+    }
+
+    // Medium armor
+    if (name.contains('chemise de mailles') || name.contains('chain shirt') ||
+        name.contains('cuirasse') || name.contains('breastplate') ||
+        name.contains('écailles') || name.contains('scale mail') ||
+        name.contains('demi-harnois') || name.contains('half plate') ||
+        name.contains('peau') || name.contains('hide')) {
+      return 'medium';
+    }
+
+    // Light armor
+    if (name.contains('cuir') || name.contains('leather') ||
+        name.contains('matelassé') || name.contains('padded') ||
+        name.contains('studded') || name.contains('clouté')) {
+      return 'light';
+    }
+
+    return null;
+  }
+}
