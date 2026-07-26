@@ -19,12 +19,14 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
   late final TextEditingController _appearanceCtrl;
   late final TextEditingController _nameCtrl;
   late final TextEditingController _playerNameCtrl;
+  late String _alignment;
   bool _dirty = false;
 
   @override
   void initState() {
     super.initState();
     final c = widget.character;
+    _alignment = c.alignment;
     _traitsCtrl = TextEditingController(text: c.personalityTraits);
     _idealsCtrl = TextEditingController(text: c.ideals);
     _bondsCtrl = TextEditingController(text: c.bonds);
@@ -67,6 +69,7 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
         id: Value(widget.characterId),
         name: Value(_nameCtrl.text.trim()),
         playerName: Value(_playerNameCtrl.text.trim()),
+        alignment: Value(_alignment),
         personalityTraits: Value(_traitsCtrl.text),
         ideals: Value(_idealsCtrl.text),
         bonds: Value(_bondsCtrl.text),
@@ -202,6 +205,138 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
             minLines: 1,
           ),
           const SizedBox(height: 8),
+
+          // ── Alignment 3x3 Grid ───────────────────────────────────────────
+          Card(
+            margin: const EdgeInsets.only(bottom: 16),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.balance, color: Theme.of(context).colorScheme.primary, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Alignement',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    childAspectRatio: 2.3,
+                    children: [
+                      (key: 'alignmentLG', label: l10n.alignmentLG),
+                      (key: 'alignmentNG', label: l10n.alignmentNG),
+                      (key: 'alignmentCG', label: l10n.alignmentCG),
+                      (key: 'alignmentLN', label: l10n.alignmentLN),
+                      (key: 'alignmentTN', label: l10n.alignmentTN),
+                      (key: 'alignmentCN', label: l10n.alignmentCN),
+                      (key: 'alignmentLE', label: l10n.alignmentLE),
+                      (key: 'alignmentNE', label: l10n.alignmentNE),
+                      (key: 'alignmentCE', label: l10n.alignmentCE),
+                    ].map((a) {
+                      final isSelected = _alignment == a.label;
+                      return _AlignmentChip(
+                        label: a.label,
+                        selected: isSelected,
+                        onTap: () => setState(() {
+                          _alignment = isSelected ? '' : a.label;
+                          _dirty = true;
+                        }),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: SizedBox(
+                      width: 180,
+                      child: _AlignmentChip(
+                        label: l10n.alignmentU,
+                        selected: _alignment == l10n.alignmentU,
+                        onTap: () => setState(() {
+                          _alignment = _alignment == l10n.alignmentU ? '' : l10n.alignmentU;
+                          _dirty = true;
+                        }),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // ── Stats & Abilities Edit Card ───────────────────────────────────
+          Card(
+            margin: const EdgeInsets.only(bottom: 16),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.bar_chart, color: AppTheme.neonPurple, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Caractéristiques & Stats',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.edit_outlined, size: 20),
+                        tooltip: 'Modifier les caractéristiques et stats',
+                        onPressed: () {
+                          final scoresAsync = ref.read(characterAbilityScoresProvider(widget.characterId));
+                          final scores = scoresAsync.value;
+                          if (scores != null) {
+                            _showEditAbilitiesDialog(context, ref, scores, widget.character);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  ref.watch(characterAbilityScoresProvider(widget.characterId)).when(
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, __) => const SizedBox.shrink(),
+                    data: (scores) {
+                      if (scores == null) return const SizedBox.shrink();
+                      return Wrap(
+                        spacing: 8,
+                        runSpacing: 6,
+                        children: [
+                          _ProfileStatChip(label: 'PV Max', value: '${widget.character.hpMax}'),
+                          _ProfileStatChip(label: 'Vitesse', value: '${widget.character.speed} m'),
+                          _ProfileStatChip(label: 'FOR', value: '${scores.strength}'),
+                          _ProfileStatChip(label: 'DEX', value: '${scores.dexterity}'),
+                          _ProfileStatChip(label: 'CON', value: '${scores.constitution}'),
+                          _ProfileStatChip(label: 'INT', value: '${scores.intelligence}'),
+                          _ProfileStatChip(label: 'SAG', value: '${scores.wisdom}'),
+                          _ProfileStatChip(label: 'CHA', value: '${scores.charisma}'),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
           ref.watch(characterProficienciesProvider(widget.characterId)).when(
             loading: () => const LinearProgressIndicator(),
             error: (e, _) => Text('Erreur maîtrises: $e'),
@@ -996,6 +1131,74 @@ class _AvatarPicker extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _AlignmentChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _AlignmentChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppTheme.neonCyan.withValues(alpha: 0.2)
+              : Colors.white.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: selected ? AppTheme.neonCyan : Colors.white24,
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+            color: selected ? AppTheme.neonCyan : Colors.white70,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileStatChip extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _ProfileStatChip({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.white12),
+      ),
+      child: Text(
+        '$label: $value',
+        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
       ),
     );
   }

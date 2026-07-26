@@ -434,30 +434,40 @@ class _ProficiencyRow extends StatelessWidget {
 class _EditAbilitiesDialog extends ConsumerStatefulWidget {
   final int characterId;
   final CharacterAbilityScore scores;
+  final Character? character;
 
-  const _EditAbilitiesDialog({required this.characterId, required this.scores});
+  const _EditAbilitiesDialog({
+    required this.characterId,
+    required this.scores,
+    this.character,
+  });
 
   @override
-  ConsumerState<_EditAbilitiesDialog> createState() => _EditAbilitiesDialogState();
+  ConsumerState<_EditAbilitiesDialog> createState() =>
+      _EditAbilitiesDialogState();
 }
 
 class _EditAbilitiesDialogState extends ConsumerState<_EditAbilitiesDialog> {
-  late final TextEditingController _strCtrl;
-  late final TextEditingController _dexCtrl;
-  late final TextEditingController _conCtrl;
-  late final TextEditingController _intCtrl;
-  late final TextEditingController _wisCtrl;
-  late final TextEditingController _chaCtrl;
+  late TextEditingController _strCtrl;
+  late TextEditingController _dexCtrl;
+  late TextEditingController _conCtrl;
+  late TextEditingController _intCtrl;
+  late TextEditingController _wisCtrl;
+  late TextEditingController _chaCtrl;
+  late TextEditingController _hpMaxCtrl;
+  late TextEditingController _speedCtrl;
 
   @override
   void initState() {
     super.initState();
-    _strCtrl = TextEditingController(text: '${widget.scores.strength}');
-    _dexCtrl = TextEditingController(text: '${widget.scores.dexterity}');
-    _conCtrl = TextEditingController(text: '${widget.scores.constitution}');
-    _intCtrl = TextEditingController(text: '${widget.scores.intelligence}');
-    _wisCtrl = TextEditingController(text: '${widget.scores.wisdom}');
-    _chaCtrl = TextEditingController(text: '${widget.scores.charisma}');
+    _strCtrl = TextEditingController(text: widget.scores.strength.toString());
+    _dexCtrl = TextEditingController(text: widget.scores.dexterity.toString());
+    _conCtrl = TextEditingController(text: widget.scores.constitution.toString());
+    _intCtrl = TextEditingController(text: widget.scores.intelligence.toString());
+    _wisCtrl = TextEditingController(text: widget.scores.wisdom.toString());
+    _chaCtrl = TextEditingController(text: widget.scores.charisma.toString());
+    _hpMaxCtrl = TextEditingController(text: (widget.character?.hpMax ?? 10).toString());
+    _speedCtrl = TextEditingController(text: (widget.character?.speed ?? 30).toString());
   }
 
   @override
@@ -468,13 +478,15 @@ class _EditAbilitiesDialogState extends ConsumerState<_EditAbilitiesDialog> {
     _intCtrl.dispose();
     _wisCtrl.dispose();
     _chaCtrl.dispose();
+    _hpMaxCtrl.dispose();
+    _speedCtrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Modifier les caractéristiques'),
+      title: const Text('Caractéristiques & Stats'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -485,6 +497,11 @@ class _EditAbilitiesDialogState extends ConsumerState<_EditAbilitiesDialog> {
             _buildField('Intelligence (INT)', _intCtrl),
             _buildField('Sagesse (WIS)', _wisCtrl),
             _buildField('Charisme (CHA)', _chaCtrl),
+            if (widget.character != null) ...[
+              const Divider(),
+              _buildField('PV Max', _hpMaxCtrl),
+              _buildField('Vitesse (mètres)', _speedCtrl),
+            ],
           ],
         ),
       ),
@@ -509,6 +526,7 @@ class _EditAbilitiesDialogState extends ConsumerState<_EditAbilitiesDialog> {
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),
+          isDense: true,
         ),
         keyboardType: TextInputType.number,
       ),
@@ -536,6 +554,21 @@ class _EditAbilitiesDialogState extends ConsumerState<_EditAbilitiesDialog> {
       ),
     );
 
+    if (widget.character != null) {
+      final hpMax = int.tryParse(_hpMaxCtrl.text) ?? widget.character!.hpMax;
+      final speed = int.tryParse(_speedCtrl.text) ?? widget.character!.speed;
+      await db.characterDao.updateCharacter(
+        CharactersCompanion(
+          id: Value(widget.characterId),
+          hpMax: Value(hpMax),
+          speed: Value(speed),
+          updatedAt: Value(DateTime.now().toIso8601String()),
+        ),
+      );
+    }
+
+    await CharacterService(db).recalculateCharacterAc(widget.characterId);
+    ref.invalidate(characterByIdProvider(widget.characterId));
     ref.invalidate(characterAbilityScoresProvider(widget.characterId));
 
     if (mounted) Navigator.of(context).pop();
@@ -543,11 +576,11 @@ class _EditAbilitiesDialogState extends ConsumerState<_EditAbilitiesDialog> {
 }
 
 void _showEditAbilitiesDialog(
-    BuildContext context, WidgetRef ref, CharacterAbilityScore scores) {
+    BuildContext context, WidgetRef ref, CharacterAbilityScore scores, [Character? character]) {
   showDialog(
     context: context,
     builder: (context) {
-      return _EditAbilitiesDialog(characterId: scores.characterId, scores: scores);
+      return _EditAbilitiesDialog(characterId: scores.characterId, scores: scores, character: character);
     },
   );
 }
