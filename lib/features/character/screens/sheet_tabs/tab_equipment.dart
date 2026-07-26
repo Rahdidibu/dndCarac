@@ -122,6 +122,7 @@ class _EquipmentTab extends ConsumerWidget {
                 onSelected: (DndItemPreset selection) {
                   nameCtrl.text = selection.name;
                   weightCtrl.text = selection.weight.toString();
+                  qtyCtrl.text = selection.defaultQuantity.toString();
                 },
                 fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
                   // Synchronize autocomplete input with nameCtrl
@@ -597,11 +598,33 @@ class _StepperButton extends StatelessWidget {
 class DndItemPreset {
   final String name;
   final double weight; // in kg
+  final int defaultQuantity;
   
-  const DndItemPreset(this.name, this.weight);
+  const DndItemPreset(this.name, this.weight, [this.defaultQuantity = 1]);
 }
 
 const List<DndItemPreset> _dndItemPresets = [
+  // Munitions
+  DndItemPreset('Flèches (20)', 1.0, 20),
+  DndItemPreset('Carreaux d\'arbalète (20)', 1.5, 20),
+  DndItemPreset('Billes de fronde (20)', 1.5, 20),
+  DndItemPreset('Fléchettes (10)', 1.0, 10),
+  DndItemPreset('Aiguilles de sarbacane (50)', 0.5, 50),
+  
+  // Munitions Magiques & Spéciales
+  DndItemPreset('Flèche +1', 0.05, 1),
+  DndItemPreset('Flèche +2', 0.05, 1),
+  DndItemPreset('Flèche +3', 0.05, 1),
+  DndItemPreset('Flèche de feu (+1)', 0.05, 1),
+  DndItemPreset('Flèche de glace (+1)', 0.05, 1),
+  DndItemPreset('Flèche explosive (+2)', 0.05, 1),
+  DndItemPreset('Carreau +1', 0.075, 1),
+  DndItemPreset('Carreau +2', 0.075, 1),
+  DndItemPreset('Carreau +3', 0.075, 1),
+  DndItemPreset('Carreau perforant (+1)', 0.075, 1),
+  DndItemPreset('Bille +1', 0.075, 1),
+  DndItemPreset('Bille +2', 0.075, 1),
+
   // Armes
   DndItemPreset('Dague', 0.5),
   DndItemPreset('Épée courte', 1.0),

@@ -135,6 +135,16 @@ class _RollResultDialogState extends ConsumerState<RollResultDialog> {
     return int.tryParse(match?.group(1) ?? '6') ?? 6;
   }
 
+  int _parseModifier() {
+    if (widget.diceExpression == null) return 0;
+    final exp = widget.diceExpression!.toLowerCase().replaceAll(' ', '');
+    final match = RegExp(r'd\d+([+-]\d+)').firstMatch(exp);
+    if (match != null) {
+      return int.tryParse(match.group(1) ?? '0') ?? 0;
+    }
+    return 0;
+  }
+
   void _finalizeRoll() {
     if (widget.isD20) {
       _die1 = _random.nextInt(20) + 1;
@@ -158,11 +168,14 @@ class _RollResultDialogState extends ConsumerState<RollResultDialog> {
     } else {
       final numDice = _parseNumDice();
       final sides = _parseSides();
+      final exprMod = _parseModifier();
+      final totalBonus = widget.bonus + exprMod;
       _otherRolls = List.generate(numDice, (_) => _random.nextInt(sides) + 1);
       final sum = _otherRolls.reduce((a, b) => a + b);
-      _total = sum + widget.bonus;
+      _total = sum + totalBonus;
       final rollsStr = _otherRolls.join('+');
-      _breakdown = '${numDice}d$sides[$rollsStr] ${widget.bonus >= 0 ? "+${widget.bonus}" : widget.bonus} = $_total';
+      final modStr = totalBonus != 0 ? (totalBonus >= 0 ? " + $totalBonus" : " $totalBonus") : '';
+      _breakdown = '${numDice}d$sides[$rollsStr]$modStr = $_total';
     }
 
     setState(() {

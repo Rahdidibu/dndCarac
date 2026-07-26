@@ -244,12 +244,23 @@ class StartingEquipmentHelper {
            lower.contains('carreau') || lower.contains('bolt') ||
            lower.contains('fléchette') || lower.contains('dart') ||
            lower.contains('bille') || lower.contains('sling bullet') ||
+           lower.contains('aiguille') || lower.contains('needle') ||
            lower.contains('munition');
   }
 
   /// Returns the ammoTag needed by a weapon, or null for melee weapons.
   static String? ammoTagFor(String weaponName) {
     return getWeaponStats(weaponName)?.ammoTag;
+  }
+
+  /// Parses ammunition modifier (e.g. "+1", "+2", "-1") from item name or notes.
+  static int parseAmmoBonus(String name, [String? notes]) {
+    final combined = '$name ${notes ?? ''}';
+    final match = RegExp(r'([+-]\d+)').firstMatch(combined);
+    if (match != null) {
+      return int.tryParse(match.group(1) ?? '0') ?? 0;
+    }
+    return 0;
   }
 }
 

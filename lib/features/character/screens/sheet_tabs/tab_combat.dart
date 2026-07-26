@@ -206,8 +206,13 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
       }
     }
 
+    final ammoBonus = (requiresAmmo && _selectedAmmo != null)
+        ? StartingEquipmentHelper.parseAmmoBonus(_selectedAmmo!.itemName, _selectedAmmo!.notes)
+        : 0;
+
     final bonusStr = _activeWeapon!.attackBonus;
     final bonusNum = int.tryParse(bonusStr.replaceAll('+', '')) ?? 0;
+    final totalAttackBonus = bonusNum + ammoBonus;
     final l10n = AppLocalizations.of(context)!;
     final ammoName = _selectedAmmo?.itemName;
 
@@ -216,7 +221,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
       characterId: widget.characterId,
       rollType: RollType.attack,
       title: l10n.rollAttackCheck(_activeWeapon!.name),
-      bonus: bonusNum,
+      bonus: totalAttackBonus,
       isD20: true,
       onRollCompleted: (total, breakdown) async {
         // Consume 1 ammo
@@ -248,7 +253,8 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
         final isFumble = breakdown.contains('d20(1)');
         final icon = isCrit ? '🎯' : isFumble ? '💀' : '⚔️';
         final suffix = isCrit ? ' CRITIQUE !' : isFumble ? ' FUMBLE !' : '';
-        final ammoSuffix = ammoName != null ? ' [$ammoName]' : '';
+        final ammoBonusStr = ammoBonus != 0 ? ' (${ammoBonus >= 0 ? "+$ammoBonus" : "$ammoBonus"})' : '';
+        final ammoSuffix = ammoName != null ? ' [$ammoName$ammoBonusStr]' : '';
         setState(() {
           _combatLog.insert(0,
             '$icon [${_activeWeapon!.name}]$ammoSuffix Attaque: $breakdown$suffix'
@@ -260,11 +266,17 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
 
   void _rollDamage({bool crit = false}) {
     if (_activeWeapon == null) return;
-    
+
+    final weaponStats = StartingEquipmentHelper.getWeaponStats(_activeWeapon!.name);
+    final requiresAmmo = weaponStats?.requiresAmmo ?? false;
+    final ammoBonus = (requiresAmmo && _selectedAmmo != null)
+        ? StartingEquipmentHelper.parseAmmoBonus(_selectedAmmo!.itemName, _selectedAmmo!.notes)
+        : 0;
+
     final damageDice = _activeWeapon!.damageDice;
     final damageType = _activeWeapon!.damageType;
     final l10n = AppLocalizations.of(context)!;
-    
+
     String expr = damageDice;
     if (crit) {
       final pattern = RegExp(r'(\d+)d(\d+)(.*)');
@@ -282,13 +294,16 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
       characterId: widget.characterId,
       rollType: RollType.damage,
       title: l10n.rollDamageCheck(_activeWeapon!.name) + (crit ? ' (CRITIQUE)' : ''),
-      bonus: 0,
+      bonus: ammoBonus,
       isD20: false,
       diceExpression: expr,
       onRollCompleted: (total, breakdown) {
+        final ammoName = _selectedAmmo?.itemName;
+        final ammoBonusStr = ammoBonus != 0 ? ' (${ammoBonus >= 0 ? "+$ammoBonus" : "$ammoBonus"})' : '';
+        final ammoSuffix = ammoName != null ? ' [$ammoName$ammoBonusStr]' : '';
         setState(() {
           _combatLog.insert(0,
-            '💥 [${_activeWeapon!.name}] Dégâts: $breakdown $damageType'
+            '💥 [${_activeWeapon!.name}]$ammoSuffix Dégâts: $breakdown $damageType'
           );
         });
       },
@@ -1804,6 +1819,7 @@ class _AmmoSelector extends StatelessWidget {
             children: ammoItems.map((ammo) {
               final isSelected = selectedAmmo?.id == ammo.id;
               final outOfStock = ammo.quantity <= 0;
+              final ammoBonus = StartingEquipmentHelper.parseAmmoBonus(ammo.itemName, ammo.notes);
               return GestureDetector(
                 onTap: outOfStock ? null : () => onSelected(ammo),
                 child: AnimatedContainer(
@@ -1846,6 +1862,28 @@ class _AmmoSelector extends StatelessWidget {
                           decoration: outOfStock ? TextDecoration.lineThrough : null,
                         ),
                       ),
+                      if (ammoBonus != 0) ...[
+                        const SizedBox(width: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: (ammoBonus > 0 ? AppTheme.neonCyan : AppTheme.neonRed).withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: (ammoBonus > 0 ? AppTheme.neonCyan : AppTheme.neonRed).withValues(alpha: 0.5),
+                              width: 0.8,
+                            ),
+                          ),
+                          child: Text(
+                            ammoBonus > 0 ? '+$ammoBonus' : '$ammoBonus',
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                              color: ammoBonus > 0 ? AppTheme.neonCyan : AppTheme.neonRed,
+                            ),
+                          ),
+                        ),
+                      ],
                       const SizedBox(width: 6),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
