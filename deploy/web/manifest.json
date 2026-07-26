@@ -5,7 +5,7 @@
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Le Codex de l'Aventurier - Gestionnaire ultime de fiches de personnage Donjons & Dragons (5e & 2024).",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
