@@ -392,40 +392,67 @@ class _RollResultDialogState extends ConsumerState<RollResultDialog> {
             const SizedBox(height: 24),
           ],
           if (_rolled) ...[
-            if (widget.isD20) ...[
-              if (_rollMode != 0) ...[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _DieContainer(
-                      value: _die1,
-                      isDiscarded: !_isRolling && ((_rollMode == 1 && _die1 < _die2) || (_rollMode == -1 && _die1 > _die2)),
-                      isChosen: !_isRolling && ((_rollMode == 1 && _die1 >= _die2) || (_rollMode == -1 && _die1 <= _die2)),
-                    ),
-                    const SizedBox(width: 24),
-                    _DieContainer(
-                      value: _die2,
-                      isDiscarded: !_isRolling && ((_rollMode == 1 && _die2 < _die1) || (_rollMode == -1 && _die2 > _die1)),
-                      isChosen: !_isRolling && ((_rollMode == 1 && _die2 >= _die1) || (_rollMode == -1 && _die2 <= _die1)),
-                    ),
-                  ],
-                ),
+            if (_isRolling) ...[
+              if (widget.isD20) ...[
+                if (_rollMode != 0) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      RollingDie3D(glowColor: _rollMode == 1 ? AppTheme.neonCyan : AppTheme.neonRed),
+                      const SizedBox(width: 24),
+                      RollingDie3D(glowColor: _rollMode == 1 ? AppTheme.neonCyan : AppTheme.neonRed),
+                    ],
+                  ),
+                ] else ...[
+                  const RollingDie3D(),
+                ],
               ] else ...[
-                _DieContainer(value: _die1, isChosen: !_isRolling),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.center,
+                  children: List.generate(
+                    _parseNumDice(),
+                    (_) => RollingDie3D(size: 45, sides: _parseSides(), glowColor: AppTheme.neonCyan),
+                  ),
+                ),
               ],
             ] else ...[
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.center,
-                children: _otherRolls.map((r) => _DieContainer(
-                  value: r, 
-                  size: 45, 
-                  fontSize: 18,
-                  isD20: false,
-                  sides: _parseSides(),
-                )).toList(),
-              ),
+              if (widget.isD20) ...[
+                if (_rollMode != 0) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _DieContainer(
+                        value: _die1,
+                        isDiscarded: (_rollMode == 1 && _die1 < _die2) || (_rollMode == -1 && _die1 > _die2),
+                        isChosen: (_rollMode == 1 && _die1 >= _die2) || (_rollMode == -1 && _die1 <= _die2),
+                      ),
+                      const SizedBox(width: 24),
+                      _DieContainer(
+                        value: _die2,
+                        isDiscarded: (_rollMode == 1 && _die2 < _die1) || (_rollMode == -1 && _die2 > _die1),
+                        isChosen: (_rollMode == 1 && _die2 >= _die1) || (_rollMode == -1 && _die2 <= _die1),
+                      ),
+                    ],
+                  ),
+                ] else ...[
+                  _DieContainer(value: _die1, isChosen: true),
+                ],
+              ] else ...[
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.center,
+                  children: _otherRolls.map((r) => _DieContainer(
+                    value: r, 
+                    size: 45, 
+                    fontSize: 18,
+                    isD20: false,
+                    sides: _parseSides(),
+                  )).toList(),
+                ),
+              ],
             ],
             const SizedBox(height: 24),
             if (!_isRolling) ...[
@@ -595,6 +622,93 @@ class _DieContainer extends StatelessWidget {
           decoration: isDiscarded ? TextDecoration.lineThrough : null,
         ),
       ),
+    );
+  }
+}
+
+class RollingDie3D extends StatefulWidget {
+  final double size;
+  final int sides;
+  final Color glowColor;
+
+  const RollingDie3D({
+    super.key,
+    this.size = 60,
+    this.sides = 20,
+    this.glowColor = AppTheme.neonCyan,
+  });
+
+  @override
+  State<RollingDie3D> createState() => _RollingDie3DState();
+}
+
+class _RollingDie3DState extends State<RollingDie3D> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  final Random _random = Random();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final angleX = _controller.value * pi * 4;
+        final angleY = _controller.value * pi * 2;
+        final scale = 1.0 + 0.15 * sin(_controller.value * pi * 2);
+        final offsetY = -15.0 * sin(_controller.value * pi).abs();
+        final rollingVal = _random.nextInt(widget.sides) + 1;
+
+        return Transform.translate(
+          offset: Offset(0, offsetY),
+          child: Transform(
+            transform: Matrix4.identity()
+              ..setEntry(3, 2, 0.002) // Perspective
+              ..rotateX(angleX)
+              ..rotateY(angleY)
+              ..scale(scale),
+            alignment: Alignment.center,
+            child: Container(
+              width: widget.size,
+              height: widget.size,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                border: Border.all(color: widget.glowColor, width: 2),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: widget.glowColor.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  )
+                ],
+              ),
+              child: Text(
+                rollingVal.toString(),
+                style: TextStyle(
+                  fontSize: widget.size * 0.38,
+                  fontWeight: FontWeight.bold,
+                  color: widget.glowColor,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
