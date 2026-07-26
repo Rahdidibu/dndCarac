@@ -57,6 +57,7 @@ class _MagicTab extends ConsumerWidget {
     final totalLevelAsync = ref.watch(characterTotalLevelProvider(characterId));
     final equipmentAsync = ref.watch(characterEquipmentProvider(characterId));
     final proficienciesAsync = ref.watch(characterProficienciesProvider(characterId));
+    final resourcesAsync = ref.watch(characterResourcesProvider(characterId));
 
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
@@ -66,6 +67,56 @@ class _MagicTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ── Active Concentration Banner ───────────────────────────
+          resourcesAsync.when(
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+            data: (resources) {
+              final activeConc = resources.where((r) => r.resourceName.startsWith('active_concentration_') && r.current > 0).firstOrNull;
+              if (activeConc == null) return const SizedBox.shrink();
+
+              final spellName = activeConc.resourceName.replaceFirst('active_concentration_', '');
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.12),
+                  border: Border.all(color: Colors.amber.withValues(alpha: 0.5)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.center_focus_strong, color: Colors.amber, size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Concentration active', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.amber)),
+                          Text(spellName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                        ],
+                      ),
+                    ),
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.close, size: 14, color: AppTheme.neonRed),
+                      label: const Text('Rompre', style: TextStyle(fontSize: 11, color: AppTheme.neonRed)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppTheme.neonRed),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      ),
+                      onPressed: () async {
+                        final db = ref.read(databaseProvider);
+                        await db.characterDao.clearConcentration(characterId);
+                        await db.characterDao.deleteResource(activeConc.id);
+                        ref.invalidate(characterResourcesProvider(characterId));
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
           // ── Spell slots ───────────────────────────────────────────────────
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -487,8 +538,50 @@ class _SpellListTile extends ConsumerWidget {
                 tooltip: charSpell.prepared ? 'Préparé (cliquer pour retirer)' : 'Non préparé (cliquer pour préparer)',
                 onPressed: () => _togglePreparation(context, ref),
               ),
-        title: Text(srdSpell.name,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(srdSpell.name,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+            ),
+            if (srdSpell.concentration)
+              Container(
+                margin: const EdgeInsets.only(left: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: Colors.amber.withValues(alpha: 0.5), width: 0.8),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.center_focus_strong, size: 10, color: Colors.amber),
+                    SizedBox(width: 3),
+                    Text('Conc.', style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Colors.amber)),
+                  ],
+                ),
+              ),
+            if (srdSpell.ritual)
+              Container(
+                margin: const EdgeInsets.only(left: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                decoration: BoxDecoration(
+                  color: AppTheme.neonPurple.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: AppTheme.neonPurple.withValues(alpha: 0.5), width: 0.8),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.menu_book, size: 10, color: AppTheme.neonPurple),
+                    SizedBox(width: 3),
+                    Text('Rituel', style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: AppTheme.neonPurple)),
+                  ],
+                ),
+              ),
+          ],
+        ),
         subtitle: Text(
           srdSpell.level == 0 ? 'Tour de magie • ${srdSpell.school}' : 'Niveau ${srdSpell.level} • ${srdSpell.school}',
           style: const TextStyle(fontSize: 11, color: Colors.white70),
@@ -610,13 +703,33 @@ class _SpellListTile extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final level = srdSpell.level;
 
-    if (level == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('✨ Lancement de ${srdSpell.name} ! (Sort mineur)'),
-          backgroundColor: AppTheme.neonCyan,
+    Future<void> handleConcentration() async {
+      if (!srdSpell.concentration) return;
+      final db = ref.read(databaseProvider);
+      await db.characterDao.clearConcentration(characterId);
+      await db.characterDao.upsertResource(
+        CharacterResourcesCompanion.insert(
+          characterId: characterId,
+          resourceName: 'active_concentration_${srdSpell.name}',
+          current: 1,
+          maximum: 1,
         ),
       );
+      ref.invalidate(characterResourcesProvider(characterId));
+    }
+
+    if (level == 0) {
+      await handleConcentration();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(srdSpell.concentration
+                ? '✨ Lancement de ${srdSpell.name} ! (Concentration activée)'
+                : '✨ Lancement de ${srdSpell.name} ! (Sort mineur)'),
+            backgroundColor: AppTheme.neonCyan,
+          ),
+        );
+      }
       return;
     }
 
@@ -643,12 +756,16 @@ class _SpellListTile extends ConsumerWidget {
         ),
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('🔥 Lancement de ${srdSpell.name} ! (Emplacement Niv. $level dépensé)'),
-          backgroundColor: AppTheme.neonPurple,
-        ),
-      );
+      await handleConcentration();
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('🔥 Lancement de ${srdSpell.name} ! (Emplacement Niv. $level dépensé)'),
+            backgroundColor: AppTheme.neonPurple,
+          ),
+        );
+      }
     } else {
       final higherSlots = slots.where((s) => s.slotLevel > level && s.slotCurrent > 0).toList();
 

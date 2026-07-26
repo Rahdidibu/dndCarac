@@ -361,6 +361,20 @@ class CharacterDao extends DatabaseAccessor<AppDatabase>
     }
   }
 
+  Future<void> deleteResource(int id) async {
+    final client = Supabase.instance.client;
+    await client.from('character_resources').delete().eq('id', id);
+  }
+
+  Future<void> clearConcentration(int characterId) async {
+    final client = Supabase.instance.client;
+    await client
+        .from('character_resources')
+        .delete()
+        .eq('character_id', characterId)
+        .like('resource_name', 'active_concentration_%');
+  }
+
   Future<void> replaceAllResources(
       int characterId, List<CharacterResourcesCompanion> resources) async {
     final client = Supabase.instance.client;

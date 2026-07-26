@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/tables/tables.dart';
 import '../../../core/providers/database_provider.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../character/providers/character_providers.dart';
 import '../../../core/utils/dnd_rules.dart';
@@ -27,6 +28,11 @@ class _SpellManagementScreenState
   String _searchQuery = '';
   int? _filterLevel;
   String? _filterSchool;
+  bool? _filterConcentration;
+  bool? _filterRitual;
+  bool? _filterVocal;
+  bool? _filterSomatic;
+  bool? _filterMaterial;
 
   @override
   Widget build(BuildContext context) {
@@ -63,9 +69,29 @@ class _SpellManagementScreenState
                   searchQuery: _searchQuery,
                   filterLevel: _filterLevel,
                   filterSchool: _filterSchool,
+                  filterConcentration: _filterConcentration,
+                  filterRitual: _filterRitual,
+                  filterVocal: _filterVocal,
+                  filterSomatic: _filterSomatic,
+                  filterMaterial: _filterMaterial,
                   onSearchChanged: (v) => setState(() => _searchQuery = v),
                   onLevelChanged: (v) => setState(() => _filterLevel = v),
                   onSchoolChanged: (v) => setState(() => _filterSchool = v),
+                  onConcentrationChanged: (v) => setState(() => _filterConcentration = v),
+                  onRitualChanged: (v) => setState(() => _filterRitual = v),
+                  onVocalChanged: (v) => setState(() => _filterVocal = v),
+                  onSomaticChanged: (v) => setState(() => _filterSomatic = v),
+                  onMaterialChanged: (v) => setState(() => _filterMaterial = v),
+                  onResetFilters: () => setState(() {
+                    _searchQuery = '';
+                    _filterLevel = null;
+                    _filterSchool = null;
+                    _filterConcentration = null;
+                    _filterRitual = null;
+                    _filterVocal = null;
+                    _filterSomatic = null;
+                    _filterMaterial = null;
+                  }),
                 ),
                 // ── Tab 1: My spells ───────────────────────────────────────
                 mySpellsAsync.when(
@@ -94,9 +120,20 @@ class _CompendiumTab extends ConsumerWidget {
   final String searchQuery;
   final int? filterLevel;
   final String? filterSchool;
+  final bool? filterConcentration;
+  final bool? filterRitual;
+  final bool? filterVocal;
+  final bool? filterSomatic;
+  final bool? filterMaterial;
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<int?> onLevelChanged;
   final ValueChanged<String?> onSchoolChanged;
+  final ValueChanged<bool?> onConcentrationChanged;
+  final ValueChanged<bool?> onRitualChanged;
+  final ValueChanged<bool?> onVocalChanged;
+  final ValueChanged<bool?> onSomaticChanged;
+  final ValueChanged<bool?> onMaterialChanged;
+  final VoidCallback onResetFilters;
 
   const _CompendiumTab({
     required this.characterId,
@@ -104,10 +141,31 @@ class _CompendiumTab extends ConsumerWidget {
     required this.searchQuery,
     required this.filterLevel,
     required this.filterSchool,
+    required this.filterConcentration,
+    required this.filterRitual,
+    required this.filterVocal,
+    required this.filterSomatic,
+    required this.filterMaterial,
     required this.onSearchChanged,
     required this.onLevelChanged,
     required this.onSchoolChanged,
+    required this.onConcentrationChanged,
+    required this.onRitualChanged,
+    required this.onVocalChanged,
+    required this.onSomaticChanged,
+    required this.onMaterialChanged,
+    required this.onResetFilters,
   });
+
+  bool _matchesComponent(SrdSpell spell, String compChar) {
+    try {
+      final decoded = jsonDecode(spell.components);
+      if (decoded is List) {
+        return decoded.any((element) => element.toString().toUpperCase().contains(compChar));
+      }
+    } catch (_) {}
+    return spell.components.toUpperCase().contains(compChar);
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -212,6 +270,21 @@ class _CompendiumTab extends ConsumerWidget {
                           s.school.toLowerCase() == filterSchool!.toLowerCase())
                       .toList();
                 }
+                if (filterConcentration == true) {
+                  spells = spells.where((s) => s.concentration).toList();
+                }
+                if (filterRitual == true) {
+                  spells = spells.where((s) => s.ritual).toList();
+                }
+                if (filterVocal == true) {
+                  spells = spells.where((s) => _matchesComponent(s, 'V')).toList();
+                }
+                if (filterSomatic == true) {
+                  spells = spells.where((s) => _matchesComponent(s, 'S')).toList();
+                }
+                if (filterMaterial == true) {
+                  spells = spells.where((s) => _matchesComponent(s, 'M')).toList();
+                }
 
                 // Sort by level ascending, then name ascending (accent insensitive)
                 spells.sort((a, b) {
@@ -227,6 +300,14 @@ class _CompendiumTab extends ConsumerWidget {
                     .toList()
                   ..sort();
 
+                final hasAnyActiveFilter = filterLevel != null ||
+                    filterSchool != null ||
+                    filterConcentration == true ||
+                    filterRitual == true ||
+                    filterVocal == true ||
+                    filterSomatic == true ||
+                    filterMaterial == true;
+
                 return Column(
                   children: [
                     // ── Filter bar ──────────────────────────────────────
@@ -237,7 +318,7 @@ class _CompendiumTab extends ConsumerWidget {
                           Expanded(
                             child: TextField(
                               decoration: const InputDecoration(
-                                hintText: 'Rechercher…',
+                                hintText: 'Rechercher un sort…',
                                 prefixIcon: Icon(Icons.search, size: 18),
                                 isDense: true,
                                 border: OutlineInputBorder(),
@@ -245,58 +326,101 @@ class _CompendiumTab extends ConsumerWidget {
                               onChanged: onSearchChanged,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          PopupMenuButton<int?>(
-                            icon: const Icon(Icons.filter_list),
-                            tooltip: 'Filtrer par niveau',
-                            onSelected: onLevelChanged,
-                            itemBuilder: (_) => [
-                              const PopupMenuItem(value: null, child: Text('Tous niveaux')),
-                              ...List.generate(10, (i) => PopupMenuItem(
-                                    value: i,
-                                    child: Text(i == 0 ? 'Tour de magie' : 'Niv. $i'),
-                                  )),
-                            ],
-                          ),
-                          PopupMenuButton<String?>(
-                            icon: const Icon(Icons.school_outlined),
-                            tooltip: 'Filtrer par école',
-                            onSelected: onSchoolChanged,
-                            itemBuilder: (_) => [
-                              const PopupMenuItem(value: null, child: Text('Toutes écoles')),
-                              ...allSchools.map((s) => PopupMenuItem(
-                                    value: s,
-                                    child: Text(s),
-                                  )),
-                            ],
+                          const SizedBox(width: 4),
+                          IconButton(
+                            icon: Icon(
+                              Icons.tune,
+                              color: hasAnyActiveFilter ? AppTheme.neonCyan : null,
+                            ),
+                            tooltip: 'Filtres avancés',
+                            onPressed: () => _showAdvancedFiltersSheet(
+                              context,
+                              allSchools: allSchools,
+                            ),
                           ),
                         ],
                       ),
                     ),
                     // Active filter chips
-                    if (filterLevel != null || filterSchool != null)
+                    if (hasAnyActiveFilter)
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Row(
-                          children: [
-                            if (filterLevel != null)
-                              Padding(
-                                padding: const EdgeInsets.only(right: 4),
-                                child: FilterChip(
-                                  label: Text(filterLevel == 0
-                                      ? 'Tour de magie'
-                                      : 'Niv. $filterLevel'),
-                                  onSelected: (_) => onLevelChanged(null),
-                                  selected: true,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              if (filterLevel != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  child: FilterChip(
+                                    label: Text(filterLevel == 0 ? 'Tour de magie' : 'Niv. $filterLevel'),
+                                    onSelected: (_) => onLevelChanged(null),
+                                    selected: true,
+                                  ),
                                 ),
+                              if (filterSchool != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  child: FilterChip(
+                                    label: Text(filterSchool!),
+                                    onSelected: (_) => onSchoolChanged(null),
+                                    selected: true,
+                                  ),
+                                ),
+                              if (filterConcentration == true)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  child: FilterChip(
+                                    avatar: const Icon(Icons.center_focus_strong, size: 14),
+                                    label: const Text('Concentration'),
+                                    onSelected: (_) => onConcentrationChanged(null),
+                                    selected: true,
+                                  ),
+                                ),
+                              if (filterRitual == true)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  child: FilterChip(
+                                    avatar: const Icon(Icons.menu_book, size: 14),
+                                    label: const Text('Rituel'),
+                                    onSelected: (_) => onRitualChanged(null),
+                                    selected: true,
+                                  ),
+                                ),
+                              if (filterVocal == true)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  child: FilterChip(
+                                    label: const Text('🗣️ Vocale (V)'),
+                                    onSelected: (_) => onVocalChanged(null),
+                                    selected: true,
+                                  ),
+                                ),
+                              if (filterSomatic == true)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  child: FilterChip(
+                                    label: const Text('🖐️ Somatique (S)'),
+                                    onSelected: (_) => onSomaticChanged(null),
+                                    selected: true,
+                                  ),
+                                ),
+                              if (filterMaterial == true)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  child: FilterChip(
+                                    label: const Text('💎 Matérielle (M)'),
+                                    onSelected: (_) => onMaterialChanged(null),
+                                    selected: true,
+                                  ),
+                                ),
+                              ActionChip(
+                                label: const Text('Effacer filtres'),
+                                avatar: const Icon(Icons.close, size: 14),
+                                onPressed: onResetFilters,
                               ),
-                            if (filterSchool != null)
-                              FilterChip(
-                                label: Text(filterSchool!),
-                                onSelected: (_) => onSchoolChanged(null),
-                                selected: true,
-                                ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     const Divider(height: 1),
@@ -331,6 +455,169 @@ class _CompendiumTab extends ConsumerWidget {
       },
     );
   }
+
+  void _showAdvancedFiltersSheet(BuildContext context, {required List<String> allSchools}) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) {
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Filtres de Sorts',
+                        style: TextStyle(fontFamily: 'Cinzel', fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          onResetFilters();
+                          Navigator.of(ctx).pop();
+                        },
+                        child: const Text('Tout réinitialiser'),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+
+                  // ── Niveau de Sort ──────────────────────────────────
+                  const Text('Niveau de sort', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      ChoiceChip(
+                        label: const Text('Tous'),
+                        selected: filterLevel == null,
+                        onSelected: (val) {
+                          onLevelChanged(null);
+                          setModalState(() {});
+                        },
+                      ),
+                      ...List.generate(10, (i) => ChoiceChip(
+                        label: Text(i == 0 ? 'Tour de magie' : 'Niv. $i'),
+                        selected: filterLevel == i,
+                        onSelected: (val) {
+                          onLevelChanged(val ? i : null);
+                          setModalState(() {});
+                        },
+                      )),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // ── École de Magie ──────────────────────────────────
+                  const Text('École de magie', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      ChoiceChip(
+                        label: const Text('Toutes'),
+                        selected: filterSchool == null,
+                        onSelected: (val) {
+                          onSchoolChanged(null);
+                          setModalState(() {});
+                        },
+                      ),
+                      ...allSchools.map((school) => ChoiceChip(
+                        label: Text(school),
+                        selected: filterSchool?.toLowerCase() == school.toLowerCase(),
+                        onSelected: (val) {
+                          onSchoolChanged(val ? school : null);
+                          setModalState(() {});
+                        },
+                      )),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // ── Propriétés Spéciales ──────────────────────────────
+                  const Text('Propriétés du sort', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      FilterChip(
+                        avatar: const Icon(Icons.center_focus_strong, size: 14),
+                        label: const Text('Concentration'),
+                        selected: filterConcentration == true,
+                        onSelected: (val) {
+                          onConcentrationChanged(val ? true : null);
+                          setModalState(() {});
+                        },
+                      ),
+                      FilterChip(
+                        avatar: const Icon(Icons.menu_book, size: 14),
+                        label: const Text('Rituel'),
+                        selected: filterRitual == true,
+                        onSelected: (val) {
+                          onRitualChanged(val ? true : null);
+                          setModalState(() {});
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // ── Composantes ──────────────────────────────────────
+                  const Text('Composantes requises', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      FilterChip(
+                        label: const Text('🗣️ Vocale (V)'),
+                        selected: filterVocal == true,
+                        onSelected: (val) {
+                          onVocalChanged(val ? true : null);
+                          setModalState(() {});
+                        },
+                      ),
+                      FilterChip(
+                        label: const Text('🖐️ Somatique (S)'),
+                        selected: filterSomatic == true,
+                        onSelected: (val) {
+                          onSomaticChanged(val ? true : null);
+                          setModalState(() {});
+                        },
+                      ),
+                      FilterChip(
+                        label: const Text('💎 Matérielle (M)'),
+                        selected: filterMaterial == true,
+                        onSelected: (val) {
+                          onMaterialChanged(val ? true : null);
+                          setModalState(() {});
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: () => Navigator.of(ctx).pop(),
+                      child: const Text('Afficher les résultats'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
 }
 
 class _CompendiumSpellTile extends ConsumerWidget {
@@ -354,7 +641,49 @@ class _CompendiumSpellTile extends ConsumerWidget {
 
     return ListTile(
       dense: true,
-      title: Text(spell.name, style: const TextStyle(fontSize: 14)),
+      title: Row(
+        children: [
+          Expanded(
+            child: Text(spell.name, style: const TextStyle(fontSize: 14)),
+          ),
+          if (spell.concentration)
+            Container(
+              margin: const EdgeInsets.only(left: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+              decoration: BoxDecoration(
+                color: Colors.amber.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: Colors.amber.withValues(alpha: 0.5), width: 0.8),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.center_focus_strong, size: 10, color: Colors.amber),
+                  SizedBox(width: 3),
+                  Text('Conc.', style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Colors.amber)),
+                ],
+              ),
+            ),
+          if (spell.ritual)
+            Container(
+              margin: const EdgeInsets.only(left: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+              decoration: BoxDecoration(
+                color: AppTheme.neonPurple.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: AppTheme.neonPurple.withValues(alpha: 0.5), width: 0.8),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.menu_book, size: 10, color: AppTheme.neonPurple),
+                  SizedBox(width: 3),
+                  Text('Rituel', style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: AppTheme.neonPurple)),
+                ],
+              ),
+            ),
+        ],
+      ),
       subtitle: Text('$levelLabel • ${spell.school}',
           style: const TextStyle(fontSize: 11)),
       trailing: alreadyAdded
