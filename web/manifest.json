@@ -1,6 +1,6 @@
 {
-    "name": "dnd_character_manager",
-    "short_name": "dnd_character_manager",
+    "name": "Le Codex de l'Aventurier",
+    "short_name": "Le Codex",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

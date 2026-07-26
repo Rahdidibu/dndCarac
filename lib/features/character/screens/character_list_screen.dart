@@ -20,7 +20,7 @@ class CharacterListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.navCharacters),
+        title: Text(l10n.appTitle),
         centerTitle: true,
       ),
       floatingActionButton: Column(

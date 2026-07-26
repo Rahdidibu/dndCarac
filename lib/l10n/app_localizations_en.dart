@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'D&D Manager';
+  String get appTitle => 'Le Codex de l\'Aventurier';
 
   @override
   String get navCharacters => 'Characters';

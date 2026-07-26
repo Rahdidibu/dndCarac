@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// Titre de l'application
   ///
   /// In fr, this message translates to:
-  /// **'Gestionnaire D&D'**
+  /// **'Le Codex de l\'Aventurier'**
   String get appTitle;
 
   /// No description provided for @navCharacters.

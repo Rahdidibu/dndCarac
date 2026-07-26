@@ -1,6 +1,6 @@
 {
   "@@locale": "fr",
-  "appTitle": "Gestionnaire D&D",
+  "appTitle": "Le Codex de l'Aventurier",
   "@appTitle": { "description": "Titre de l'application" },
 
   "navCharacters": "Personnages",
