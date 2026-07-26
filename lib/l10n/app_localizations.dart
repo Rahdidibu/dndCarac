@@ -122,6 +122,18 @@ abstract class AppLocalizations {
   /// **'Paramètres'**
   String get navSettings;
 
+  /// No description provided for @navForge.
+  ///
+  /// In fr, this message translates to:
+  /// **'La Forge'**
+  String get navForge;
+
+  /// No description provided for @invalidNavigation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Navigation invalide. Veuillez retourner à l\'accueil.'**
+  String get invalidNavigation;
+
   /// No description provided for @charactersEmptyTitle.
   ///
   /// In fr, this message translates to:

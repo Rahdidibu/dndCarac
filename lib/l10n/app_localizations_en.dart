@@ -21,6 +21,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navSettings => 'Settings';
 
   @override
+  String get navForge => 'The Forge';
+
+  @override
+  String get invalidNavigation => 'Invalid navigation. Please return to home.';
+
+  @override
   String get charactersEmptyTitle => 'No characters';
 
   @override

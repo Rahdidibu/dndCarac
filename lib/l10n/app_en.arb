@@ -5,6 +5,8 @@
   "navCharacters": "Characters",
   "navSpells": "Spells",
   "navSettings": "Settings",
+  "navForge": "The Forge",
+  "invalidNavigation": "Invalid navigation. Please return to home.",
 
   "charactersEmptyTitle": "No characters",
   "charactersEmptySubtitle": "Create your first character to get started.",

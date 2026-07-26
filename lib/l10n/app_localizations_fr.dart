@@ -21,6 +21,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get navSettings => 'Paramètres';
 
   @override
+  String get navForge => 'La Forge';
+
+  @override
+  String get invalidNavigation =>
+      'Navigation invalide. Veuillez retourner à l\'accueil.';
+
+  @override
   String get charactersEmptyTitle => 'Aucun personnage';
 
   @override

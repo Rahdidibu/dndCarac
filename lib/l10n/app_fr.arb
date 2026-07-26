@@ -9,6 +9,10 @@
   "@navSpells": {},
   "navSettings": "Paramètres",
   "@navSettings": {},
+  "navForge": "La Forge",
+  "@navForge": {},
+  "invalidNavigation": "Navigation invalide. Veuillez retourner à l'accueil.",
+  "@invalidNavigation": {},
 
   "charactersEmptyTitle": "Aucun personnage",
   "@charactersEmptyTitle": {},
