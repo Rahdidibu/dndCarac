@@ -325,7 +325,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           const SizedBox(height: 8),
                           TextButton.icon(
                             onPressed: () {
-                              openUrl('app-release.apk');
+                              openUrl('codex-aventurier.apk');
                             },
                             icon: const Icon(Icons.android, color: Colors.greenAccent),
                             label: const Text(

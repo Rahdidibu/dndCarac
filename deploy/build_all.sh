@@ -24,8 +24,8 @@ mkdir -p deploy/web
 rm -rf deploy/web/*
 cp -R build/web/* deploy/web/
 
-echo "📦 Copie de l'APK dans deploy/web pour le téléchargement..."
-cp build/app/outputs/flutter-apk/app-release.apk deploy/web/
+echo "📦 Copie de l'APK (codex-aventurier.apk) dans deploy/web pour le téléchargement..."
+cp build/app/outputs/flutter-apk/app-release.apk deploy/web/codex-aventurier.apk
 
 echo "💾 Ajout des fichiers compilés à l'index Git..."
 git add deploy/web/
