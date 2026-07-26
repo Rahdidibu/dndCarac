@@ -413,4 +413,58 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get hpModifierError => 'Veuillez entrer un nombre positif';
+
+  @override
+  String get restSectionTitle => 'Repos';
+
+  @override
+  String get restShortRest => 'Repos court';
+
+  @override
+  String get restLongRest => 'Repos long';
+
+  @override
+  String get restShortRestConfirm =>
+      'Voulez-vous effectuer un repos court ? Vos capacités de repos court seront réinitialisées.';
+
+  @override
+  String get restLongRestConfirm =>
+      'Voulez-vous effectuer un repos long ? Vos PV, emplacements de sorts et capacités seront restaurés.';
+
+  @override
+  String get restSuccessMessage => 'Repos effectué !';
+
+  @override
+  String get resourceHitDiceD6 => 'Dés de vie (d6)';
+
+  @override
+  String get resourceHitDiceD8 => 'Dés de vie (d8)';
+
+  @override
+  String get resourceHitDiceD10 => 'Dés de vie (d10)';
+
+  @override
+  String get resourceHitDiceD12 => 'Dés de vie (d12)';
+
+  @override
+  String get shortRestTitle => 'Repos court';
+
+  @override
+  String shortRestRollButton(String die, int count) {
+    return 'Lancer 1d$die ($count restants)';
+  }
+
+  @override
+  String get shortRestNoDice => 'Aucun dé de vie disponible.';
+
+  @override
+  String get shortRestHpFull => 'Vos PV sont au maximum.';
+
+  @override
+  String shortRestRollResult(int roll, int con, int heal) {
+    return 'Jet : $roll + $con (Con) = +$heal PV';
+  }
+
+  @override
+  String get shortRestClose => 'Terminer le repos';
 }

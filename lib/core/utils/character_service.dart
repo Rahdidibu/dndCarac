@@ -323,6 +323,14 @@ class CharacterService {
 
     for (final entry in wizard.classes) {
       final level = entry.level;
+      final hitDie = getHitDieForClass(entry.classId);
+      resources.add(CharacterResourcesCompanion.insert(
+        characterId: characterId,
+        resourceName: 'hitDice_d$hitDie',
+        current: level,
+        maximum: level,
+      ));
+
       switch (entry.classId) {
         case 'barbarian':
           final rages = level >= 20
@@ -469,6 +477,33 @@ class CharacterService {
       }).toList();
       await db.characterDao
           .replaceAllSpellSlots(characterId, newCompanions);
+    }
+
+    // Update Hit Dice resource
+    final hitDie = getHitDieForClass(classId);
+    final resources = await db.characterDao.watchResources(characterId).first;
+    final existingHitDice = resources
+        .where((r) => r.resourceName == 'hitDice_d$hitDie')
+        .firstOrNull;
+    if (existingHitDice != null) {
+      await db.characterDao.upsertResource(
+        CharacterResourcesCompanion(
+          id: Value(existingHitDice.id),
+          characterId: Value(characterId),
+          resourceName: Value(existingHitDice.resourceName),
+          current: Value(existingHitDice.current + 1),
+          maximum: Value(existingHitDice.maximum + 1),
+        ),
+      );
+    } else {
+      await db.characterDao.upsertResource(
+        CharacterResourcesCompanion.insert(
+          characterId: characterId,
+          resourceName: 'hitDice_d$hitDie',
+          current: 1,
+          maximum: 1,
+        ),
+      );
     }
   }
 
@@ -751,6 +786,109 @@ class CharacterService {
           ),
         );
       } catch (_) {}
+    }
+  }
+
+  Future<void> shortRest(int characterId) async {
+    final resources = await db.characterDao.watchResources(characterId).first;
+    final shortRestResources = {
+      'resourceKi',
+      'resourceChannelDivinity',
+      'resourceWildShape',
+      'resourceActionSurge',
+    };
+    for (final r in resources) {
+      if (shortRestResources.contains(r.resourceName)) {
+        await db.characterDao.upsertResource(
+          CharacterResourcesCompanion(
+            id: Value(r.id),
+            characterId: Value(characterId),
+            resourceName: Value(r.resourceName),
+            current: Value(r.maximum),
+            maximum: Value(r.maximum),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> longRest(int characterId) async {
+    final character = await db.characterDao.getCharacterById(characterId);
+    if (character != null) {
+      await db.characterDao.updateCharacter(
+        CharactersCompanion(
+          id: Value(characterId),
+          hpCurrent: Value(character.hpMax),
+          hpTemp: const Value(0),
+          updatedAt: Value(DateTime.now().toIso8601String()),
+        ),
+      );
+    }
+
+    final slots = await db.characterDao.watchSpellSlots(characterId).first;
+    for (final s in slots) {
+      await db.characterDao.updateSpellSlot(
+        CharacterSpellSlotsCompanion(
+          id: Value(s.id),
+          characterId: Value(characterId),
+          slotLevel: Value(s.slotLevel),
+          slotMax: Value(s.slotMax),
+          slotCurrent: Value(s.slotMax),
+        ),
+      );
+    }
+
+    final resources = await db.characterDao.watchResources(characterId).first;
+    for (final r in resources) {
+      int newCurrent = r.maximum;
+      if (r.resourceName.startsWith('hitDice_d')) {
+        final regain = (r.maximum / 2).ceil();
+        newCurrent = (r.current + regain).clamp(0, r.maximum);
+      }
+      await db.characterDao.upsertResource(
+        CharacterResourcesCompanion(
+          id: Value(r.id),
+          characterId: Value(characterId),
+          resourceName: Value(r.resourceName),
+          current: Value(newCurrent),
+          maximum: Value(r.maximum),
+        ),
+      );
+    }
+  }
+
+  static int getHitDieForClass(String classId) {
+    switch (classId.toLowerCase()) {
+      case 'barbarian':
+        return 12;
+      case 'fighter':
+      case 'paladin':
+      case 'ranger':
+        return 10;
+      case 'sorcerer':
+      case 'wizard':
+        return 6;
+      default: // bard, cleric, druid, monk, rogue, warlock
+        return 8;
+    }
+  }
+
+  Future<void> ensureHitDiceResourcesExist(int characterId) async {
+    final resources = await db.characterDao.watchResources(characterId).first;
+    final hasHitDice = resources.any((r) => r.resourceName.startsWith('hitDice_d'));
+    if (!hasHitDice) {
+      final classes = await db.characterDao.getCharacterClasses(characterId);
+      for (final c in classes) {
+        final hitDie = getHitDieForClass(c.classId);
+        await db.characterDao.upsertResource(
+          CharacterResourcesCompanion.insert(
+            characterId: characterId,
+            resourceName: 'hitDice_d$hitDie',
+            current: c.level,
+            maximum: c.level,
+          ),
+        );
+      }
     }
   }
 }

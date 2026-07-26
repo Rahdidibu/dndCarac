@@ -148,5 +148,21 @@
   "hpModifierDamage": "Damage",
   "hpModifierHeal": "Heal",
   "hpModifierSet": "Set",
-  "hpModifierError": "Please enter a positive number"
+  "hpModifierError": "Please enter a positive number",
+  "restSectionTitle": "Rests",
+  "restShortRest": "Short rest",
+  "restLongRest": "Long rest",
+  "restShortRestConfirm": "Do you want to take a short rest? Your short rest abilities will be recharged.",
+  "restLongRestConfirm": "Do you want to take a long rest? Your HP, spell slots and abilities will be restored.",
+  "restSuccessMessage": "Rest completed!",
+  "resourceHitDiceD6": "Hit Dice (d6)",
+  "resourceHitDiceD8": "Hit Dice (d8)",
+  "resourceHitDiceD10": "Hit Dice (d10)",
+  "resourceHitDiceD12": "Hit Dice (d12)",
+  "shortRestTitle": "Short rest",
+  "shortRestRollButton": "Roll 1d{die} ({count} left)",
+  "shortRestNoDice": "No hit dice available.",
+  "shortRestHpFull": "HP already at maximum.",
+  "shortRestRollResult": "Roll: {roll} + {con} (Con) = +{heal} HP",
+  "shortRestClose": "End rest"
 }

@@ -877,6 +877,102 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Veuillez entrer un nombre positif'**
   String get hpModifierError;
+
+  /// No description provided for @restSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repos'**
+  String get restSectionTitle;
+
+  /// No description provided for @restShortRest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repos court'**
+  String get restShortRest;
+
+  /// No description provided for @restLongRest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repos long'**
+  String get restLongRest;
+
+  /// No description provided for @restShortRestConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous effectuer un repos court ? Vos capacités de repos court seront réinitialisées.'**
+  String get restShortRestConfirm;
+
+  /// No description provided for @restLongRestConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous effectuer un repos long ? Vos PV, emplacements de sorts et capacités seront restaurés.'**
+  String get restLongRestConfirm;
+
+  /// No description provided for @restSuccessMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repos effectué !'**
+  String get restSuccessMessage;
+
+  /// No description provided for @resourceHitDiceD6.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dés de vie (d6)'**
+  String get resourceHitDiceD6;
+
+  /// No description provided for @resourceHitDiceD8.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dés de vie (d8)'**
+  String get resourceHitDiceD8;
+
+  /// No description provided for @resourceHitDiceD10.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dés de vie (d10)'**
+  String get resourceHitDiceD10;
+
+  /// No description provided for @resourceHitDiceD12.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dés de vie (d12)'**
+  String get resourceHitDiceD12;
+
+  /// No description provided for @shortRestTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repos court'**
+  String get shortRestTitle;
+
+  /// No description provided for @shortRestRollButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lancer 1d{die} ({count} restants)'**
+  String shortRestRollButton(String die, int count);
+
+  /// No description provided for @shortRestNoDice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun dé de vie disponible.'**
+  String get shortRestNoDice;
+
+  /// No description provided for @shortRestHpFull.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos PV sont au maximum.'**
+  String get shortRestHpFull;
+
+  /// No description provided for @shortRestRollResult.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jet : {roll} + {con} (Con) = +{heal} PV'**
+  String shortRestRollResult(int roll, int con, int heal);
+
+  /// No description provided for @shortRestClose.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminer le repos'**
+  String get shortRestClose;
 }
 
 class _AppLocalizationsDelegate

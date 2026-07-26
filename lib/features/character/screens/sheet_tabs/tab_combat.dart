@@ -31,6 +31,10 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
     super.initState();
     _hpCurrent = widget.character.hpCurrent;
     _hpTemp = widget.character.hpTemp;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final db = ref.read(databaseProvider);
+      await CharacterService(db).ensureHitDiceResourcesExist(widget.characterId);
+    });
   }
 
   Future<void> _saveHp() async {
@@ -43,6 +47,75 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
         updatedAt: Value(DateTime.now().toIso8601String()),
       ),
     );
+  }
+
+  Future<void> _confirmShortRest(BuildContext context) async {
+    final db = ref.read(databaseProvider);
+    final service = CharacterService(db);
+    
+    // Recharge les capacités de repos court immédiatement
+    await service.shortRest(widget.characterId);
+
+    // Calcul du modificateur de constitution
+    final scores = ref.read(characterAbilityScoresProvider(widget.characterId)).value;
+    final conScore = scores?.constitution ?? 10;
+    final conMod = DndRules.modifier(conScore);
+
+    if (context.mounted) {
+      await ShortRestDialog.show(
+        context,
+        characterId: widget.characterId,
+        conMod: conMod,
+      );
+      
+      // Met à jour les PV locaux suite au dialogue
+      final updatedChar = await db.characterDao.getCharacterById(widget.characterId);
+      if (updatedChar != null && mounted) {
+        setState(() {
+          _hpCurrent = updatedChar.hpCurrent;
+          _hpTemp = updatedChar.hpTemp;
+        });
+      }
+    }
+  }
+
+  Future<void> _confirmLongRest(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.restLongRest),
+        content: Text(l10n.restLongRestConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.actionCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.actionConfirm),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final db = ref.read(databaseProvider);
+      final service = CharacterService(db);
+      await service.longRest(widget.characterId);
+      final updatedChar = await db.characterDao.getCharacterById(widget.characterId);
+      if (updatedChar != null && mounted) {
+        setState(() {
+          _hpCurrent = updatedChar.hpCurrent;
+          _hpTemp = updatedChar.hpTemp;
+        });
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.restSuccessMessage)),
+        );
+      }
+    }
   }
 
   Future<void> _toggleInspiration(bool value) async {
@@ -141,6 +214,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
     final attacksAsync = ref.watch(characterAttacksProvider(widget.characterId));
     final equipmentAsync = ref.watch(characterEquipmentProvider(widget.characterId));
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
@@ -162,6 +236,42 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
               setState(() => _hpTemp = v.clamp(0, 999));
               _saveHp();
             },
+          ),
+          const SizedBox(height: 16),
+
+          // ── Repos ────────────────────────────────────────────────────────
+          _SectionTitle(l10n.restSectionTitle),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.self_improvement, size: 20),
+                  label: Text(l10n.restShortRest),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.neonPurple.withValues(alpha: 0.12),
+                    foregroundColor: AppTheme.neonPurple,
+                    side: BorderSide(color: AppTheme.neonPurple.withValues(alpha: 0.3)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  onPressed: () => _confirmShortRest(context),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.bedtime, size: 20),
+                  label: Text(l10n.restLongRest),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.neonCyan.withValues(alpha: 0.12),
+                    foregroundColor: AppTheme.neonCyan,
+                    side: BorderSide(color: AppTheme.neonCyan.withValues(alpha: 0.3)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  onPressed: () => _confirmLongRest(context),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
 
@@ -1242,6 +1352,10 @@ class _ResourceRow extends ConsumerWidget {
       case 'resourceChannelDivinity': return l10n.resourceChannelDivinity;
       case 'resourceWildShape': return l10n.resourceWildShape;
       case 'resourceActionSurge': return l10n.resourceActionSurge;
+      case 'hitDice_d6': return l10n.resourceHitDiceD6;
+      case 'hitDice_d8': return l10n.resourceHitDiceD8;
+      case 'hitDice_d10': return l10n.resourceHitDiceD10;
+      case 'hitDice_d12': return l10n.resourceHitDiceD12;
       default: return key;
     }
   }

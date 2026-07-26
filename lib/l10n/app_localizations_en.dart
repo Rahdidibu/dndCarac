@@ -412,4 +412,58 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hpModifierError => 'Please enter a positive number';
+
+  @override
+  String get restSectionTitle => 'Rests';
+
+  @override
+  String get restShortRest => 'Short rest';
+
+  @override
+  String get restLongRest => 'Long rest';
+
+  @override
+  String get restShortRestConfirm =>
+      'Do you want to take a short rest? Your short rest abilities will be recharged.';
+
+  @override
+  String get restLongRestConfirm =>
+      'Do you want to take a long rest? Your HP, spell slots and abilities will be restored.';
+
+  @override
+  String get restSuccessMessage => 'Rest completed!';
+
+  @override
+  String get resourceHitDiceD6 => 'Hit Dice (d6)';
+
+  @override
+  String get resourceHitDiceD8 => 'Hit Dice (d8)';
+
+  @override
+  String get resourceHitDiceD10 => 'Hit Dice (d10)';
+
+  @override
+  String get resourceHitDiceD12 => 'Hit Dice (d12)';
+
+  @override
+  String get shortRestTitle => 'Short rest';
+
+  @override
+  String shortRestRollButton(String die, int count) {
+    return 'Roll 1d$die ($count left)';
+  }
+
+  @override
+  String get shortRestNoDice => 'No hit dice available.';
+
+  @override
+  String get shortRestHpFull => 'HP already at maximum.';
+
+  @override
+  String shortRestRollResult(int roll, int con, int heal) {
+    return 'Roll: $roll + $con (Con) = +$heal HP';
+  }
+
+  @override
+  String get shortRestClose => 'End rest';
 }

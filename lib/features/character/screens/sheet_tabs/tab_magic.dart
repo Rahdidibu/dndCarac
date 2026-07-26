@@ -11,6 +11,7 @@ class _MagicTab extends ConsumerWidget {
     final slotsAsync = ref.watch(characterSpellSlotsProvider(characterId));
     final spellsAsync = ref.watch(characterSpellsProvider(characterId));
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
@@ -25,8 +26,8 @@ class _MagicTab extends ConsumerWidget {
                   style: Theme.of(context).textTheme.titleMedium),
               TextButton.icon(
                 icon: const Icon(Icons.refresh, size: 16),
-                label: const Text('Repos long', style: TextStyle(fontSize: 12)),
-                onPressed: () => _longRest(ref),
+                label: Text(l10n.restLongRest, style: const TextStyle(fontSize: 12)),
+                onPressed: () => _longRest(context, ref),
               ),
             ],
           ),
@@ -100,36 +101,35 @@ class _MagicTab extends ConsumerWidget {
     );
   }
 
-  Future<void> _longRest(WidgetRef ref) async {
-    final db = ref.read(databaseProvider);
-    final slots = await db.characterDao
-        .watchSpellSlots(characterId)
-        .first;
-    final restored = slots
-        .map((s) => CharacterSpellSlotsCompanion(
-              id: Value(s.id),
-              characterId: Value(characterId),
-              slotLevel: Value(s.slotLevel),
-              slotMax: Value(s.slotMax),
-              slotCurrent: Value(s.slotMax),
-            ))
-        .toList();
-    for (final r in restored) {
-      await db.characterDao.updateSpellSlot(r);
-    }
+  Future<void> _longRest(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.restLongRest),
+        content: Text(l10n.restLongRestConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.actionCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.actionConfirm),
+          ),
+        ],
+      ),
+    );
 
-    // Restore resources too
-    final resources = await db.characterDao.watchResources(characterId).first;
-    for (final r in resources) {
-      await db.characterDao.upsertResource(
-        CharacterResourcesCompanion(
-          id: Value(r.id),
-          characterId: Value(characterId),
-          resourceName: Value(r.resourceName),
-          current: Value(r.maximum),
-          maximum: Value(r.maximum),
-        ),
-      );
+    if (confirmed == true) {
+      final db = ref.read(databaseProvider);
+      final service = CharacterService(db);
+      await service.longRest(characterId);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.restSuccessMessage)),
+        );
+      }
     }
   }
 }

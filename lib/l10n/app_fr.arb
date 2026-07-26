@@ -295,5 +295,48 @@
   "hpModifierSet": "Définir",
   "@hpModifierSet": {},
   "hpModifierError": "Veuillez entrer un nombre positif",
-  "@hpModifierError": {}
+  "@hpModifierError": {},
+  "restSectionTitle": "Repos",
+  "@restSectionTitle": {},
+  "restShortRest": "Repos court",
+  "@restShortRest": {},
+  "restLongRest": "Repos long",
+  "@restLongRest": {},
+  "restShortRestConfirm": "Voulez-vous effectuer un repos court ? Vos capacités de repos court seront réinitialisées.",
+  "@restShortRestConfirm": {},
+  "restLongRestConfirm": "Voulez-vous effectuer un repos long ? Vos PV, emplacements de sorts et capacités seront restaurés.",
+  "@restLongRestConfirm": {},
+  "restSuccessMessage": "Repos effectué !",
+  "@restSuccessMessage": {},
+  "resourceHitDiceD6": "Dés de vie (d6)",
+  "@resourceHitDiceD6": {},
+  "resourceHitDiceD8": "Dés de vie (d8)",
+  "@resourceHitDiceD8": {},
+  "resourceHitDiceD10": "Dés de vie (d10)",
+  "@resourceHitDiceD10": {},
+  "resourceHitDiceD12": "Dés de vie (d12)",
+  "@resourceHitDiceD12": {},
+  "shortRestTitle": "Repos court",
+  "@shortRestTitle": {},
+  "shortRestRollButton": "Lancer 1d{die} ({count} restants)",
+  "@shortRestRollButton": {
+    "placeholders": {
+      "die": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "shortRestNoDice": "Aucun dé de vie disponible.",
+  "@shortRestNoDice": {},
+  "shortRestHpFull": "Vos PV sont au maximum.",
+  "@shortRestHpFull": {},
+  "shortRestRollResult": "Jet : {roll} + {con} (Con) = +{heal} PV",
+  "@shortRestRollResult": {
+    "placeholders": {
+      "roll": { "type": "int" },
+      "con": { "type": "int" },
+      "heal": { "type": "int" }
+    }
+  },
+  "shortRestClose": "Terminer le repos",
+  "@shortRestClose": {}
 }

@@ -22,6 +22,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/providers/forge_navigation_provider.dart';
 import '../../../core/utils/markdown_text.dart';
 import '../../../core/widgets/hp_modifier_dialog.dart';
+import '../../../core/widgets/short_rest_dialog.dart';
 
 part 'sheet_tabs/tab_stats.dart';
 part 'sheet_tabs/tab_combat.dart';
