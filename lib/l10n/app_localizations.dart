@@ -973,6 +973,210 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Terminer le repos'**
   String get shortRestClose;
+
+  /// No description provided for @conditionsSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'États & Conditions'**
+  String get conditionsSectionTitle;
+
+  /// No description provided for @conditionsEditTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier les États'**
+  String get conditionsEditTitle;
+
+  /// No description provided for @conditionsNoneActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun état particulier.'**
+  String get conditionsNoneActive;
+
+  /// No description provided for @conditionsExhaustionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau d\'Épuisement : {level}'**
+  String conditionsExhaustionLabel(int level);
+
+  /// No description provided for @conditionBlinded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aveuglé'**
+  String get conditionBlinded;
+
+  /// No description provided for @conditionBlindedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous échouez automatiquement les tests basés sur la vue. Les jets d\'attaque contre vous ont l\'avantage, et vos propres jets d\'attaque ont le désavantage.'**
+  String get conditionBlindedDesc;
+
+  /// No description provided for @conditionCharmed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charmé'**
+  String get conditionCharmed;
+
+  /// No description provided for @conditionCharmedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous ne pouvez pas attaquer ou cibler avec des capacités nuisibles la créature qui vous a charmé. Elle a l\'avantage aux tests d\'interaction sociale contre vous.'**
+  String get conditionCharmedDesc;
+
+  /// No description provided for @conditionDeafened.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assourdi'**
+  String get conditionDeafened;
+
+  /// No description provided for @conditionDeafenedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous échouez automatiquement les tests basés sur l\'ouïe.'**
+  String get conditionDeafenedDesc;
+
+  /// No description provided for @conditionFrightened.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effrayé'**
+  String get conditionFrightened;
+
+  /// No description provided for @conditionFrightenedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez le désavantage aux tests de caractéristiques et aux jets d\'attaque tant que la source de votre peur est visible. Vous ne pouvez pas volontairement vous en approcher.'**
+  String get conditionFrightenedDesc;
+
+  /// No description provided for @conditionGrappled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Agrippé'**
+  String get conditionGrappled;
+
+  /// No description provided for @conditionGrappledDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre vitesse devient 0 et ne peut plus augmenter.'**
+  String get conditionGrappledDesc;
+
+  /// No description provided for @conditionIncapacitated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Neutralisé'**
+  String get conditionIncapacitated;
+
+  /// No description provided for @conditionIncapacitatedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous ne pouvez faire aucune action ni réaction.'**
+  String get conditionIncapacitatedDesc;
+
+  /// No description provided for @conditionInvisible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invisible'**
+  String get conditionInvisible;
+
+  /// No description provided for @conditionInvisibleDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous êtes impossible à voir sans l\'aide de la magie ou d\'un sens spécial. Vos attaques ont l\'avantage, et les attaques contre vous ont le désavantage.'**
+  String get conditionInvisibleDesc;
+
+  /// No description provided for @conditionParalyzed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paralysé'**
+  String get conditionParalyzed;
+
+  /// No description provided for @conditionParalyzedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous êtes neutralisé et votre vitesse est de 0. Échec automatique aux jets de Force et Dextérité. Les attaques contre vous ont l\'avantage, et toute attaque réussie à moins de 1,5 mètre est un coup critique.'**
+  String get conditionParalyzedDesc;
+
+  /// No description provided for @conditionPetrified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pétrifié'**
+  String get conditionPetrified;
+
+  /// No description provided for @conditionPetrifiedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous êtes transformé en pierre solide et votre poids est multiplié par 10. Vitesse = 0, neutralisé. Échec auto aux jets de Force et Dextérité. Résistant à tous les dégâts, immunisé aux poisons et maladies.'**
+  String get conditionPetrifiedDesc;
+
+  /// No description provided for @conditionPoisoned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Empoisonné'**
+  String get conditionPoisoned;
+
+  /// No description provided for @conditionPoisonedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez le désavantage aux jets d\'attaque et aux tests de caractéristiques.'**
+  String get conditionPoisonedDesc;
+
+  /// No description provided for @conditionProne.
+  ///
+  /// In fr, this message translates to:
+  /// **'À terre'**
+  String get conditionProne;
+
+  /// No description provided for @conditionProneDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre seule option de déplacement est de ramper. Vos attaques ont le désavantage. Les attaques au corps-à-corps contre vous ont l\'avantage, tandis que les attaques à distance ont le désavantage.'**
+  String get conditionProneDesc;
+
+  /// No description provided for @conditionRestrained.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entravé'**
+  String get conditionRestrained;
+
+  /// No description provided for @conditionRestrainedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre vitesse est de 0. Vos attaques ont le désavantage, et les attaques contre vous ont l\'avantage. Vous avez le désavantage aux jets de sauvegarde de Dextérité.'**
+  String get conditionRestrainedDesc;
+
+  /// No description provided for @conditionStunned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étourdi'**
+  String get conditionStunned;
+
+  /// No description provided for @conditionStunnedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous êtes neutralisé, votre vitesse est de 0, et vous parlez de manière incohérente. Échec automatique aux jets de Force et Dextérité. Les attaques contre vous ont l\'avantage.'**
+  String get conditionStunnedDesc;
+
+  /// No description provided for @conditionUnconscious.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inconscient'**
+  String get conditionUnconscious;
+
+  /// No description provided for @conditionUnconsciousDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous êtes neutralisé, lâchez tout ce que vous tenez et tombez à terre. Échec automatique aux jets de Force et Dextérité. Les attaques contre vous ont l\'avantage, et toute attaque réussie à moins de 1,5 mètre est un coup critique.'**
+  String get conditionUnconsciousDesc;
+
+  /// No description provided for @conditionExhaustion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épuisement'**
+  String get conditionExhaustion;
+
+  /// No description provided for @conditionExhaustionDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau 1 : Désavantage aux tests.\nNiveau 2 : Vitesse divisée par 2.\nNiveau 3 : Désavantage aux attaques/sauvegardes.\nNiveau 4 : PV max divisés par 2.\nNiveau 5 : Vitesse = 0.\nNiveau 6 : Mort.'**
+  String get conditionExhaustionDesc;
 }
 
 class _AppLocalizationsDelegate

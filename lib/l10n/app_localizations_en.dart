@@ -466,4 +466,123 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shortRestClose => 'End rest';
+
+  @override
+  String get conditionsSectionTitle => 'States & Conditions';
+
+  @override
+  String get conditionsEditTitle => 'Edit States';
+
+  @override
+  String get conditionsNoneActive => 'No active states.';
+
+  @override
+  String conditionsExhaustionLabel(int level) {
+    return 'Exhaustion Level: $level';
+  }
+
+  @override
+  String get conditionBlinded => 'Blinded';
+
+  @override
+  String get conditionBlindedDesc =>
+      'You automatically fail any ability check that requires sight. Attack rolls against you have advantage, and your attack rolls have disadvantage.';
+
+  @override
+  String get conditionCharmed => 'Charmed';
+
+  @override
+  String get conditionCharmedDesc =>
+      'You can\'t attack the charmer or target the charmer with harmful abilities or magical effects. The charmer has advantage on any ability check to interact socially with you.';
+
+  @override
+  String get conditionDeafened => 'Deafened';
+
+  @override
+  String get conditionDeafenedDesc =>
+      'You automatically fail any ability check that requires hearing.';
+
+  @override
+  String get conditionFrightened => 'Frightened';
+
+  @override
+  String get conditionFrightenedDesc =>
+      'You have disadvantage on ability checks and attack rolls while the source of your fear is within line of sight. You can\'t willingly move closer to the source of your fear.';
+
+  @override
+  String get conditionGrappled => 'Grappled';
+
+  @override
+  String get conditionGrappledDesc =>
+      'Your speed becomes 0, and it can\'t increase.';
+
+  @override
+  String get conditionIncapacitated => 'Incapacitated';
+
+  @override
+  String get conditionIncapacitatedDesc =>
+      'You can\'t take actions or reactions.';
+
+  @override
+  String get conditionInvisible => 'Invisible';
+
+  @override
+  String get conditionInvisibleDesc =>
+      'You are impossible to see without the aid of magic or a special sense. Attack rolls against you have disadvantage, and your attack rolls have advantage.';
+
+  @override
+  String get conditionParalyzed => 'Paralyzed';
+
+  @override
+  String get conditionParalyzedDesc =>
+      'You are incapacitated and can\'t move. You automatically fail Strength and Dexterity saving throws. Attack rolls against you have advantage, and any attack that hits you is a critical hit if the attacker is within 5 feet of you.';
+
+  @override
+  String get conditionPetrified => 'Petrified';
+
+  @override
+  String get conditionPetrifiedDesc =>
+      'You are transformed along with your nonmagical objects into a solid substance (usually stone). Your weight increases by a factor of ten, you speed becomes 0, and you fail Strength and Dexterity saving throws automatically. You have resistance to all damage, and you are immune to poison and disease.';
+
+  @override
+  String get conditionPoisoned => 'Poisoned';
+
+  @override
+  String get conditionPoisonedDesc =>
+      'You have disadvantage on attack rolls and ability checks.';
+
+  @override
+  String get conditionProne => 'Prone';
+
+  @override
+  String get conditionProneDesc =>
+      'Your only movement option is to crawl. You have disadvantage on attack rolls. Attack rolls against you have advantage if the attacker is within 5 feet of you, otherwise the attack roll has disadvantage.';
+
+  @override
+  String get conditionRestrained => 'Restrained';
+
+  @override
+  String get conditionRestrainedDesc =>
+      'Your speed becomes 0, and it can\'t increase. Your attack rolls have disadvantage, and attack rolls against you have advantage. You have disadvantage on Dexterity saving throws.';
+
+  @override
+  String get conditionStunned => 'Stunned';
+
+  @override
+  String get conditionStunnedDesc =>
+      'You are incapacitated, can\'t move, and can speak only faltingly. You automatically fail Strength and Dexterity saving throws. Attack rolls against you have advantage.';
+
+  @override
+  String get conditionUnconscious => 'Unconscious';
+
+  @override
+  String get conditionUnconsciousDesc =>
+      'You are incapacitated, drop whatever you\'re holding, and fall prone. You automatically fail Strength and Dexterity saving throws. Attack rolls against you have advantage, and any attack that hits you is a critical hit if the attacker is within 5 feet of you.';
+
+  @override
+  String get conditionExhaustion => 'Exhaustion';
+
+  @override
+  String get conditionExhaustionDesc =>
+      'Level 1: Disadvantage on ability checks.\nLevel 2: Speed halved.\nLevel 3: Disadvantage on attack rolls and saving throws.\nLevel 4: Hit point maximum halved.\nLevel 5: Speed reduced to 0.\nLevel 6: Death.';
 }

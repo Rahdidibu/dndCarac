@@ -467,4 +467,123 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get shortRestClose => 'Terminer le repos';
+
+  @override
+  String get conditionsSectionTitle => 'États & Conditions';
+
+  @override
+  String get conditionsEditTitle => 'Modifier les États';
+
+  @override
+  String get conditionsNoneActive => 'Aucun état particulier.';
+
+  @override
+  String conditionsExhaustionLabel(int level) {
+    return 'Niveau d\'Épuisement : $level';
+  }
+
+  @override
+  String get conditionBlinded => 'Aveuglé';
+
+  @override
+  String get conditionBlindedDesc =>
+      'Vous échouez automatiquement les tests basés sur la vue. Les jets d\'attaque contre vous ont l\'avantage, et vos propres jets d\'attaque ont le désavantage.';
+
+  @override
+  String get conditionCharmed => 'Charmé';
+
+  @override
+  String get conditionCharmedDesc =>
+      'Vous ne pouvez pas attaquer ou cibler avec des capacités nuisibles la créature qui vous a charmé. Elle a l\'avantage aux tests d\'interaction sociale contre vous.';
+
+  @override
+  String get conditionDeafened => 'Assourdi';
+
+  @override
+  String get conditionDeafenedDesc =>
+      'Vous échouez automatiquement les tests basés sur l\'ouïe.';
+
+  @override
+  String get conditionFrightened => 'Effrayé';
+
+  @override
+  String get conditionFrightenedDesc =>
+      'Vous avez le désavantage aux tests de caractéristiques et aux jets d\'attaque tant que la source de votre peur est visible. Vous ne pouvez pas volontairement vous en approcher.';
+
+  @override
+  String get conditionGrappled => 'Agrippé';
+
+  @override
+  String get conditionGrappledDesc =>
+      'Votre vitesse devient 0 et ne peut plus augmenter.';
+
+  @override
+  String get conditionIncapacitated => 'Neutralisé';
+
+  @override
+  String get conditionIncapacitatedDesc =>
+      'Vous ne pouvez faire aucune action ni réaction.';
+
+  @override
+  String get conditionInvisible => 'Invisible';
+
+  @override
+  String get conditionInvisibleDesc =>
+      'Vous êtes impossible à voir sans l\'aide de la magie ou d\'un sens spécial. Vos attaques ont l\'avantage, et les attaques contre vous ont le désavantage.';
+
+  @override
+  String get conditionParalyzed => 'Paralysé';
+
+  @override
+  String get conditionParalyzedDesc =>
+      'Vous êtes neutralisé et votre vitesse est de 0. Échec automatique aux jets de Force et Dextérité. Les attaques contre vous ont l\'avantage, et toute attaque réussie à moins de 1,5 mètre est un coup critique.';
+
+  @override
+  String get conditionPetrified => 'Pétrifié';
+
+  @override
+  String get conditionPetrifiedDesc =>
+      'Vous êtes transformé en pierre solide et votre poids est multiplié par 10. Vitesse = 0, neutralisé. Échec auto aux jets de Force et Dextérité. Résistant à tous les dégâts, immunisé aux poisons et maladies.';
+
+  @override
+  String get conditionPoisoned => 'Empoisonné';
+
+  @override
+  String get conditionPoisonedDesc =>
+      'Vous avez le désavantage aux jets d\'attaque et aux tests de caractéristiques.';
+
+  @override
+  String get conditionProne => 'À terre';
+
+  @override
+  String get conditionProneDesc =>
+      'Votre seule option de déplacement est de ramper. Vos attaques ont le désavantage. Les attaques au corps-à-corps contre vous ont l\'avantage, tandis que les attaques à distance ont le désavantage.';
+
+  @override
+  String get conditionRestrained => 'Entravé';
+
+  @override
+  String get conditionRestrainedDesc =>
+      'Votre vitesse est de 0. Vos attaques ont le désavantage, et les attaques contre vous ont l\'avantage. Vous avez le désavantage aux jets de sauvegarde de Dextérité.';
+
+  @override
+  String get conditionStunned => 'Étourdi';
+
+  @override
+  String get conditionStunnedDesc =>
+      'Vous êtes neutralisé, votre vitesse est de 0, et vous parlez de manière incohérente. Échec automatique aux jets de Force et Dextérité. Les attaques contre vous ont l\'avantage.';
+
+  @override
+  String get conditionUnconscious => 'Inconscient';
+
+  @override
+  String get conditionUnconsciousDesc =>
+      'Vous êtes neutralisé, lâchez tout ce que vous tenez et tombez à terre. Échec automatique aux jets de Force et Dextérité. Les attaques contre vous ont l\'avantage, et toute attaque réussie à moins de 1,5 mètre est un coup critique.';
+
+  @override
+  String get conditionExhaustion => 'Épuisement';
+
+  @override
+  String get conditionExhaustionDesc =>
+      'Niveau 1 : Désavantage aux tests.\nNiveau 2 : Vitesse divisée par 2.\nNiveau 3 : Désavantage aux attaques/sauvegardes.\nNiveau 4 : PV max divisés par 2.\nNiveau 5 : Vitesse = 0.\nNiveau 6 : Mort.';
 }

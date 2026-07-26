@@ -275,6 +275,99 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
           ),
           const SizedBox(height: 16),
 
+          // ── États & Conditions ───────────────────────────────────────────
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _SectionTitle(l10n.conditionsSectionTitle),
+              IconButton(
+                icon: const Icon(Icons.edit, size: 20, color: AppTheme.neonCyan),
+                onPressed: () {
+                  ConditionsDialog.show(
+                    context,
+                    characterId: widget.characterId,
+                  );
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          resourcesAsync.when(
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+            data: (resources) {
+              final activeConditions = resources
+                  .where((r) => r.resourceName.startsWith('condition_') && r.current > 0)
+                  .toList();
+
+              final hasExhaustion = char.exhaustionLevel > 0;
+
+              if (activeConditions.isEmpty && !hasExhaustion) {
+                return Text(
+                  l10n.conditionsNoneActive,
+                  style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13, fontStyle: FontStyle.italic),
+                );
+              }
+
+              return Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (hasExhaustion)
+                    ActionChip(
+                      label: Text('${l10n.conditionExhaustion} (Niv. ${char.exhaustionLevel})'),
+                      backgroundColor: AppTheme.neonRed.withValues(alpha: 0.12),
+                      side: BorderSide(color: AppTheme.neonRed.withValues(alpha: 0.3)),
+                      labelStyle: const TextStyle(color: AppTheme.neonRed, fontWeight: FontWeight.bold, fontSize: 12),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: Text(l10n.conditionExhaustion),
+                            content: Text(l10n.conditionExhaustionDesc),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(ctx).pop(),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ...activeConditions.map((r) {
+                    final key = r.resourceName.replaceFirst('condition_', '');
+                    final condName = ConditionsDialog.resolveConditionName(context, key);
+                    final condDesc = ConditionsDialog.resolveConditionDesc(context, key);
+
+                    return ActionChip(
+                      label: Text(condName),
+                      backgroundColor: Colors.amber.withValues(alpha: 0.12),
+                      side: BorderSide(color: Colors.amber.withValues(alpha: 0.3)),
+                      labelStyle: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 12),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: Text(condName),
+                            content: Text(condDesc),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(ctx).pop(),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  }),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+
           // ── Combat stats ─────────────────────────────────────────────────
           _SectionTitle('Combat'),
           const SizedBox(height: 8),
@@ -524,13 +617,14 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
             loading: () => const SizedBox.shrink(),
             error: (_, _) => const SizedBox.shrink(),
             data: (resources) {
-              if (resources.isEmpty) return const SizedBox.shrink();
+              final classResources = resources.where((r) => !r.resourceName.startsWith('condition_')).toList();
+              if (classResources.isEmpty) return const SizedBox.shrink();
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _SectionTitle('Ressources de classe'),
                   const SizedBox(height: 8),
-                  ...resources.map((r) => _ResourceRow(resource: r, characterId: widget.character.id)),
+                  ...classResources.map((r) => _ResourceRow(resource: r, characterId: widget.character.id)),
                   const SizedBox(height: 16),
                 ],
               );
