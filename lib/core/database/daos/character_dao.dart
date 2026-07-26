@@ -540,6 +540,23 @@ class CharacterDao extends DatabaseAccessor<AppDatabase>
           return notes;
         });
   }
+  Future<List<CharacterNote>> getCharacterNotes(int characterId) async {
+    final client = Supabase.instance.client;
+    final response = await client
+        .from('character_notes')
+        .select()
+        .eq('character_id', characterId);
+    final notes = response
+        .map((m) => CharacterNote.fromJson(SupabaseMapper.toCamelCaseMap(m)))
+        .toList();
+    notes.sort((a, b) {
+      if (a.isPinned != b.isPinned) {
+        return a.isPinned ? -1 : 1;
+      }
+      return b.updatedAt.compareTo(a.updatedAt);
+    });
+    return notes;
+  }
 
   Future<int> insertNote(Map<String, dynamic> map) async {
     final client = Supabase.instance.client;

@@ -403,6 +403,9 @@ class _MagicTab extends ConsumerWidget {
       final db = ref.read(databaseProvider);
       final service = CharacterService(db);
       await service.longRest(characterId);
+      ref.invalidate(characterResourcesProvider(characterId));
+      ref.invalidate(characterSpellSlotsProvider(characterId));
+      ref.invalidate(characterByIdProvider(characterId));
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.restSuccessMessage)),

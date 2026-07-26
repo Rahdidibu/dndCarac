@@ -56,6 +56,7 @@ class CharacterSheetScreen extends ConsumerWidget {
         await db.characterDao.watchEquipment(characterId).first;
     final feats = await db.characterDao.getCharacterFeats(characterId);
     final srdFeats = await db.compendiumDao.getAllFeats(character.ruleset);
+    final notes = await db.characterDao.getCharacterNotes(characterId);
 
     final bytes = await PdfGenerator.generate(
       character: character,
@@ -68,6 +69,7 @@ class CharacterSheetScreen extends ConsumerWidget {
       equipment: equipment,
       feats: feats,
       srdFeats: srdFeats,
+      notes: notes,
     );
 
     await Printing.layoutPdf(

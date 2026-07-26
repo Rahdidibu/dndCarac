@@ -56,6 +56,8 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
     
     // Recharge les capacités de repos court immédiatement
     await service.shortRest(widget.characterId);
+    ref.invalidate(characterResourcesProvider(widget.characterId));
+    ref.invalidate(characterSpellSlotsProvider(widget.characterId));
 
     // Calcul du modificateur de constitution
     final scores = ref.read(characterAbilityScoresProvider(widget.characterId)).value;
@@ -77,6 +79,8 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
           _hpTemp = updatedChar.hpTemp;
         });
       }
+      ref.invalidate(characterResourcesProvider(widget.characterId));
+      ref.invalidate(characterByIdProvider(widget.characterId));
     }
   }
 
@@ -104,6 +108,9 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
       final db = ref.read(databaseProvider);
       final service = CharacterService(db);
       await service.longRest(widget.characterId);
+      ref.invalidate(characterResourcesProvider(widget.characterId));
+      ref.invalidate(characterSpellSlotsProvider(widget.characterId));
+      ref.invalidate(characterByIdProvider(widget.characterId));
       final updatedChar = await db.characterDao.getCharacterById(widget.characterId);
       if (updatedChar != null && mounted) {
         setState(() {

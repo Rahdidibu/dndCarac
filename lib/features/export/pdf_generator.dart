@@ -3,8 +3,12 @@ import 'dart:convert';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import 'package:printing/printing.dart';
+
 import '../../core/database/app_database.dart';
 import '../../core/utils/dnd_rules.dart';
+
+import '../../core/models/character_note.dart';
 
 // ─── Palette ────────────────────────────────────────────────────────────────
 
@@ -28,28 +32,35 @@ class PdfGenerator {
     required List<CharacterEquipmentData> equipment,
     List<CharacterFeat> feats = const [],
     List<SrdFeat> srdFeats = const [],
+    List<CharacterNote> notes = const [],
   }) async {
-    final doc = pw.Document();
+    final font = await PdfGoogleFonts.robotoRegular();
+    final boldFont = await PdfGoogleFonts.robotoBold();
+
+    final doc = pw.Document(
+      theme: pw.ThemeData.withFont(
+        base: font,
+        bold: boldFont,
+      ),
+    );
 
     final srdMap = {for (final s in srdSpells) s.id: s};
     final totalLevel = classes.fold(0, (sum, c) => sum + c.level);
-    // Hardcode some translations for PDF export as we don't have an easy way to get AppLocalizations here
-    // In a real app, we'd pass the locale or the AppLocalizations instance
     final classLine = classes
         .map((c) {
           final name = {
-            'barbarian': 'Barbarian',
-            'bard': 'Bard',
-            'cleric': 'Cleric',
-            'druid': 'Druid',
-            'fighter': 'Fighter',
-            'monk': 'Monk',
+            'barbarian': 'Barbare',
+            'bard': 'Barde',
+            'cleric': 'Clerc',
+            'druid': 'Druide',
+            'fighter': 'Guerrier',
+            'monk': 'Moine',
             'paladin': 'Paladin',
-            'ranger': 'Ranger',
-            'rogue': 'Rogue',
-            'sorcerer': 'Sorcerer',
-            'warlock': 'Warlock',
-            'wizard': 'Wizard',
+            'ranger': 'Rôdeur',
+            'rogue': 'Roublard',
+            'sorcerer': 'Ensorceleur',
+            'warlock': 'Occultiste',
+            'wizard': 'Magicien',
           }[c.classId] ?? c.classId;
           return '$name ${c.level}';
         })
@@ -122,6 +133,12 @@ class PdfGenerator {
         _sectionLabel('Profil'),
         pw.SizedBox(height: 4),
         _buildProfile(character),
+        if (notes.isNotEmpty) ...[
+          pw.SizedBox(height: 10),
+          _sectionLabel('Journal & Notes de campagne'),
+          pw.SizedBox(height: 4),
+          _buildNotes(notes),
+        ],
       ],
     ));
 
@@ -538,7 +555,7 @@ class PdfGenerator {
             ...items.map((item) => pw.TableRow(children: [
                   _tableCell(item.itemName),
                   _tableCell(item.weight.toStringAsFixed(1)),
-                  _tableCell(item.equipped ? '✓' : ''),
+                  _tableCell(item.equipped ? 'Oui' : ''),
                 ])),
           ],
         ),
@@ -648,6 +665,37 @@ class PdfGenerator {
               pw.Text(name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
               pw.SizedBox(height: 2),
               pw.Text(desc, style: const pw.TextStyle(fontSize: 8, color: _grey)),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  static pw.Widget _buildNotes(List<CharacterNote> notes) {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: notes.map((n) {
+        final title = n.isPinned ? '📌 ${n.title}' : n.title;
+        final cat = n.category.toUpperCase();
+        return pw.Padding(
+          padding: const pw.EdgeInsets.only(bottom: 6),
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Row(
+                children: [
+                  pw.Text(title, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9.5)),
+                  pw.SizedBox(width: 6),
+                  pw.Container(
+                    padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    decoration: const pw.BoxDecoration(color: _lightGrey),
+                    child: pw.Text(cat, style: const pw.TextStyle(fontSize: 7, color: _grey)),
+                  ),
+                ],
+              ),
+              pw.SizedBox(height: 2),
+              pw.Text(n.content, style: const pw.TextStyle(fontSize: 8.5)),
             ],
           ),
         );

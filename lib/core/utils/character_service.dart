@@ -809,6 +809,9 @@ class CharacterService {
       'resourceChannelDivinity',
       'resourceWildShape',
       'resourceActionSurge',
+      'resourceSecondWind',
+      'resourceBardicInspiration',
+      'resourceLucky',
     };
     for (final r in resources) {
       if (shortRestResources.contains(r.resourceName)) {
@@ -819,6 +822,23 @@ class CharacterService {
             resourceName: Value(r.resourceName),
             current: Value(r.maximum),
             maximum: Value(r.maximum),
+          ),
+        );
+      }
+    }
+
+    // Warlock spell slots recharge on short rest
+    final classes = await db.characterDao.getCharacterClasses(characterId);
+    if (classes.any((c) => c.classId == 'warlock')) {
+      final slots = await db.characterDao.watchSpellSlots(characterId).first;
+      for (final s in slots) {
+        await db.characterDao.updateSpellSlot(
+          CharacterSpellSlotsCompanion(
+            id: Value(s.id),
+            characterId: Value(characterId),
+            slotLevel: Value(s.slotLevel),
+            slotMax: Value(s.slotMax),
+            slotCurrent: Value(s.slotMax),
           ),
         );
       }
@@ -855,7 +875,7 @@ class CharacterService {
     for (final r in resources) {
       int newCurrent = r.maximum;
       if (r.resourceName.startsWith('hitDice_d')) {
-        final regain = (r.maximum / 2).ceil();
+        final regain = max(1, (r.maximum / 2).ceil());
         newCurrent = (r.current + regain).clamp(0, r.maximum);
       }
       await db.characterDao.upsertResource(
@@ -868,6 +888,9 @@ class CharacterService {
         ),
       );
     }
+
+    // Clear active concentration
+    await db.characterDao.clearConcentration(characterId);
   }
 
   static int getHitDieForClass(String classId) {
