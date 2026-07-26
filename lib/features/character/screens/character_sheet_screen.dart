@@ -28,6 +28,7 @@ import '../../../core/widgets/short_rest_dialog.dart';
 import '../../../core/widgets/conditions_dialog.dart';
 import '../../../core/widgets/roll_result_dialog.dart';
 import '../../../core/widgets/universal_dice_roller.dart';
+import 'sheet_tabs/tab_companions.dart';
 
 part 'sheet_tabs/tab_stats.dart';
 part 'sheet_tabs/tab_combat.dart';
@@ -194,6 +195,7 @@ class CharacterSheetScreen extends ConsumerWidget {
                       Tab(text: l10n.sheetTabEquipment),
                       Tab(text: l10n.sheetTabProfile),
                       const Tab(text: 'Journal'),
+                      const Tab(text: 'Compagnons'),
                     ],
                   ),
           ),
@@ -225,6 +227,7 @@ class CharacterSheetScreen extends ConsumerWidget {
                     _EquipmentTab(characterId: characterId, character: character),
                     _ProfileTab(characterId: characterId, character: character),
                     _JournalTab(characterId: characterId),
+                    TabCompanions(characterId: characterId, character: character),
                   ],
                 ),
           floatingActionButton: FloatingActionButton(
@@ -238,7 +241,7 @@ class CharacterSheetScreen extends ConsumerWidget {
         return isDesktop
             ? mainScaffold
             : DefaultTabController(
-                length: 6,
+                length: 7,
                 child: mainScaffold,
               );
       },
@@ -295,7 +298,7 @@ class _RightTabbedPanelState extends State<_RightTabbedPanel> with SingleTickerP
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
   }
 
   @override
@@ -316,6 +319,7 @@ class _RightTabbedPanelState extends State<_RightTabbedPanel> with SingleTickerP
             Tab(text: l10n.sheetTabEquipment),
             Tab(text: l10n.sheetTabProfile),
             const Tab(text: 'Journal'),
+            const Tab(text: 'Compagnons'),
           ],
         ),
         Expanded(
@@ -326,6 +330,7 @@ class _RightTabbedPanelState extends State<_RightTabbedPanel> with SingleTickerP
               _EquipmentTab(characterId: widget.characterId, character: widget.character),
               _ProfileTab(characterId: widget.characterId, character: widget.character),
               _JournalTab(characterId: widget.characterId),
+              TabCompanions(characterId: widget.characterId, character: widget.character),
             ],
           ),
         ),

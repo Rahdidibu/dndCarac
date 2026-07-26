@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../app_database.dart';
 import '../tables/tables.dart';
 import '../../models/character_note.dart';
+import '../../models/character_companion.dart';
 import '../../utils/supabase_mapper.dart';
 
 part 'character_dao.g.dart';
@@ -581,6 +582,60 @@ class CharacterDao extends DatabaseAccessor<AppDatabase>
     final client = Supabase.instance.client;
     await client
         .from('character_notes')
+        .delete()
+        .eq('id', id);
+    return 1;
+  }
+
+  // ── Compagnons & Invocations ─────────────────────────────
+
+  Stream<List<CharacterCompanion>> watchCharacterCompanions(int characterId) {
+    final client = Supabase.instance.client;
+    return client
+        .from('character_companions')
+        .stream(primaryKey: ['id'])
+        .eq('character_id', characterId)
+        .map((list) {
+          return list
+              .map((m) => CharacterCompanion.fromJson(SupabaseMapper.toCamelCaseMap(m)))
+              .toList();
+        });
+  }
+
+  Future<List<CharacterCompanion>> getCharacterCompanions(int characterId) async {
+    final client = Supabase.instance.client;
+    final response = await client
+        .from('character_companions')
+        .select()
+        .eq('character_id', characterId);
+    return response
+        .map((m) => CharacterCompanion.fromJson(SupabaseMapper.toCamelCaseMap(m)))
+        .toList();
+  }
+
+  Future<int> insertCompanion(Map<String, dynamic> map) async {
+    final client = Supabase.instance.client;
+    final response = await client
+        .from('character_companions')
+        .insert(map)
+        .select('id')
+        .single();
+    return response['id'] as int;
+  }
+
+  Future<bool> updateCompanion(int id, Map<String, dynamic> map) async {
+    final client = Supabase.instance.client;
+    await client
+        .from('character_companions')
+        .update(map)
+        .eq('id', id);
+    return true;
+  }
+
+  Future<int> deleteCompanion(int id) async {
+    final client = Supabase.instance.client;
+    await client
+        .from('character_companions')
         .delete()
         .eq('id', id);
     return 1;

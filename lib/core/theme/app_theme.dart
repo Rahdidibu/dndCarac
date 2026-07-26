@@ -16,6 +16,7 @@ class AppTheme {
   static const Color neonCyan = goldAccent;
   static const Color neonPurple = magicAmethyst;
   static const Color neonRed = crimsonRed;
+  static const Color neonGreen = forestGreen;
 
   static ThemeData get darkTheme {
     final baseTheme = ThemeData.dark(useMaterial3: true);

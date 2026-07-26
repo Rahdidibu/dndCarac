@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/tables/tables.dart';
 import '../../../core/models/character_note.dart';
+import '../../../core/models/character_companion.dart';
 import '../../../core/providers/database_provider.dart';
 import '../../../core/utils/supabase_mapper.dart';
 import '../../../core/providers/auth_provider.dart';
@@ -345,6 +346,11 @@ final characterBackgroundNameProvider = FutureProvider.family<String?, int>((ref
 final characterNotesProvider = StreamProvider.family<List<CharacterNote>, int>((ref, characterId) {
   final db = ref.watch(databaseProvider);
   return db.characterDao.watchCharacterNotes(characterId);
+});
+
+final characterCompanionsProvider = FutureProvider.family<List<CharacterCompanion>, int>((ref, characterId) async {
+  final db = ref.watch(databaseProvider);
+  return db.characterDao.getCharacterCompanions(characterId);
 });
 
 

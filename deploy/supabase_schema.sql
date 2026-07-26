@@ -234,3 +234,23 @@ ALTER TABLE public.character_notes ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Access character_notes" ON public.character_notes FOR ALL USING (
     EXISTS (SELECT 1 FROM public.characters WHERE characters.id = character_notes.character_id AND characters.user_id = auth.uid())
 );
+
+-- 14. CHARACTER COMPANIONS
+CREATE TABLE IF NOT EXISTS public.character_companions (
+    id SERIAL PRIMARY KEY,
+    character_id INT NOT NULL REFERENCES public.characters(id) ON DELETE CASCADE,
+    name TEXT NOT NULL DEFAULT '',
+    type TEXT NOT NULL DEFAULT 'Familier',
+    hp_current INT NOT NULL DEFAULT 1,
+    hp_max INT NOT NULL DEFAULT 1,
+    armor_class INT NOT NULL DEFAULT 10,
+    speed TEXT NOT NULL DEFAULT '9 m',
+    attacks TEXT NOT NULL DEFAULT '[]',
+    notes TEXT NOT NULL DEFAULT '',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE public.character_companions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Access character_companions" ON public.character_companions FOR ALL USING (
+    EXISTS (SELECT 1 FROM public.characters WHERE characters.id = character_companions.character_id AND characters.user_id = auth.uid())
+);

@@ -848,11 +848,13 @@ class CharacterService {
   Future<void> longRest(int characterId) async {
     final character = await db.characterDao.getCharacterById(characterId);
     if (character != null) {
+      final newExhaustion = max(0, character.exhaustionLevel - 1);
       await db.characterDao.updateCharacter(
         CharactersCompanion(
           id: Value(characterId),
           hpCurrent: Value(character.hpMax),
           hpTemp: const Value(0),
+          exhaustionLevel: Value(newExhaustion),
           updatedAt: Value(DateTime.now().toIso8601String()),
         ),
       );
@@ -873,20 +875,46 @@ class CharacterService {
 
     final resources = await db.characterDao.watchResources(characterId).first;
     for (final r in resources) {
-      int newCurrent = r.maximum;
-      if (r.resourceName.startsWith('hitDice_d')) {
+      if (r.resourceName.startsWith('condition_')) {
+        // Clear unconscious and prone on long rest, but preserve current status of other conditions
+        int newCurrent = r.current;
+        if (r.resourceName == 'condition_unconscious' || r.resourceName == 'condition_prone') {
+          newCurrent = 0;
+        }
+        await db.characterDao.upsertResource(
+          CharacterResourcesCompanion(
+            id: Value(r.id),
+            characterId: Value(characterId),
+            resourceName: Value(r.resourceName),
+            current: Value(newCurrent),
+            maximum: Value(r.maximum),
+          ),
+        );
+      } else if (r.resourceName.startsWith('hitDice_d')) {
         final regain = max(1, (r.maximum / 2).ceil());
-        newCurrent = (r.current + regain).clamp(0, r.maximum);
+        final newCurrent = (r.current + regain).clamp(0, r.maximum);
+        await db.characterDao.upsertResource(
+          CharacterResourcesCompanion(
+            id: Value(r.id),
+            characterId: Value(characterId),
+            resourceName: Value(r.resourceName),
+            current: Value(newCurrent),
+            maximum: Value(r.maximum),
+          ),
+        );
+      } else if (r.resourceName.startsWith('active_concentration_')) {
+        continue;
+      } else {
+        await db.characterDao.upsertResource(
+          CharacterResourcesCompanion(
+            id: Value(r.id),
+            characterId: Value(characterId),
+            resourceName: Value(r.resourceName),
+            current: Value(r.maximum),
+            maximum: Value(r.maximum),
+          ),
+        );
       }
-      await db.characterDao.upsertResource(
-        CharacterResourcesCompanion(
-          id: Value(r.id),
-          characterId: Value(characterId),
-          resourceName: Value(r.resourceName),
-          current: Value(newCurrent),
-          maximum: Value(r.maximum),
-        ),
-      );
     }
 
     // Clear active concentration
