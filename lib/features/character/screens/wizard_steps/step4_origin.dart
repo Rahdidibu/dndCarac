@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/database/tables/tables.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/utils/markdown_text.dart';
+import '../../../../core/utils/string_utils.dart';
 import '../../providers/character_providers.dart';
 import '../../providers/wizard_provider.dart';
 
@@ -28,6 +29,16 @@ class _Step4OriginState extends ConsumerState<Step4Origin> {
       'cha': 'CHA',
     };
     return labels[key] ?? key.toUpperCase();
+  }
+
+  String _formatAsiAbilities(String? asiJson) {
+    if (asiJson == null) return '';
+    try {
+      final List<dynamic> list = json.decode(asiJson);
+      return list.map((a) => _abilityLabel(a.toString())).join(', ');
+    } catch (_) {
+      return '';
+    }
   }
 
   @override
@@ -80,25 +91,29 @@ class _Step4OriginState extends ConsumerState<Step4Origin> {
           racesAsync.when(
             loading: () => const LinearProgressIndicator(),
             error: (e, _) => Text('Erreur: $e'),
-            data: (races) => DropdownButtonFormField<String>(
-              key: const ValueKey('species-dropdown'),
-              style: TextStyle(fontFamily: 'Lora', color: colorScheme.onSurface),
-              decoration: InputDecoration(
-                labelText: wizard.ruleset == RulesetVersion.dnd2024
-                    ? l10n.step4SpeciesLabel
-                    : l10n.step4RaceLabel,
-                labelStyle: const TextStyle(fontFamily: 'Cinzel', fontSize: 13),
-                border: const OutlineInputBorder(),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: colorScheme.primary, width: 2),
+            data: (races) {
+              final sortedRaces = races.toList()
+                ..sort((a, b) => StringUtils.compareAlphabetically(a.name, b.name));
+              return DropdownButtonFormField<String>(
+                key: const ValueKey('species-dropdown'),
+                style: TextStyle(fontFamily: 'Lora', color: colorScheme.onSurface),
+                decoration: InputDecoration(
+                  labelText: wizard.ruleset == RulesetVersion.dnd2024
+                      ? l10n.step4SpeciesLabel
+                      : l10n.step4RaceLabel,
+                  labelStyle: const TextStyle(fontFamily: 'Cinzel', fontSize: 13),
+                  border: const OutlineInputBorder(),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: colorScheme.primary, width: 2),
+                  ),
                 ),
-              ),
-              initialValue: wizard.speciesId,
-              items: races
-                  .map((r) => DropdownMenuItem(value: r.id, child: Text(r.name)))
-                  .toList(),
-              onChanged: (v) => notifier.setSpecies(v),
-            ),
+                initialValue: wizard.speciesId,
+                items: sortedRaces
+                    .map((r) => DropdownMenuItem<String>(value: r.id, child: Text(r.name)))
+                    .toList(),
+                onChanged: (v) => notifier.setSpecies(v),
+              );
+            },
           ),
 
           // Sub-race / subspecies (if species selected)
@@ -121,48 +136,26 @@ class _Step4OriginState extends ConsumerState<Step4Origin> {
           ),
           const SizedBox(height: 8),
 
-          if (wizard.ruleset == RulesetVersion.dnd2024) ...[
-            Text(
-              'Filtrer par bonus de caractéristique',
-              style: TextStyle(fontFamily: 'Lora', fontSize: 11, color: colorScheme.onSurface.withValues(alpha: 0.6)),
-            ),
-            const SizedBox(height: 6),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  'Toutes', 'str', 'dex', 'con', 'int', 'wis', 'cha'
-                ].map((ability) {
-                  final isAll = ability == 'Toutes';
-                  final isSelected = isAll 
-                      ? _selectedFilterAbility == null 
-                      : _selectedFilterAbility == ability;
-                  final label = isAll ? 'Toutes' : _abilityLabel(ability);
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: ChoiceChip(
-                      label: Text(label, style: const TextStyle(fontFamily: 'Cinzel', fontSize: 11)),
-                      selected: isSelected,
-                      onSelected: (selected) {
-                        setState(() {
-                          _selectedFilterAbility = isAll ? null : (selected ? ability : null);
-                        });
-                      },
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-            const SizedBox(height: 12),
-          ],
-
           backgroundsAsync.when(
             loading: () => const LinearProgressIndicator(),
             error: (e, _) => Text('Erreur: $e'),
             data: (backgrounds) {
-              var filteredBackgrounds = backgrounds;
+              // Calculate counts per ability for filters
+              final Map<String, int> counts = {};
+              for (final bg in backgrounds) {
+                if (bg.asiJson != null) {
+                  try {
+                    final List<dynamic> list = json.decode(bg.asiJson!);
+                    for (final a in list.cast<String>()) {
+                      counts[a] = (counts[a] ?? 0) + 1;
+                    }
+                  } catch (_) {}
+                }
+              }
+
+              var filteredBackgrounds = backgrounds.toList();
               if (wizard.ruleset == RulesetVersion.dnd2024 && _selectedFilterAbility != null) {
-                filteredBackgrounds = backgrounds.where((bg) {
+                filteredBackgrounds = filteredBackgrounds.where((bg) {
                   if (bg.asiJson == null) return false;
                   try {
                     final List<dynamic> list = json.decode(bg.asiJson!);
@@ -173,34 +166,98 @@ class _Step4OriginState extends ConsumerState<Step4Origin> {
                 }).toList();
               }
 
+              filteredBackgrounds.sort((a, b) => StringUtils.compareAlphabetically(a.name, b.name));
+
               final currentVal = filteredBackgrounds.any((b) => b.id == wizard.backgroundId)
                   ? wizard.backgroundId
                   : null;
 
-              return DropdownButtonFormField<String>(
-                key: ValueKey('background-dropdown-${_selectedFilterAbility ?? "all"}'),
-                style: TextStyle(fontFamily: 'Lora', color: colorScheme.onSurface),
-                decoration: InputDecoration(
-                  labelText: 'Background',
-                  labelStyle: const TextStyle(fontFamily: 'Cinzel', fontSize: 13),
-                  border: const OutlineInputBorder(),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: colorScheme.primary, width: 2),
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (wizard.ruleset == RulesetVersion.dnd2024) ...[
+                    Text(
+                      'Filtrer par bonus de caractéristique',
+                      style: TextStyle(fontFamily: 'Lora', fontSize: 11, color: colorScheme.onSurface.withValues(alpha: 0.6)),
+                    ),
+                    const SizedBox(height: 6),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          'Toutes', 'str', 'dex', 'con', 'int', 'wis', 'cha'
+                        ].map((ability) {
+                          final isAll = ability == 'Toutes';
+                          final isSelected = isAll 
+                              ? _selectedFilterAbility == null 
+                              : _selectedFilterAbility == ability;
+                          final count = isAll ? backgrounds.length : (counts[ability] ?? 0);
+                          final label = isAll ? 'Toutes ($count)' : '${_abilityLabel(ability)} ($count)';
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: ChoiceChip(
+                              label: Text(label, style: const TextStyle(fontFamily: 'Cinzel', fontSize: 11)),
+                              selected: isSelected,
+                              onSelected: (selected) {
+                                setState(() {
+                                  _selectedFilterAbility = isAll ? null : (selected ? ability : null);
+                                });
+                              },
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+
+                  DropdownButtonFormField<String>(
+                    key: ValueKey('background-dropdown-${_selectedFilterAbility ?? "all"}'),
+                    style: TextStyle(fontFamily: 'Lora', color: colorScheme.onSurface),
+                    decoration: InputDecoration(
+                      labelText: 'Background',
+                      labelStyle: const TextStyle(fontFamily: 'Cinzel', fontSize: 13),
+                      border: const OutlineInputBorder(),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: colorScheme.primary, width: 2),
+                      ),
+                    ),
+                    initialValue: currentVal,
+                    items: filteredBackgrounds.map((b) {
+                      final asiBadge = _formatAsiAbilities(b.asiJson);
+                      return DropdownMenuItem<String>(
+                        value: b.id,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(b.name),
+                            if (asiBadge.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: Text(
+                                  '($asiBadge)',
+                                  style: TextStyle(
+                                    fontFamily: 'Cinzel',
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (v) {
+                      notifier.setBackground(v);
+                      if (wizard.ruleset == RulesetVersion.dnd2024 && v != null) {
+                        final bg = backgrounds.firstWhere((b) => b.id == v);
+                        notifier.setChosenFeatId(bg.originFeatId);
+                        notifier.setBackgroundAsi({});
+                      }
+                    },
                   ),
-                ),
-                initialValue: currentVal,
-                items: filteredBackgrounds
-                    .map((b) =>
-                        DropdownMenuItem(value: b.id, child: Text(b.name)))
-                    .toList(),
-                onChanged: (v) {
-                  notifier.setBackground(v);
-                  if (wizard.ruleset == RulesetVersion.dnd2024 && v != null) {
-                    final bg = backgrounds.firstWhere((b) => b.id == v);
-                    notifier.setChosenFeatId(bg.originFeatId);
-                    notifier.setBackgroundAsi({});
-                  }
-                },
+                ],
               );
             },
           ),
