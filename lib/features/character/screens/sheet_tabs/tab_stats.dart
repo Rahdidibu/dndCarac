@@ -167,8 +167,26 @@ class _StatsTab extends ConsumerWidget {
                   const SizedBox(height: 16),
 
                   // ── Skills ───────────────────────────────────────
-                  Text('Compétences',
-                      style: Theme.of(context).textTheme.titleMedium),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Compétences',
+                          style: Theme.of(context).textTheme.titleMedium),
+                      TextButton.icon(
+                        icon: const Icon(Icons.edit_note, size: 18, color: AppTheme.neonCyan),
+                        label: const Text('Gérer', style: TextStyle(fontSize: 12, color: AppTheme.neonCyan)),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => _ManageProficienciesDialog(
+                              characterId: characterId,
+                              initialProfs: profs,
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 4),
                   ...(() {
                     final sortedEntries = _skillAbilityMap.entries.toList()

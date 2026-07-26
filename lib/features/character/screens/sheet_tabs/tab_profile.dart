@@ -1087,14 +1087,61 @@ class _ManageProficienciesDialog extends ConsumerStatefulWidget {
 }
 
 class _ManageProficienciesDialogState extends ConsumerState<_ManageProficienciesDialog> {
-  late Set<String> _currentKeys;
-  late Set<String> _initialKeys;
+  late Map<String, ({bool isProficient, bool hasExpertise})> _profMap;
 
   @override
   void initState() {
     super.initState();
-    _initialKeys = widget.initialProfs.map((p) => p.proficiencyKey).toSet();
-    _currentKeys = Set.from(_initialKeys);
+    _profMap = {};
+    for (final p in widget.initialProfs) {
+      _profMap[p.proficiencyKey] = (isProficient: true, hasExpertise: p.hasExpertise);
+    }
+  }
+
+  Widget _buildProficiencyTile(String key, String name) {
+    final state = _profMap[key] ?? (isProficient: false, hasExpertise: false);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              name,
+              style: const TextStyle(fontFamily: 'Lora', fontSize: 13),
+            ),
+          ),
+          SegmentedButton<int>(
+            showSelectedIcon: false,
+            style: ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 4)),
+            ),
+            segments: const [
+              ButtonSegment<int>(value: 0, label: Text('Non', style: TextStyle(fontSize: 9.5))),
+              ButtonSegment<int>(value: 1, icon: Icon(Icons.circle, size: 10), label: Text('Maîtrisé', style: TextStyle(fontSize: 9.5))),
+              ButtonSegment<int>(value: 2, icon: Icon(Icons.star, size: 11), label: Text('Expertise', style: TextStyle(fontSize: 9.5))),
+            ],
+            selected: {
+              if (state.hasExpertise) 2 else if (state.isProficient) 1 else 0
+            },
+            onSelectionChanged: (selection) {
+              final val = selection.first;
+              setState(() {
+                if (val == 0) {
+                  _profMap.remove(key);
+                } else if (val == 1) {
+                  _profMap[key] = (isProficient: true, hasExpertise: false);
+                } else if (val == 2) {
+                  _profMap[key] = (isProficient: true, hasExpertise: true);
+                }
+              });
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -1102,10 +1149,10 @@ class _ManageProficienciesDialogState extends ConsumerState<_ManageProficiencies
     return DefaultTabController(
       length: 2,
       child: AlertDialog(
-        title: const Text('Gérer les maîtrises'),
+        title: const Text('Gérer Maîtrises & Expertise', style: TextStyle(fontFamily: 'Cinzel', fontSize: 16)),
         content: SizedBox(
           width: double.maxFinite,
-          height: 450,
+          height: 480,
           child: Column(
             children: [
               const TabBar(
@@ -1121,41 +1168,13 @@ class _ManageProficienciesDialogState extends ConsumerState<_ManageProficiencies
                     ListView(
                       children: _allSkillsList.map((s) {
                         final key = 'skill_${s.key}';
-                        final isChecked = _currentKeys.contains(key);
-                        return CheckboxListTile(
-                          title: Text(s.name),
-                          value: isChecked,
-                          onChanged: (v) {
-                            setState(() {
-                              if (v == true) {
-                                _currentKeys.add(key);
-                              } else {
-                                _currentKeys.remove(key);
-                              }
-                            });
-                          },
-                          dense: true,
-                        );
+                        return _buildProficiencyTile(key, s.name);
                       }).toList(),
                     ),
                     ListView(
                       children: _allToolsList.map((t) {
                         final key = 'tool_${t.key}';
-                        final isChecked = _currentKeys.contains(key);
-                        return CheckboxListTile(
-                          title: Text(t.name),
-                          value: isChecked,
-                          onChanged: (v) {
-                            setState(() {
-                              if (v == true) {
-                                _currentKeys.add(key);
-                              } else {
-                                _currentKeys.remove(key);
-                              }
-                            });
-                          },
-                          dense: true,
-                        );
+                        return _buildProficiencyTile(key, t.name);
                       }).toList(),
                     ),
                   ],
@@ -1181,24 +1200,25 @@ class _ManageProficienciesDialogState extends ConsumerState<_ManageProficiencies
   Future<void> _save() async {
     final db = ref.read(databaseProvider);
 
-    final added = _currentKeys.difference(_initialKeys);
-    final removed = _initialKeys.difference(_currentKeys);
+    final existingOtherProfs = widget.initialProfs.where((p) => 
+      !p.proficiencyKey.startsWith('skill_') && !p.proficiencyKey.startsWith('tool_')
+    ).map((p) => CharacterProficienciesCompanion.insert(
+      characterId: widget.characterId,
+      proficiencyKey: p.proficiencyKey,
+      hasExpertise: Value(p.hasExpertise),
+    )).toList();
 
-    for (final key in added) {
-      await db.characterDao.insertProficiency(
-        CharacterProficienciesCompanion.insert(
-          characterId: widget.characterId,
-          proficiencyKey: key,
-        ),
-      );
-    }
+    final newSkillToolCompanions = _profMap.entries.map((e) =>
+      CharacterProficienciesCompanion.insert(
+        characterId: widget.characterId,
+        proficiencyKey: e.key,
+        hasExpertise: Value(e.value.hasExpertise),
+      )
+    ).toList();
 
-    for (final key in removed) {
-      if (key.startsWith('skill_') || key.startsWith('tool_')) {
-        await db.characterDao.deleteProficiency(widget.characterId, key);
-      }
-    }
+    final allCompanions = [...existingOtherProfs, ...newSkillToolCompanions];
 
+    await db.characterDao.replaceAllProficiencies(widget.characterId, allCompanions);
     ref.invalidate(characterProficienciesProvider(widget.characterId));
 
     if (mounted) Navigator.of(context).pop();
