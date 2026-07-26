@@ -270,5 +270,30 @@
   "step4NoneOption": "— Aucune —",
   "@step4NoneOption": {},
   "step4AsiInfoText": "En D&D 2024, le bonus de caractéristique (+2/+1) vient du background, pas de l'espèce.",
-  "@step4AsiInfoText": {}
+  "@step4AsiInfoText": {},
+  "hpModifierTitle": "Modifier les points de vie",
+  "@hpModifierTitle": {},
+  "hpModifierCurrent": "Actuel : {current} / {max}",
+  "@hpModifierCurrent": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+  "hpModifierTemp": "Temporaire : +{temp}",
+  "@hpModifierTemp": {
+    "placeholders": {
+      "temp": { "type": "int" }
+    }
+  },
+  "hpModifierLabel": "Valeur des PV",
+  "@hpModifierLabel": {},
+  "hpModifierDamage": "Dégâts",
+  "@hpModifierDamage": {},
+  "hpModifierHeal": "Soins",
+  "@hpModifierHeal": {},
+  "hpModifierSet": "Définir",
+  "@hpModifierSet": {},
+  "hpModifierError": "Veuillez entrer un nombre positif",
+  "@hpModifierError": {}
 }

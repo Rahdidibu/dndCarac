@@ -385,4 +385,32 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get step4AsiInfoText =>
       'En D&D 2024, le bonus de caractéristique (+2/+1) vient du background, pas de l\'espèce.';
+
+  @override
+  String get hpModifierTitle => 'Modifier les points de vie';
+
+  @override
+  String hpModifierCurrent(int current, int max) {
+    return 'Actuel : $current / $max';
+  }
+
+  @override
+  String hpModifierTemp(int temp) {
+    return 'Temporaire : +$temp';
+  }
+
+  @override
+  String get hpModifierLabel => 'Valeur des PV';
+
+  @override
+  String get hpModifierDamage => 'Dégâts';
+
+  @override
+  String get hpModifierHeal => 'Soins';
+
+  @override
+  String get hpModifierSet => 'Définir';
+
+  @override
+  String get hpModifierError => 'Veuillez entrer un nombre positif';
 }

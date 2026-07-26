@@ -1063,41 +1063,56 @@ class _HpTracker extends StatelessWidget {
                       backgroundColor: Colors.white.withValues(alpha: 0.04),
                     ),
                   ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '$hpCurrent',
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      Text(
-                        'sur $hpMax',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white.withValues(alpha: 0.5),
-                        ),
-                      ),
-                      if (hpTemp > 0) ...[
-                        const SizedBox(height: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppTheme.neonCyan.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppTheme.neonCyan.withValues(alpha: 0.3), width: 0.8),
+                  InkWell(
+                    borderRadius: BorderRadius.circular(65),
+                    onTap: () {
+                      HpModifierDialog.show(
+                        context,
+                        hpCurrent: hpCurrent,
+                        hpMax: hpMax,
+                        hpTemp: hpTemp,
+                        onHPChanged: onCurrentChanged,
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '$hpCurrent',
+                            style: const TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                            ),
                           ),
-                          child: Text(
-                            '+$hpTemp Temp',
-                            style: const TextStyle(fontSize: 10, color: AppTheme.neonCyan, fontWeight: FontWeight.bold),
+                          Text(
+                            'sur $hpMax',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white.withValues(alpha: 0.5),
+                            ),
                           ),
-                        ),
-                      ],
-                    ],
+                          if (hpTemp > 0) ...[
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppTheme.neonCyan.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: AppTheme.neonCyan.withValues(alpha: 0.3), width: 0.8),
+                              ),
+                              child: Text(
+                                '+$hpTemp Temp',
+                                style: const TextStyle(fontSize: 10, color: AppTheme.neonCyan, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),

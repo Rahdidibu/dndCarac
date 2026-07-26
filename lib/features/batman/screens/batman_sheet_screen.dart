@@ -8,6 +8,7 @@ import 'package:printing/printing.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/providers/database_provider.dart';
+import '../../../core/widgets/hp_modifier_dialog.dart';
 import '../../character/providers/character_providers.dart';
 import '../../export/batman_pdf_generator.dart';
 import '../providers/batman_providers.dart';
@@ -476,21 +477,39 @@ class _CombatTab extends StatelessWidget {
                           color: Colors.red, size: 32),
                     ),
                     const SizedBox(width: 8),
-                    Column(
-                      children: [
-                        Text(
-                          '${char.hpCurrent}',
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 40,
-                              fontWeight: FontWeight.bold),
+                    InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: () {
+                        HpModifierDialog.show(
+                          context,
+                          hpCurrent: char.hpCurrent,
+                          hpMax: char.hpMax,
+                          hpTemp: 0,
+                          onHPChanged: (newHP) {
+                            final delta = newHP - char.hpCurrent;
+                            onHPChange(delta);
+                          },
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Column(
+                          children: [
+                            Text(
+                              '${char.hpCurrent}',
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 40,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              '/ ${char.hpMax}',
+                              style: TextStyle(
+                                  color: Colors.grey.shade400, fontSize: 16),
+                            ),
+                          ],
                         ),
-                        Text(
-                          '/ ${char.hpMax}',
-                          style: TextStyle(
-                              color: Colors.grey.shade400, fontSize: 16),
-                        ),
-                      ],
+                      ),
                     ),
                     const SizedBox(width: 8),
                     IconButton(

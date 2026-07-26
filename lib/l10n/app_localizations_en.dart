@@ -384,4 +384,32 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get step4AsiInfoText =>
       'In D&D 2024, ability score improvements (+2/+1) come from your background, not your species.';
+
+  @override
+  String get hpModifierTitle => 'Modify Hit Points';
+
+  @override
+  String hpModifierCurrent(int current, int max) {
+    return 'Current: $current / $max';
+  }
+
+  @override
+  String hpModifierTemp(int temp) {
+    return 'Temporary: +$temp';
+  }
+
+  @override
+  String get hpModifierLabel => 'HP Value';
+
+  @override
+  String get hpModifierDamage => 'Damage';
+
+  @override
+  String get hpModifierHeal => 'Heal';
+
+  @override
+  String get hpModifierSet => 'Set';
+
+  @override
+  String get hpModifierError => 'Please enter a positive number';
 }

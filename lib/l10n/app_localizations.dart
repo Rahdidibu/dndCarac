@@ -829,6 +829,54 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'En D&D 2024, le bonus de caractéristique (+2/+1) vient du background, pas de l\'espèce.'**
   String get step4AsiInfoText;
+
+  /// No description provided for @hpModifierTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier les points de vie'**
+  String get hpModifierTitle;
+
+  /// No description provided for @hpModifierCurrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actuel : {current} / {max}'**
+  String hpModifierCurrent(int current, int max);
+
+  /// No description provided for @hpModifierTemp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Temporaire : +{temp}'**
+  String hpModifierTemp(int temp);
+
+  /// No description provided for @hpModifierLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur des PV'**
+  String get hpModifierLabel;
+
+  /// No description provided for @hpModifierDamage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dégâts'**
+  String get hpModifierDamage;
+
+  /// No description provided for @hpModifierHeal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Soins'**
+  String get hpModifierHeal;
+
+  /// No description provided for @hpModifierSet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Définir'**
+  String get hpModifierSet;
+
+  /// No description provided for @hpModifierError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez entrer un nombre positif'**
+  String get hpModifierError;
 }
 
 class _AppLocalizationsDelegate

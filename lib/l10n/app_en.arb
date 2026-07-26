@@ -140,5 +140,13 @@
   "step4SubraceLabel": "Subrace",
   "step4SubspeciesLabel": "Subspecies",
   "step4NoneOption": "— None —",
-  "step4AsiInfoText": "In D&D 2024, ability score improvements (+2/+1) come from your background, not your species."
+  "step4AsiInfoText": "In D&D 2024, ability score improvements (+2/+1) come from your background, not your species.",
+  "hpModifierTitle": "Modify Hit Points",
+  "hpModifierCurrent": "Current: {current} / {max}",
+  "hpModifierTemp": "Temporary: +{temp}",
+  "hpModifierLabel": "HP Value",
+  "hpModifierDamage": "Damage",
+  "hpModifierHeal": "Heal",
+  "hpModifierSet": "Set",
+  "hpModifierError": "Please enter a positive number"
 }
