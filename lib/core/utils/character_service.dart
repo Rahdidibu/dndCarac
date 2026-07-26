@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 
@@ -393,6 +394,18 @@ class CharacterService {
         default:
           break;
       }
+    }
+
+    final feats = await db.characterDao.getCharacterFeats(characterId);
+    if (wizard.chosenFeatId == 'lucky' || feats.any((f) => f.featId == 'lucky')) {
+      final totalLevel = wizard.classes.fold(0, (s, c) => s + c.level);
+      final profBonus = max(2, DndRules.proficiencyBonus(totalLevel));
+      resources.add(CharacterResourcesCompanion.insert(
+        characterId: characterId,
+        resourceName: 'resourceLucky',
+        current: profBonus,
+        maximum: profBonus,
+      ));
     }
 
     if (resources.isNotEmpty) {

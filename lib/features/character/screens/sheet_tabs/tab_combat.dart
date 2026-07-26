@@ -1609,6 +1609,7 @@ class _ResourceRow extends ConsumerWidget {
       case 'resourceChannelDivinity': return l10n.resourceChannelDivinity;
       case 'resourceWildShape': return l10n.resourceWildShape;
       case 'resourceActionSurge': return l10n.resourceActionSurge;
+      case 'resourceLucky': return 'Points de chance (Lucky)';
       case 'hitDice_d6': return l10n.resourceHitDiceD6;
       case 'hitDice_d8': return l10n.resourceHitDiceD8;
       case 'hitDice_d10': return l10n.resourceHitDiceD10;

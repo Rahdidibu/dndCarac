@@ -876,8 +876,142 @@ class _AddFeatDialogState extends ConsumerState<_AddFeatDialog> {
       ),
     );
     ref.invalidate(characterFeatDetailsProvider(widget.characterId));
+
+    if (featId == 'lucky') {
+      final classes = await db.characterDao.getCharacterClasses(widget.characterId);
+      final totalLevel = classes.fold(0, (sum, c) => sum + c.level);
+      final profBonus = max(2, DndRules.proficiencyBonus(totalLevel));
+      await db.characterDao.upsertResource(
+        CharacterResourcesCompanion(
+          characterId: Value(widget.characterId),
+          resourceName: const Value('resourceLucky'),
+          current: Value(profBonus),
+          maximum: Value(profBonus),
+        ),
+      );
+      ref.invalidate(characterResourcesProvider(widget.characterId));
+    }
+
     if (mounted) Navigator.of(context).pop();
+
+    if (['skilled', 'crafter', 'musician'].contains(featId) && mounted) {
+      _showFeatProficienciesDialog(context, ref, widget.characterId, featId);
+    }
   }
+}
+
+Future<void> _showFeatProficienciesDialog(
+  BuildContext context,
+  WidgetRef ref,
+  int characterId,
+  String featId,
+) async {
+  final db = ref.read(databaseProvider);
+  final existingProfs = await (db.select(db.characterProficiencies)
+    ..where((p) => p.characterId.equals(characterId))).get();
+  final existingKeys = existingProfs.map((p) => p.proficiencyKey).toSet();
+
+  List<({String key, String name, String subtitle})> eligible = [];
+  String title = 'Sélection des maîtrises';
+
+  if (featId == 'skilled') {
+    title = 'Don "Qualifié" — Choisissez 3 maîtrises';
+    eligible.addAll(_allSkillsList
+      .where((s) => !existingKeys.contains('skill_${s.key}'))
+      .map((s) => (key: 'skill_${s.key}', name: s.name, subtitle: 'Compétence')));
+    eligible.addAll(_allToolsList
+      .where((t) => !existingKeys.contains('tool_${t.key}'))
+      .map((t) => (key: 'tool_${t.key}', name: t.name, subtitle: 'Outil / Instrument')));
+  } else if (featId == 'crafter') {
+    title = 'Don "Artisan" — Choisissez 3 outils';
+    eligible.addAll(_allToolsList
+      .where((t) => !existingKeys.contains('tool_${t.key}') && t.key.contains('supplies') || t.key.contains('tools') || t.key.contains('utensils'))
+      .map((t) => (key: 'tool_${t.key}', name: t.name, subtitle: 'Outil d\'artisan')));
+  } else if (featId == 'musician') {
+    title = 'Don "Musicien" — Choisissez 3 instruments';
+    eligible.addAll(_allToolsList
+      .where((t) => !existingKeys.contains('tool_${t.key}') && ['bagpipes', 'drum', 'flute', 'lute', 'lyre', 'horn', 'pan_flute', 'dulcimer', 'viol', 'shawm'].contains(t.key))
+      .map((t) => (key: 'tool_${t.key}', name: t.name, subtitle: 'Instrument de musique')));
+  }
+
+  eligible.sort((a, b) => StringUtils.compareAlphabetically(a.name, b.name));
+
+  if (!context.mounted) return;
+
+  final selectedKeys = <String>{};
+
+  await showDialog(
+    context: context,
+    builder: (ctx) => StatefulBuilder(
+      builder: (context, setDialogState) {
+        return AlertDialog(
+          title: Text(title, style: const TextStyle(fontFamily: 'Cinzel', fontSize: 15, fontWeight: FontWeight.bold)),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 380,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${selectedKeys.length}/3 maîtrises sélectionnées',
+                  style: const TextStyle(fontFamily: 'Lora', fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: eligible.length,
+                    itemBuilder: (context, index) {
+                      final item = eligible[index];
+                      final isSelected = selectedKeys.contains(item.key);
+                      return CheckboxListTile(
+                        title: Text(item.name, style: const TextStyle(fontSize: 13.5)),
+                        subtitle: Text(item.subtitle, style: const TextStyle(fontSize: 11)),
+                        value: isSelected,
+                        onChanged: (isSelected != true && selectedKeys.length >= 3)
+                            ? null
+                            : (val) {
+                                setDialogState(() {
+                                  if (val == true) {
+                                    selectedKeys.add(item.key);
+                                  } else {
+                                    selectedKeys.remove(item.key);
+                                  }
+                                });
+                              },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Annuler'),
+            ),
+            FilledButton(
+              onPressed: selectedKeys.isEmpty
+                  ? null
+                  : () async {
+                      for (final k in selectedKeys) {
+                        await db.characterDao.insertProficiency(
+                          CharacterProficienciesCompanion.insert(
+                            characterId: characterId,
+                            proficiencyKey: k,
+                          ),
+                        );
+                      }
+                      ref.invalidate(characterProficienciesProvider(characterId));
+                      if (context.mounted) Navigator.of(ctx).pop();
+                    },
+              child: const Text('Valider'),
+            ),
+          ],
+        );
+      },
+    ),
+  );
 }
 
 const List<({String key, String name})> _allSkillsList = [

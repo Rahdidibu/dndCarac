@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/utils/string_utils.dart';
 import '../../providers/character_providers.dart';
 import '../../providers/wizard_provider.dart';
 
@@ -157,7 +158,7 @@ class Step6Proficiencies extends ConsumerWidget {
                 eligibleItems.addAll(_musicalInstruments.map((t) => (key: 'tool_${t.key}', name: t.name, subtitle: 'Instrument de musique')));
               }
 
-              eligibleItems.sort((a, b) => a.name.compareTo(b.name));
+              eligibleItems.sort((a, b) => StringUtils.compareAlphabetically(a.name, b.name));
 
               extraSection = Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
