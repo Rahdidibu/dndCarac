@@ -1177,6 +1177,102 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Niveau 1 : Désavantage aux tests.\nNiveau 2 : Vitesse divisée par 2.\nNiveau 3 : Désavantage aux attaques/sauvegardes.\nNiveau 4 : PV max divisés par 2.\nNiveau 5 : Vitesse = 0.\nNiveau 6 : Mort.'**
   String get conditionExhaustionDesc;
+
+  /// No description provided for @diceRollerTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lanceur de dés'**
+  String get diceRollerTitle;
+
+  /// No description provided for @diceRollerRoll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lancer !'**
+  String get diceRollerRoll;
+
+  /// No description provided for @diceRollerResult.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résultat'**
+  String get diceRollerResult;
+
+  /// No description provided for @diceRollerMode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode de lancer'**
+  String get diceRollerMode;
+
+  /// No description provided for @diceRollerNormal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Normal'**
+  String get diceRollerNormal;
+
+  /// No description provided for @diceRollerAdvantage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avantage'**
+  String get diceRollerAdvantage;
+
+  /// No description provided for @diceRollerDisadvantage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désavantage'**
+  String get diceRollerDisadvantage;
+
+  /// No description provided for @diceRollerFormula.
+  ///
+  /// In fr, this message translates to:
+  /// **'Formule : {formula}'**
+  String diceRollerFormula(String formula);
+
+  /// No description provided for @diceRollerRollCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre de dés'**
+  String get diceRollerRollCount;
+
+  /// No description provided for @diceRollerRollBonus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modificateur'**
+  String get diceRollerRollBonus;
+
+  /// No description provided for @diceRollerHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique des lancers'**
+  String get diceRollerHistory;
+
+  /// No description provided for @rollAbilityCheck.
+  ///
+  /// In fr, this message translates to:
+  /// **'Test de {name}'**
+  String rollAbilityCheck(String name);
+
+  /// No description provided for @rollSaveCheck.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sauvegarde de {name}'**
+  String rollSaveCheck(String name);
+
+  /// No description provided for @rollSkillCheck.
+  ///
+  /// In fr, this message translates to:
+  /// **'Test de {name}'**
+  String rollSkillCheck(String name);
+
+  /// No description provided for @rollAttackCheck.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jet d\'attaque : {name}'**
+  String rollAttackCheck(String name);
+
+  /// No description provided for @rollDamageCheck.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jet de dégâts : {name}'**
+  String rollDamageCheck(String name);
 }
 
 class _AppLocalizationsDelegate

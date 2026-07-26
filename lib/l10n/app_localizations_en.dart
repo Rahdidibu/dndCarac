@@ -585,4 +585,64 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get conditionExhaustionDesc =>
       'Level 1: Disadvantage on ability checks.\nLevel 2: Speed halved.\nLevel 3: Disadvantage on attack rolls and saving throws.\nLevel 4: Hit point maximum halved.\nLevel 5: Speed reduced to 0.\nLevel 6: Death.';
+
+  @override
+  String get diceRollerTitle => 'Dice Roller';
+
+  @override
+  String get diceRollerRoll => 'Roll!';
+
+  @override
+  String get diceRollerResult => 'Result';
+
+  @override
+  String get diceRollerMode => 'Roll Mode';
+
+  @override
+  String get diceRollerNormal => 'Normal';
+
+  @override
+  String get diceRollerAdvantage => 'Advantage';
+
+  @override
+  String get diceRollerDisadvantage => 'Disadvantage';
+
+  @override
+  String diceRollerFormula(String formula) {
+    return 'Formula: $formula';
+  }
+
+  @override
+  String get diceRollerRollCount => 'Number of Dice';
+
+  @override
+  String get diceRollerRollBonus => 'Modifier';
+
+  @override
+  String get diceRollerHistory => 'Roll History';
+
+  @override
+  String rollAbilityCheck(String name) {
+    return '$name Check';
+  }
+
+  @override
+  String rollSaveCheck(String name) {
+    return '$name Save';
+  }
+
+  @override
+  String rollSkillCheck(String name) {
+    return '$name Check';
+  }
+
+  @override
+  String rollAttackCheck(String name) {
+    return 'Attack Roll: $name';
+  }
+
+  @override
+  String rollDamageCheck(String name) {
+    return 'Damage Roll: $name';
+  }
 }

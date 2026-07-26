@@ -24,6 +24,8 @@ import '../../../core/utils/markdown_text.dart';
 import '../../../core/widgets/hp_modifier_dialog.dart';
 import '../../../core/widgets/short_rest_dialog.dart';
 import '../../../core/widgets/conditions_dialog.dart';
+import '../../../core/widgets/roll_result_dialog.dart';
+import '../../../core/widgets/universal_dice_roller.dart';
 
 part 'sheet_tabs/tab_stats.dart';
 part 'sheet_tabs/tab_combat.dart';
@@ -218,6 +220,12 @@ class CharacterSheetScreen extends ConsumerWidget {
                     _ProfileTab(characterId: characterId, character: character),
                   ],
                 ),
+          floatingActionButton: FloatingActionButton(
+            backgroundColor: AppTheme.neonCyan,
+            foregroundColor: Colors.black,
+            child: const Icon(Icons.casino),
+            onPressed: () => UniversalDiceRoller.show(context),
+          ),
         );
 
         return isDesktop

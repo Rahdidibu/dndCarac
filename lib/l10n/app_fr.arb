@@ -410,5 +410,61 @@
   "conditionExhaustion": "Épuisement",
   "@conditionExhaustion": {},
   "conditionExhaustionDesc": "Niveau 1 : Désavantage aux tests.\nNiveau 2 : Vitesse divisée par 2.\nNiveau 3 : Désavantage aux attaques/sauvegardes.\nNiveau 4 : PV max divisés par 2.\nNiveau 5 : Vitesse = 0.\nNiveau 6 : Mort.",
-  "@conditionExhaustionDesc": {}
+  "@conditionExhaustionDesc": {},
+  "diceRollerTitle": "Lanceur de dés",
+  "@diceRollerTitle": {},
+  "diceRollerRoll": "Lancer !",
+  "@diceRollerRoll": {},
+  "diceRollerResult": "Résultat",
+  "@diceRollerResult": {},
+  "diceRollerMode": "Mode de lancer",
+  "@diceRollerMode": {},
+  "diceRollerNormal": "Normal",
+  "@diceRollerNormal": {},
+  "diceRollerAdvantage": "Avantage",
+  "@diceRollerAdvantage": {},
+  "diceRollerDisadvantage": "Désavantage",
+  "@diceRollerDisadvantage": {},
+  "diceRollerFormula": "Formule : {formula}",
+  "@diceRollerFormula": {
+    "placeholders": {
+      "formula": { "type": "String" }
+    }
+  },
+  "diceRollerRollCount": "Nombre de dés",
+  "@diceRollerRollCount": {},
+  "diceRollerRollBonus": "Modificateur",
+  "@diceRollerRollBonus": {},
+  "diceRollerHistory": "Historique des lancers",
+  "@diceRollerHistory": {},
+  "rollAbilityCheck": "Test de {name}",
+  "@rollAbilityCheck": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "rollSaveCheck": "Sauvegarde de {name}",
+  "@rollSaveCheck": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "rollSkillCheck": "Test de {name}",
+  "@rollSkillCheck": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "rollAttackCheck": "Jet d'attaque : {name}",
+  "@rollAttackCheck": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "rollDamageCheck": "Jet de dégâts : {name}",
+  "@rollDamageCheck": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  }
 }

@@ -586,4 +586,64 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get conditionExhaustionDesc =>
       'Niveau 1 : Désavantage aux tests.\nNiveau 2 : Vitesse divisée par 2.\nNiveau 3 : Désavantage aux attaques/sauvegardes.\nNiveau 4 : PV max divisés par 2.\nNiveau 5 : Vitesse = 0.\nNiveau 6 : Mort.';
+
+  @override
+  String get diceRollerTitle => 'Lanceur de dés';
+
+  @override
+  String get diceRollerRoll => 'Lancer !';
+
+  @override
+  String get diceRollerResult => 'Résultat';
+
+  @override
+  String get diceRollerMode => 'Mode de lancer';
+
+  @override
+  String get diceRollerNormal => 'Normal';
+
+  @override
+  String get diceRollerAdvantage => 'Avantage';
+
+  @override
+  String get diceRollerDisadvantage => 'Désavantage';
+
+  @override
+  String diceRollerFormula(String formula) {
+    return 'Formule : $formula';
+  }
+
+  @override
+  String get diceRollerRollCount => 'Nombre de dés';
+
+  @override
+  String get diceRollerRollBonus => 'Modificateur';
+
+  @override
+  String get diceRollerHistory => 'Historique des lancers';
+
+  @override
+  String rollAbilityCheck(String name) {
+    return 'Test de $name';
+  }
+
+  @override
+  String rollSaveCheck(String name) {
+    return 'Sauvegarde de $name';
+  }
+
+  @override
+  String rollSkillCheck(String name) {
+    return 'Test de $name';
+  }
+
+  @override
+  String rollAttackCheck(String name) {
+    return 'Jet d\'attaque : $name';
+  }
+
+  @override
+  String rollDamageCheck(String name) {
+    return 'Jet de dégâts : $name';
+  }
 }

@@ -198,5 +198,21 @@
   "conditionUnconscious": "Unconscious",
   "conditionUnconsciousDesc": "You are incapacitated, drop whatever you're holding, and fall prone. You automatically fail Strength and Dexterity saving throws. Attack rolls against you have advantage, and any attack that hits you is a critical hit if the attacker is within 5 feet of you.",
   "conditionExhaustion": "Exhaustion",
-  "conditionExhaustionDesc": "Level 1: Disadvantage on ability checks.\nLevel 2: Speed halved.\nLevel 3: Disadvantage on attack rolls and saving throws.\nLevel 4: Hit point maximum halved.\nLevel 5: Speed reduced to 0.\nLevel 6: Death."
+  "conditionExhaustionDesc": "Level 1: Disadvantage on ability checks.\nLevel 2: Speed halved.\nLevel 3: Disadvantage on attack rolls and saving throws.\nLevel 4: Hit point maximum halved.\nLevel 5: Speed reduced to 0.\nLevel 6: Death.",
+  "diceRollerTitle": "Dice Roller",
+  "diceRollerRoll": "Roll!",
+  "diceRollerResult": "Result",
+  "diceRollerMode": "Roll Mode",
+  "diceRollerNormal": "Normal",
+  "diceRollerAdvantage": "Advantage",
+  "diceRollerDisadvantage": "Disadvantage",
+  "diceRollerFormula": "Formula: {formula}",
+  "diceRollerRollCount": "Number of Dice",
+  "diceRollerRollBonus": "Modifier",
+  "diceRollerHistory": "Roll History",
+  "rollAbilityCheck": "{name} Check",
+  "rollSaveCheck": "{name} Save",
+  "rollSkillCheck": "{name} Check",
+  "rollAttackCheck": "Attack Roll: {name}",
+  "rollDamageCheck": "Damage Roll: {name}"
 }

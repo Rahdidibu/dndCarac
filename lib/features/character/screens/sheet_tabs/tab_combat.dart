@@ -178,33 +178,67 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
 
   void _rollAttack() {
     if (_activeWeapon == null) return;
-    final d20 = _rollD20();
-    final modeLabel = _rollMode == 1 ? ' (AVA)' : _rollMode == -1 ? ' (DES)' : '';
+    
     final bonusStr = _activeWeapon!.attackBonus;
-    // Parse bonus like "+5" or "STR+PROF"
     final bonusNum = int.tryParse(bonusStr.replaceAll('+', '')) ?? 0;
-    final total = d20 + bonusNum;
-    final isCrit = d20 == 20;
-    final isFumble = d20 == 1;
-    final icon = isCrit ? '🎯' : isFumble ? '💀' : '⚔️';
-    final suffix = isCrit ? ' CRITIQUE !' : isFumble ? ' FUMBLE !' : '';
-    setState(() {
-      _combatLog.insert(0,
-        '$icon [${_activeWeapon!.name}]$modeLabel Attaque: d20($d20) $bonusStr = $total$suffix'
-      );
-    });
+    final l10n = AppLocalizations.of(context)!;
+
+    RollResultDialog.show(
+      context,
+      characterId: widget.characterId,
+      rollType: RollType.attack,
+      title: l10n.rollAttackCheck(_activeWeapon!.name),
+      bonus: bonusNum,
+      isD20: true,
+      onRollCompleted: (total, breakdown) {
+        final isCrit = breakdown.contains('d20(20)');
+        final isFumble = breakdown.contains('d20(1)');
+        final icon = isCrit ? '🎯' : isFumble ? '💀' : '⚔️';
+        final suffix = isCrit ? ' CRITIQUE !' : isFumble ? ' FUMBLE !' : '';
+        setState(() {
+          _combatLog.insert(0,
+            '$icon [${_activeWeapon!.name}] Attaque: $breakdown$suffix'
+          );
+        });
+      },
+    );
   }
 
   void _rollDamage({bool crit = false}) {
     if (_activeWeapon == null) return;
-    final result = _parseDiceExpression(_activeWeapon!.damageDice, crit: crit);
+    
+    final damageDice = _activeWeapon!.damageDice;
     final damageType = _activeWeapon!.damageType;
-    final critLabel = crit ? ' [CRITIQUE]' : '';
-    setState(() {
-      _combatLog.insert(0,
-        '💥$critLabel [${_activeWeapon!.name}] Dégâts: ${result.breakdown} $damageType'
-      );
-    });
+    final l10n = AppLocalizations.of(context)!;
+    
+    String expr = damageDice;
+    if (crit) {
+      final pattern = RegExp(r'(\d+)d(\d+)(.*)');
+      final match = pattern.firstMatch(damageDice.toLowerCase().replaceAll(' ', ''));
+      if (match != null) {
+        final numDice = int.tryParse(match.group(1) ?? '1') ?? 1;
+        final dieSides = match.group(2);
+        final rest = match.group(3) ?? '';
+        expr = '${numDice * 2}d$dieSides$rest';
+      }
+    }
+
+    RollResultDialog.show(
+      context,
+      characterId: widget.characterId,
+      rollType: RollType.damage,
+      title: l10n.rollDamageCheck(_activeWeapon!.name) + (crit ? ' (CRITIQUE)' : ''),
+      bonus: 0,
+      isD20: false,
+      diceExpression: expr,
+      onRollCompleted: (total, breakdown) {
+        setState(() {
+          _combatLog.insert(0,
+            '💥 [${_activeWeapon!.name}] Dégâts: $breakdown $damageType'
+          );
+        });
+      },
+    );
   }
 
   @override

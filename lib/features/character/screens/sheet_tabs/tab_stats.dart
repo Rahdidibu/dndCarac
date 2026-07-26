@@ -126,7 +126,7 @@ class _StatsTab extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  _AbilityScoreGrid(scoreMap: scoreMap),
+                  _AbilityScoreGrid(characterId: characterId, scoreMap: scoreMap),
                   const SizedBox(height: 16),
 
                   // ── Saving throws ────────────────────────────────
@@ -152,6 +152,16 @@ class _StatsTab extends ConsumerWidget {
                       bonus: total,
                       proficient: hasProficiency,
                       expertise: false,
+                      onRollPressed: () {
+                        RollResultDialog.show(
+                          context,
+                          characterId: characterId,
+                          rollType: RollType.save,
+                          rollKey: key,
+                          title: l10n.rollSaveCheck(label),
+                          bonus: total,
+                        );
+                      },
                     );
                   }),
                   const SizedBox(height: 16),
@@ -185,12 +195,24 @@ class _StatsTab extends ConsumerWidget {
                       } else if (isProficient) {
                         total += profBonus;
                       }
+                      final skillLabel = _skillNames[skill]!;
                       return _ProficiencyRow(
-                        label: _skillNames[skill]!,
+                        label: skillLabel,
                         abbr: _abilityAbbr[ability]!,
                         bonus: total,
                         proficient: isProficient,
                         expertise: hasExpertise,
+                        onRollPressed: () {
+                          final l10n = AppLocalizations.of(context)!;
+                          RollResultDialog.show(
+                            context,
+                            characterId: characterId,
+                            rollType: RollType.skill,
+                            rollKey: skill,
+                            title: l10n.rollSkillCheck(skillLabel),
+                            bonus: total,
+                          );
+                        },
                       );
                     });
                   })(),
@@ -263,8 +285,9 @@ class _StatChip extends StatelessWidget {
 }
 
 class _AbilityScoreGrid extends StatelessWidget {
+  final int characterId;
   final Map<String, int> scoreMap;
-  const _AbilityScoreGrid({required this.scoreMap});
+  const _AbilityScoreGrid({required this.characterId, required this.scoreMap});
 
   @override
   Widget build(BuildContext context) {
@@ -280,26 +303,62 @@ class _AbilityScoreGrid extends StatelessWidget {
         return Container(
           margin: const EdgeInsets.all(4),
           decoration: AppTheme.neonBorderDecoration(accentColor: AppTheme.neonCyan, borderRadius: 12),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Stack(
             children: [
-              Text(_abilityAbbr[key]!,
-                  style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.neonCyan,
-                      letterSpacing: 0.5)),
-              const SizedBox(height: 2),
-              Text('$score',
-                  style: const TextStyle(
-                      fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
-              const SizedBox(height: 2),
-              Text(
-                modStr,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white.withValues(alpha: 0.6),
+              Align(
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(_abilityAbbr[key]!,
+                        style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.neonCyan,
+                            letterSpacing: 0.5)),
+                    const SizedBox(height: 2),
+                    Text('$score',
+                        style: const TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                    const SizedBox(height: 2),
+                    Text(
+                      modStr,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                top: 2,
+                right: 2,
+                child: IconButton(
+                  icon: const Icon(Icons.casino, size: 14, color: AppTheme.neonCyan),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  splashRadius: 16,
+                  onPressed: () {
+                    final l10n = AppLocalizations.of(context)!;
+                    final abilityLabel = {
+                      'str': l10n.abilityStr,
+                      'dex': l10n.abilityDex,
+                      'con': l10n.abilityCon,
+                      'int': l10n.abilityInt,
+                      'wis': l10n.abilityWis,
+                      'cha': l10n.abilityCha,
+                    }[key]!;
+                    RollResultDialog.show(
+                      context,
+                      characterId: characterId,
+                      rollType: RollType.ability,
+                      rollKey: key,
+                      title: l10n.rollAbilityCheck(abilityLabel),
+                      bonus: mod,
+                    );
+                  },
                 ),
               ),
             ],
@@ -316,6 +375,7 @@ class _ProficiencyRow extends StatelessWidget {
   final int bonus;
   final bool proficient;
   final bool expertise;
+  final VoidCallback? onRollPressed;
 
   const _ProficiencyRow({
     required this.label,
@@ -323,6 +383,7 @@ class _ProficiencyRow extends StatelessWidget {
     required this.bonus,
     required this.proficient,
     required this.expertise,
+    this.onRollPressed,
   });
 
   @override
@@ -354,6 +415,16 @@ class _ProficiencyRow extends StatelessWidget {
           Text(abbr,
               style: TextStyle(
                   fontSize: 10, color: colorScheme.onSurfaceVariant)),
+          if (onRollPressed != null) ...[
+            const SizedBox(width: 8),
+            IconButton(
+              icon: const Icon(Icons.casino, size: 16, color: AppTheme.neonCyan),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              splashRadius: 16,
+              onPressed: onRollPressed,
+            ),
+          ],
         ],
       ),
     );
