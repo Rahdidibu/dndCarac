@@ -11,6 +11,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/database/tables/tables.dart';
+import '../../../core/models/character_note.dart';
 import '../../../core/providers/database_provider.dart';
 import '../../../core/utils/character_service.dart';
 import '../../../core/utils/dnd_rules.dart';
@@ -33,6 +34,7 @@ part 'sheet_tabs/tab_combat.dart';
 part 'sheet_tabs/tab_magic.dart';
 part 'sheet_tabs/tab_equipment.dart';
 part 'sheet_tabs/tab_profile.dart';
+part 'sheet_tabs/tab_journal.dart';
 
 class CharacterSheetScreen extends ConsumerWidget {
   final int characterId;
@@ -189,6 +191,7 @@ class CharacterSheetScreen extends ConsumerWidget {
                       Tab(text: l10n.sheetTabMagic),
                       Tab(text: l10n.sheetTabEquipment),
                       Tab(text: l10n.sheetTabProfile),
+                      const Tab(text: 'Journal'),
                     ],
                   ),
           ),
@@ -219,6 +222,7 @@ class CharacterSheetScreen extends ConsumerWidget {
                     _MagicTab(characterId: characterId, character: character),
                     _EquipmentTab(characterId: characterId, character: character),
                     _ProfileTab(characterId: characterId, character: character),
+                    _JournalTab(characterId: characterId),
                   ],
                 ),
           floatingActionButton: FloatingActionButton(
@@ -232,7 +236,7 @@ class CharacterSheetScreen extends ConsumerWidget {
         return isDesktop
             ? mainScaffold
             : DefaultTabController(
-                length: 5,
+                length: 6,
                 child: mainScaffold,
               );
       },
@@ -289,7 +293,7 @@ class _RightTabbedPanelState extends State<_RightTabbedPanel> with SingleTickerP
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -309,6 +313,7 @@ class _RightTabbedPanelState extends State<_RightTabbedPanel> with SingleTickerP
             Tab(text: l10n.sheetTabMagic),
             Tab(text: l10n.sheetTabEquipment),
             Tab(text: l10n.sheetTabProfile),
+            const Tab(text: 'Journal'),
           ],
         ),
         Expanded(
@@ -318,6 +323,7 @@ class _RightTabbedPanelState extends State<_RightTabbedPanel> with SingleTickerP
               _MagicTab(characterId: widget.characterId, character: widget.character),
               _EquipmentTab(characterId: widget.characterId, character: widget.character),
               _ProfileTab(characterId: widget.characterId, character: widget.character),
+              _JournalTab(characterId: widget.characterId),
             ],
           ),
         ),
@@ -325,4 +331,3 @@ class _RightTabbedPanelState extends State<_RightTabbedPanel> with SingleTickerP
     );
   }
 }
-

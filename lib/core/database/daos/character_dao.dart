@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../app_database.dart';
 import '../tables/tables.dart';
+import '../../models/character_note.dart';
 import '../../utils/supabase_mapper.dart';
 
 part 'character_dao.g.dart';
@@ -502,5 +503,55 @@ class CharacterDao extends DatabaseAccessor<AppDatabase>
         .delete()
         .eq('character_id', characterId)
         .eq('feat_id', featId);
+  }
+
+  // ── Notes & Journal ──────────────────────────────────────
+
+  Stream<List<CharacterNote>> watchCharacterNotes(int characterId) {
+    final client = Supabase.instance.client;
+    return client
+        .from('character_notes')
+        .stream(primaryKey: ['id'])
+        .eq('character_id', characterId)
+        .map((list) {
+          final notes = list
+              .map((m) => CharacterNote.fromJson(SupabaseMapper.toCamelCaseMap(m)))
+              .toList();
+          notes.sort((a, b) {
+            if (a.isPinned != b.isPinned) {
+              return a.isPinned ? -1 : 1;
+            }
+            return b.updatedAt.compareTo(a.updatedAt);
+          });
+          return notes;
+        });
+  }
+
+  Future<int> insertNote(Map<String, dynamic> map) async {
+    final client = Supabase.instance.client;
+    final response = await client
+        .from('character_notes')
+        .insert(map)
+        .select('id')
+        .single();
+    return response['id'] as int;
+  }
+
+  Future<bool> updateNote(int id, Map<String, dynamic> map) async {
+    final client = Supabase.instance.client;
+    await client
+        .from('character_notes')
+        .update(map)
+        .eq('id', id);
+    return true;
+  }
+
+  Future<int> deleteNote(int id) async {
+    final client = Supabase.instance.client;
+    await client
+        .from('character_notes')
+        .delete()
+        .eq('id', id);
+    return 1;
   }
 }
