@@ -27,26 +27,30 @@ class _EquipmentTab extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Monnaie', style: Theme.of(context).textTheme.titleMedium),
-              IconButton(
-                icon: const Icon(Icons.edit, size: 20),
-                tooltip: 'Gérer la monnaie',
+              TextButton.icon(
+                icon: const Icon(Icons.account_balance_wallet, size: 18, color: Colors.amber),
+                label: const Text('Gérer & Convertir', style: TextStyle(color: Colors.amber)),
                 onPressed: () => _showEditCurrencyDialog(context, ref, currency),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Card(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _CoinBadge(label: 'PC', value: currency['cp'] ?? 0, color: Colors.brown),
-                  _CoinBadge(label: 'PA', value: currency['sp'] ?? 0, color: Colors.grey),
-                  _CoinBadge(label: 'PE', value: currency['ep'] ?? 0, color: Colors.blueGrey),
-                  _CoinBadge(label: 'PO', value: currency['gp'] ?? 0, color: Colors.amber),
-                  _CoinBadge(label: 'PP', value: currency['pp'] ?? 0, color: Colors.white70),
-                ],
+            clipBehavior: Clip.hardEdge,
+            child: InkWell(
+              onTap: () => _showEditCurrencyDialog(context, ref, currency),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _CoinBadge(label: 'PC', value: currency['cp'] ?? 0, color: Colors.brown),
+                    _CoinBadge(label: 'PA', value: currency['sp'] ?? 0, color: Colors.grey),
+                    _CoinBadge(label: 'PE', value: currency['ep'] ?? 0, color: Colors.blueGrey),
+                    _CoinBadge(label: 'PO', value: currency['gp'] ?? 0, color: Colors.amber),
+                    _CoinBadge(label: 'PP', value: currency['pp'] ?? 0, color: Colors.white70),
+                  ],
+                ),
               ),
             ),
           ),
@@ -186,87 +190,7 @@ class _EquipmentTab extends ConsumerWidget {
   }
 
   void _showEditCurrencyDialog(BuildContext context, WidgetRef ref, Map<String, int> currentCurrency) {
-    final cpCtrl = TextEditingController(text: currentCurrency['cp']?.toString() ?? '0');
-    final spCtrl = TextEditingController(text: currentCurrency['sp']?.toString() ?? '0');
-    final epCtrl = TextEditingController(text: currentCurrency['ep']?.toString() ?? '0');
-    final gpCtrl = TextEditingController(text: currentCurrency['gp']?.toString() ?? '0');
-    final ppCtrl = TextEditingController(text: currentCurrency['pp']?.toString() ?? '0');
-
-    showDialog<void>(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          title: const Text('Gérer la monnaie'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildCoinField('Pièces de Cuivre (PC)', cpCtrl, Colors.brown),
-                const SizedBox(height: 8),
-                _buildCoinField('Pièces d\'Argent (PA)', spCtrl, Colors.grey),
-                const SizedBox(height: 8),
-                _buildCoinField('Pièces d\'Électrum (PE)', epCtrl, Colors.blueGrey),
-                const SizedBox(height: 8),
-                _buildCoinField('Pièces d\'Or (PO)', gpCtrl, Colors.amber),
-                const SizedBox(height: 8),
-                _buildCoinField('Pièces de Platine (PP)', ppCtrl, Colors.white70),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Annuler'),
-            ),
-            FilledButton(
-              onPressed: () async {
-                final cp = int.tryParse(cpCtrl.text) ?? 0;
-                final sp = int.tryParse(spCtrl.text) ?? 0;
-                final ep = int.tryParse(epCtrl.text) ?? 0;
-                final gp = int.tryParse(gpCtrl.text) ?? 0;
-                final pp = int.tryParse(ppCtrl.text) ?? 0;
-
-                final newMap = {
-                  'cp': cp,
-                  'sp': sp,
-                  'ep': ep,
-                  'gp': gp,
-                  'pp': pp,
-                };
-
-                final db = ref.read(databaseProvider);
-                await db.characterDao.updateCharacter(
-                  CharactersCompanion(
-                    id: Value(characterId),
-                    currency: Value(jsonEncode(newMap)),
-                  ),
-                );
-
-                ref.invalidate(characterByIdProvider(characterId));
-                if (ctx.mounted) Navigator.of(ctx).pop();
-              },
-              child: const Text('Enregistrer'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildCoinField(String label, TextEditingController ctrl, Color color) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: TextField(
-        controller: ctrl,
-        keyboardType: TextInputType.number,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(Icons.monetization_on, color: color),
-          border: const OutlineInputBorder(),
-          isDense: true,
-        ),
-      ),
-    );
+    CurrencyManagerDialog.show(context, ref, characterId, currentCurrency);
   }
 }
 
