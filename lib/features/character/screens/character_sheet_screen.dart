@@ -28,6 +28,7 @@ import '../../../core/widgets/short_rest_dialog.dart';
 import '../../../core/widgets/conditions_dialog.dart';
 import '../../../core/widgets/roll_result_dialog.dart';
 import '../../../core/widgets/universal_dice_roller.dart';
+import '../../../core/widgets/image_cropper_dialog.dart';
 import 'sheet_tabs/tab_companions.dart';
 
 part 'sheet_tabs/tab_stats.dart';

@@ -89,11 +89,16 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
       final picker = ImagePicker();
       final XFile? image = await picker.pickImage(
         source: ImageSource.gallery,
-        maxWidth: 512,
-        maxHeight: 512,
-        imageQuality: 85,
+        maxWidth: 2048,
+        maxHeight: 2048,
       );
       if (image == null) return;
+
+      final rawBytes = await image.readAsBytes();
+      if (!mounted) return;
+
+      final croppedBytes = await ImageCropperDialog.show(context, rawBytes);
+      if (croppedBytes == null) return;
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -104,16 +109,14 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
       final userId = client.auth.currentUser?.id;
       if (userId == null) throw Exception('Utilisateur non connecté');
 
-      final bytes = await image.readAsBytes();
-      final extension = image.name.split('.').last;
-      final fileName = '$userId/${widget.characterId}_${DateTime.now().millisecondsSinceEpoch}.$extension';
+      final fileName = '$userId/${widget.characterId}_${DateTime.now().millisecondsSinceEpoch}.png';
 
       // Upload to Supabase Storage
       await client.storage.from('character-avatars').uploadBinary(
         fileName,
-        bytes,
-        fileOptions: FileOptions(
-          contentType: 'image/$extension',
+        croppedBytes,
+        fileOptions: const FileOptions(
+          contentType: 'image/png',
           upsert: true,
         ),
       );
