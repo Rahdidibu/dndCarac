@@ -209,6 +209,54 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
     );
   }
 
+  void _emptyPurse() {
+    showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.grey.shade900,
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.orangeAccent),
+            SizedBox(width: 10),
+            Text('Vider la bourse ?', style: TextStyle(color: Colors.white)),
+          ],
+        ),
+        content: const Text(
+          'Voulez-vous vraiment réinitialiser toutes les pièces de la bourse à 0 ?',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Annuler'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Vider'),
+          ),
+        ],
+      ),
+    ).then((confirmed) {
+      if (confirmed == true) {
+        setState(() {
+          _cp = 0;
+          _sp = 0;
+          _ep = 0;
+          _gp = 0;
+          _pp = 0;
+          _updateControllers();
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('🗑️ Bourse vidée (toutes les pièces remises à 0).'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    });
+  }
+
   Future<void> _save(WidgetRef ref) async {
     _updateFromControllers();
 
@@ -267,6 +315,11 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
                         ),
                       ),
                       const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                        tooltip: 'Vider la bourse',
+                        onPressed: _emptyPurse,
+                      ),
                       IconButton(
                         icon: const Icon(Icons.close, color: Colors.white70),
                         onPressed: () => Navigator.of(context).pop(),
