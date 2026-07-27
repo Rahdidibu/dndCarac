@@ -898,12 +898,19 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
 
               // Add virtual attacks for equipped inventory weapons that are not
               // already represented in combinedAttacks.
+              final profBonus = DndRules.proficiencyBonus(widget.totalLevel);
               for (final item in equipment) {
                 if (!item.equipped) continue;
-                final weapon = StartingEquipmentHelper.getWeaponStats(item.itemName);
+                var weapon = StartingEquipmentHelper.getWeaponStats(item.itemName);
+                final itemLower = item.itemName.toLowerCase();
+
+                // If weapon is null but item name sounds like a weapon, fallback to 1d6
+                if (weapon == null && (itemLower.contains('hache') || itemLower.contains('épée') || itemLower.contains('dague') || itemLower.contains('arc') || itemLower.contains('arbalète') || itemLower.contains('masse') || itemLower.contains('marteau') || itemLower.contains('lance') || itemLower.contains('arme') || itemLower.contains('baton') || itemLower.contains('bâton') || itemLower.contains('rapière') || itemLower.contains('cimeterre') || itemLower.contains('fouet') || itemLower.contains('fronde'))) {
+                  weapon = StartingWeaponStats(name: item.itemName, baseDice: '1d6', damageType: 'Tranchant', scalingAbility: 'str');
+                }
+
                 if (weapon != null) {
                   final nameLower = weapon.name.toLowerCase();
-                  final itemLower = item.itemName.toLowerCase();
                   final alreadyExists = combinedAttacks.any((a) =>
                       a.name.toLowerCase() == nameLower ||
                       a.name.toLowerCase() == itemLower);
@@ -917,7 +924,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                       abilityMod = strMod > dexMod ? strMod : dexMod;
                     }
 
-                    final int totalAttackBonus = abilityMod + 2; // Level 1 is +2
+                    final int totalAttackBonus = abilityMod + profBonus;
                     final String attackBonusStr = totalAttackBonus >= 0 ? '+$totalAttackBonus' : '$totalAttackBonus';
                     final String damageDiceStr = abilityMod != 0
                         ? '${weapon.baseDice}${abilityMod > 0 ? '+$abilityMod' : '$abilityMod'}'

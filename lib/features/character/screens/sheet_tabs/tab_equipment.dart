@@ -180,6 +180,7 @@ class _EquipmentTab extends ConsumerWidget {
               ));
               await CharacterService(db).recalculateCharacterAc(characterId);
               ref.invalidate(characterByIdProvider(characterId));
+              ref.invalidate(characterEquipmentProvider(characterId));
               if (ctx.mounted) Navigator.of(ctx).pop();
             },
             child: const Text('Ajouter'),
@@ -339,6 +340,7 @@ class _EquipmentTile extends ConsumerWidget {
                 await db.characterDao.deleteEquipment(item.id);
                 await CharacterService(db).recalculateCharacterAc(characterId);
                 ref.invalidate(characterByIdProvider(characterId));
+                ref.invalidate(characterEquipmentProvider(characterId));
               },
             ),
           ],
@@ -443,6 +445,7 @@ class _EquipmentTile extends ConsumerWidget {
                 await db.characterDao.deleteEquipment(item.id);
                 await CharacterService(db).recalculateCharacterAc(characterId);
                 ref.invalidate(characterByIdProvider(characterId));
+                ref.invalidate(characterEquipmentProvider(characterId));
               },
             ),
           ],
@@ -468,6 +471,7 @@ class _EquipmentTile extends ConsumerWidget {
     );
     await CharacterService(db).recalculateCharacterAc(characterId);
     ref.invalidate(characterByIdProvider(characterId));
+    ref.invalidate(characterEquipmentProvider(characterId));
   }
 
   Future<void> _toggleEquipped(WidgetRef ref) async {
@@ -486,6 +490,7 @@ class _EquipmentTile extends ConsumerWidget {
     );
     await CharacterService(db).recalculateCharacterAc(characterId);
     ref.invalidate(characterByIdProvider(characterId));
+    ref.invalidate(characterEquipmentProvider(characterId));
   }
 }
 
