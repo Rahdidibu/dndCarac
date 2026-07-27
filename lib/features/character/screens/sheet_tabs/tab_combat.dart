@@ -184,6 +184,84 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
     );
   }
 
+  Future<void> _rollCombinedAttack() async {
+    if (_activeWeapon == null) return;
+    final weaponStats = StartingEquipmentHelper.getWeaponStats(_activeWeapon!.name);
+    final requiresAmmo = weaponStats?.requiresAmmo ?? false;
+
+    if (requiresAmmo) {
+      if (_selectedAmmo == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('⚠️ Choisissez des munitions avant de tirer !'),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+      if (_selectedAmmo!.quantity <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Plus de ${_selectedAmmo!.itemName} !'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+    }
+
+    final ammoBonus = (requiresAmmo && _selectedAmmo != null)
+        ? StartingEquipmentHelper.parseAmmoBonus(_selectedAmmo!.itemName, _selectedAmmo!.notes)
+        : 0;
+
+    final bonusStr = _activeWeapon!.attackBonus;
+    final bonusNum = int.tryParse(bonusStr.replaceAll('+', '')) ?? 0;
+
+    final result = await CombatAttackDialog.show(
+      context,
+      weaponName: _activeWeapon!.name,
+      attackBonus: bonusNum,
+      damageDice: _activeWeapon!.damageDice,
+      damageType: _activeWeapon!.damageType,
+      rollMode: _rollMode,
+      ammoName: _selectedAmmo?.itemName ?? '',
+      ammoBonus: ammoBonus,
+    );
+
+    if (result == null) return;
+
+    // Consume 1 ammo if required
+    if (requiresAmmo && _selectedAmmo != null && _selectedAmmo!.quantity > 0) {
+      final db = ref.read(databaseProvider);
+      final newQty = _selectedAmmo!.quantity - 1;
+      await db.characterDao.updateEquipment(
+        CharacterEquipmentCompanion(
+          id: Value(_selectedAmmo!.id),
+          characterId: Value(widget.characterId),
+          itemName: Value(_selectedAmmo!.itemName),
+          quantity: Value(newQty),
+          weight: Value(_selectedAmmo!.weight),
+          equipped: Value(_selectedAmmo!.equipped),
+          attuned: Value(_selectedAmmo!.attuned),
+          notes: Value(_selectedAmmo!.notes),
+        ),
+      );
+    }
+
+    final icon = result.isCrit ? '🎯' : result.isFumble ? '💀' : '⚔️';
+    final critSuffix = result.isCrit ? ' [CRITIQUE!]' : result.isFumble ? ' [FUMBLE!]' : '';
+    final dmgText = result.isFumble ? 'Raté' : '${result.totalDamage} dégâts (${result.damageType})';
+
+    setState(() {
+      _combatLog.insert(
+        0,
+        '$icon [${result.weaponName}] Touche: ${result.totalAttack}$critSuffix -> $dmgText',
+      );
+    });
+  }
+
   void _rollAttack() {
     if (_activeWeapon == null) return;
     final weaponStats = StartingEquipmentHelper.getWeaponStats(_activeWeapon!.name);
@@ -904,6 +982,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                         activeWeapon: _activeWeapon!,
                         rollMode: _rollMode,
                         onRollModeChanged: (m) => setState(() => _rollMode = m),
+                        onRollCombined: _rollCombinedAttack,
                         onRollAttack: _rollAttack,
                         onRollDamage: () => _rollDamage(crit: false),
                         onRollCrit: () => _rollDamage(crit: true),
@@ -1203,6 +1282,7 @@ class _QuickCombatPanel extends StatelessWidget {
   final CharacterAttack activeWeapon;
   final int rollMode;
   final ValueChanged<int> onRollModeChanged;
+  final VoidCallback onRollCombined;
   final VoidCallback onRollAttack;
   final VoidCallback onRollDamage;
   final VoidCallback onRollCrit;
@@ -1211,6 +1291,7 @@ class _QuickCombatPanel extends StatelessWidget {
     required this.activeWeapon,
     required this.rollMode,
     required this.onRollModeChanged,
+    required this.onRollCombined,
     required this.onRollAttack,
     required this.onRollDamage,
     required this.onRollCrit,
@@ -1230,8 +1311,36 @@ class _QuickCombatPanel extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Combat rapide — ${activeWeapon.name}',
-                style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary, fontSize: 13)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Combat rapide — ${activeWeapon.name}',
+                    style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary, fontSize: 13)),
+                Text(
+                  'Touche: ${activeWeapon.attackBonus} | Dégâts: ${activeWeapon.damageDice}',
+                  style: const TextStyle(fontSize: 11, color: Colors.white70),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            // 1-Click Combined Attack Button
+            SizedBox(
+              width: double.infinity,
+              height: 40,
+              child: FilledButton.icon(
+                onPressed: onRollCombined,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppTheme.neonCyan,
+                  foregroundColor: Colors.black,
+                  elevation: 3,
+                ),
+                icon: const Icon(Icons.bolt, size: 20),
+                label: const Text(
+                  '⚡ Attaquer & Dégâts (1-Clic)',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+              ),
+            ),
             const SizedBox(height: 10),
             // Roll mode selector
             Row(
@@ -1255,16 +1364,16 @@ class _QuickCombatPanel extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            // Action buttons
+            // Separate action buttons
             Row(
               children: [
                 Expanded(
                   flex: 2,
-                  child: FilledButton.icon(
+                  child: OutlinedButton.icon(
                     onPressed: onRollAttack,
                     icon: const Text('🎲', style: TextStyle(fontSize: 14)),
-                    label: const Text('Attaque (d20)', style: TextStyle(fontSize: 11)),
-                    style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 8)),
+                    label: const Text('Touche seule', style: TextStyle(fontSize: 10)),
+                    style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 8)),
                   ),
                 ),
                 const SizedBox(width: 6),

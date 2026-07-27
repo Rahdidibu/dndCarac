@@ -7,6 +7,7 @@ import '../../../../core/models/character_companion.dart';
 import '../../../../core/providers/database_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/roll_result_dialog.dart';
+import '../../../../core/widgets/combat_attack_dialog.dart';
 import '../../providers/character_providers.dart';
 
 class TabCompanions extends ConsumerWidget {
@@ -122,8 +123,23 @@ class TabCompanions extends ConsumerWidget {
               ),
               ActionChip(
                 avatar: const Text('🐎'),
-                label: const Text('Cheval de selle (Monture)'),
+                label: const Text('Cheval (Monture)'),
                 onPressed: () => _createPresetCompanion(context, ref, 'horse'),
+              ),
+              ActionChip(
+                avatar: const Text('👿'),
+                label: const Text('Diablotin (Invoc.)'),
+                onPressed: () => _createPresetCompanion(context, ref, 'imp'),
+              ),
+              ActionChip(
+                avatar: const Text('👻'),
+                label: const Text('Serviteur Invisible'),
+                onPressed: () => _createPresetCompanion(context, ref, 'unseen_servant'),
+              ),
+              ActionChip(
+                avatar: const Text('🔥'),
+                label: const Text('Élémentaire de Feu'),
+                onPressed: () => _createPresetCompanion(context, ref, 'elemental'),
               ),
             ],
           ),
@@ -180,6 +196,49 @@ class TabCompanions extends ConsumerWidget {
             {'name': 'Sabots', 'bonus': 5, 'damage': '2d4+3', 'notes': 'Attaque de monture'}
           ]),
           'notes': 'Monture rapide capable de porter jusqu\'à 240 kg.',
+        };
+        break;
+      case 'imp':
+        data = {
+          'character_id': characterId,
+          'name': 'Diablotin arcanique',
+          'type': 'Familier',
+          'hp_current': 10,
+          'hp_max': 10,
+          'armor_class': 13,
+          'speed': '6 m, vol 12 m',
+          'attacks': jsonEncode([
+            {'name': 'Piqûre de venin', 'bonus': 5, 'damage': '1d4+3', 'notes': '+3d6 dégâts de venin (JS CON DD 11)'}
+          ]),
+          'notes': 'Invisibilité à volonté. Métamorphose (rat, corbeau, araignée). Vision dans le noir diabolique (18m).',
+        };
+        break;
+      case 'unseen_servant':
+        data = {
+          'character_id': characterId,
+          'name': 'Serviteur Invisible',
+          'type': 'Invocation',
+          'hp_current': 1,
+          'hp_max': 1,
+          'armor_class': 10,
+          'speed': '4,5 m',
+          'attacks': jsonEncode([]),
+          'notes': 'Force 2. Peut effectuer des tâches simples : verser du vin, ramasser des objets, réparer des vêtements, ouvrir une porte.',
+        };
+        break;
+      case 'elemental':
+        data = {
+          'character_id': characterId,
+          'name': 'Élémentaire de Feu',
+          'type': 'Invocation',
+          'hp_current': 102,
+          'hp_max': 102,
+          'armor_class': 14,
+          'speed': '15 m',
+          'attacks': jsonEncode([
+            {'name': 'Toucher enflammé', 'bonus': 6, 'damage': '2d6+3', 'notes': '+1d10 dégâts de feu par tour jusqu\'à extinction'}
+          ]),
+          'notes': 'Forme de feu : peut s\'infiltrer dans des ouvertures de 2,5 cm. Immunité au feu et aux états à terre/paralysé.',
         };
         break;
       default:
@@ -406,20 +465,20 @@ class _CompanionCardState extends ConsumerState<_CompanionCard> {
                         ),
                       ),
                       FilledButton.icon(
-                        icon: const Icon(Icons.casino, size: 14),
-                        label: const Text('Touché', style: TextStyle(fontSize: 11)),
+                        icon: const Icon(Icons.bolt, size: 14),
+                        label: const Text('Attaquer (1-Clic)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                         style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          backgroundColor: AppTheme.neonCyan.withValues(alpha: 0.2),
-                          foregroundColor: AppTheme.neonCyan,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          backgroundColor: AppTheme.neonCyan,
+                          foregroundColor: Colors.black,
                         ),
                         onPressed: () {
-                          RollResultDialog.show(
+                          CombatAttackDialog.show(
                             context,
-                            characterId: widget.characterId,
-                            rollType: RollType.attack,
-                            title: '${c.name} : $name',
-                            bonus: bonus,
+                            weaponName: '${c.name} : $name',
+                            attackBonus: bonus,
+                            damageDice: damage,
+                            damageType: 'Compagnon',
                           );
                         },
                       ),
