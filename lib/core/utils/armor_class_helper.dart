@@ -26,7 +26,7 @@ class ArmorClassBreakdown {
 }
 
 class ArmorClassHelper {
-  /// Calcule la classe d'armure dynamique selon les équipements portés et les modificateurs de caractéristiques.
+  /// Calcule la classe d'armure dynamique selon les équipements portés, les caractéristiques et les sorts actifs.
   static ArmorClassBreakdown calculateAc({
     required List<CharacterEquipmentData> equippedItems,
     required int dexMod,
@@ -34,6 +34,11 @@ class ArmorClassHelper {
     int wisMod = 0,
     String? className,
     bool hasDefenseStyle = false,
+    bool hasShieldSpell = false, // +5 CA
+    bool hasShieldOfFaith = false, // +2 CA
+    bool hasMageArmor = false, // Base 13 + DEX
+    bool hasBarkskin = false, // Min 16
+    bool hasHaste = false, // +2 CA
   }) {
     int baseAc = 10;
     int armorBase = 0;
@@ -110,33 +115,53 @@ class ArmorClassHelper {
       if (notesLower.contains('+3')) customBonus += 3;
     }
 
-    // Unarmored Defense (Barbare / Moine)
+    // Unarmored / Mage Armor / Barkskin
     if (armorCategory == 'none') {
-      final clsLower = (className ?? '').toLowerCase();
-      if (clsLower.contains('barbare') || clsLower.contains('barbarian')) {
-        baseAc = 10 + conMod;
-        armorName = 'Défense sans armure (Barbare)';
-      } else if (clsLower.contains('moine') || clsLower.contains('monk')) {
-        baseAc = 10 + wisMod;
-        armorName = 'Défense sans armure (Moine)';
+      if (hasMageArmor) {
+        baseAc = 13;
+        armorName = 'Armure de Mage (Sort)';
       } else {
-        baseAc = 10;
+        final clsLower = (className ?? '').toLowerCase();
+        if (clsLower.contains('barbare') || clsLower.contains('barbarian')) {
+          baseAc = 10 + conMod;
+          armorName = 'Défense sans armure (Barbare)';
+        } else if (clsLower.contains('moine') || clsLower.contains('monk')) {
+          baseAc = 10 + wisMod;
+          armorName = 'Défense sans armure (Moine)';
+        } else {
+          baseAc = 10;
+        }
       }
     } else {
       baseAc = armorBase;
     }
+
+    // Spell bonuses
+    if (hasShieldSpell) customBonus += 5;
+    if (hasShieldOfFaith) customBonus += 2;
+    if (hasHaste) customBonus += 2;
 
     // Style de combat Défense (+1 CA si armure portée)
     if (hasDefenseStyle && armorCategory != 'none') {
       customBonus += 1;
     }
 
-    final totalAc = baseAc + dexBonus + shieldBonus + customBonus;
+    int totalAc = baseAc + dexBonus + shieldBonus + customBonus;
 
-    String desc = '$baseAc (Base)';
-    if (dexBonus != 0) desc += ' ${dexBonus >= 0 ? "+$dexBonus" : "$dexBonus"} (DEX)';
-    if (shieldBonus != 0) desc += ' +$shieldBonus (Bouclier)';
-    if (customBonus != 0) desc += ' ${customBonus >= 0 ? "+$customBonus" : "$customBonus"} (Bonus)';
+    // Barkskin (minimum 16 CA)
+    if (hasBarkskin && totalAc < 16) {
+      totalAc = 16;
+    }
+
+    List<String> parts = ['$baseAc ($armorName)'];
+    if (dexBonus != 0) parts.add('${dexBonus >= 0 ? "+$dexBonus" : "$dexBonus"} DEX');
+    if (shieldBonus != 0) parts.add('+$shieldBonus Bouclier');
+    if (hasShieldSpell) parts.add('+5 Sort Bouclier');
+    if (hasShieldOfFaith) parts.add('+2 Bouclier de la foi');
+    if (hasHaste) parts.add('+2 Hâte');
+    if (hasDefenseStyle && armorCategory != 'none') parts.add('+1 Style Défense');
+
+    final desc = parts.join(' ');
 
     return ArmorClassBreakdown(
       totalAc: totalAc,

@@ -25,7 +25,82 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
   final List<String> _combatLog = [];
   int _rollMode = 0; // -1 = disadvantage, 0 = normal, 1 = advantage
 
+  // Active AC spell buffs (session state)
+  bool _hasShieldSpell = false;
+  bool _hasShieldOfFaith = false;
+  bool _hasMageArmor = false;
+  bool _hasHaste = false;
+
   final _random = Random();
+
+  void _showAcDetailsDialog(BuildContext context, ArmorClassBreakdown ac) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.grey.shade900,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.shield, color: AppTheme.neonCyan),
+            SizedBox(width: 10),
+            Text('Détail de la Classe d\'Armure', style: TextStyle(color: Colors.white, fontSize: 16)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Column(
+                children: [
+                  Text(
+                    '${ac.totalAc} CA',
+                    style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: AppTheme.neonCyan),
+                  ),
+                  const Text('Classe d\'Armure Totale', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text('• Armure : ${ac.armorName} (${ac.baseAc} CA)', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            if (ac.dexBonus != 0)
+              Text('• Modificateur Dextérité : ${ac.dexBonus >= 0 ? "+${ac.dexBonus}" : "${ac.dexBonus}"}', style: const TextStyle(color: Colors.white70)),
+            if (ac.shieldBonus != 0)
+              Text('• Bouclier (${ac.shieldName}) : +${ac.shieldBonus} CA', style: const TextStyle(color: Colors.white70)),
+            if (ac.customBonus != 0)
+              Text('• Bonus Magiques / Sorts : ${ac.customBonus >= 0 ? "+${ac.customBonus}" : "${ac.customBonus}"} CA', style: const TextStyle(color: Colors.amber)),
+            const SizedBox(height: 14),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.black45,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppTheme.neonCyan.withValues(alpha: 0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Détail du calcul :', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white70)),
+                  const SizedBox(height: 4),
+                  Text(
+                    ac.formulaDescription,
+                    style: const TextStyle(fontSize: 12, color: AppTheme.neonCyan, fontFamily: 'monospace'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Fermer'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -404,6 +479,26 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
+    final classesAsync = ref.watch(characterClassesProvider(widget.characterId));
+    final mainClassId = classesAsync.value?.isNotEmpty == true ? classesAsync.value!.first.classId : '';
+    final scores = ref.watch(characterAbilityScoresProvider(widget.characterId)).value;
+    final dexMod = DndRules.modifier(scores?.dexterity ?? 10);
+    final conMod = DndRules.modifier(scores?.constitution ?? 10);
+    final wisMod = DndRules.modifier(scores?.wisdom ?? 10);
+    final equippedItems = equipmentAsync.value?.where((e) => e.equipped).toList() ?? [];
+
+    final acBreakdown = ArmorClassHelper.calculateAc(
+      equippedItems: equippedItems,
+      dexMod: dexMod,
+      conMod: conMod,
+      wisMod: wisMod,
+      className: mainClassId,
+      hasShieldSpell: _hasShieldSpell,
+      hasShieldOfFaith: _hasShieldOfFaith,
+      hasMageArmor: _hasMageArmor,
+      hasHaste: _hasHaste,
+    );
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -427,146 +522,33 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
           ),
           const SizedBox(height: 16),
 
-          // ── Repos ────────────────────────────────────────────────────────
-          _SectionTitle(l10n.restSectionTitle),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.self_improvement, size: 20),
-                  label: Text(l10n.restShortRest),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.neonPurple.withValues(alpha: 0.12),
-                    foregroundColor: AppTheme.neonPurple,
-                    side: BorderSide(color: AppTheme.neonPurple.withValues(alpha: 0.3)),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  onPressed: () => _confirmShortRest(context),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.bedtime, size: 20),
-                  label: Text(l10n.restLongRest),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.neonCyan.withValues(alpha: 0.12),
-                    foregroundColor: AppTheme.neonCyan,
-                    side: BorderSide(color: AppTheme.neonCyan.withValues(alpha: 0.3)),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  onPressed: () => _confirmLongRest(context),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // ── États & Conditions ───────────────────────────────────────────
+          // ── Combat stats ─────────────────────────────────────────────────
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _SectionTitle(l10n.conditionsSectionTitle),
-              IconButton(
-                icon: const Icon(Icons.edit, size: 20, color: AppTheme.neonCyan),
-                onPressed: () {
-                  ConditionsDialog.show(
-                    context,
-                    characterId: widget.characterId,
-                  );
-                },
+              _SectionTitle('Combat'),
+              TextButton.icon(
+                icon: const Icon(Icons.info_outline, size: 16, color: AppTheme.neonCyan),
+                label: Text('${acBreakdown.totalAc} CA', style: const TextStyle(color: AppTheme.neonCyan, fontWeight: FontWeight.bold)),
+                onPressed: () => _showAcDetailsDialog(context, acBreakdown),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          resourcesAsync.when(
-            loading: () => const SizedBox.shrink(),
-            error: (_, __) => const SizedBox.shrink(),
-            data: (resources) {
-              final activeConditions = resources
-                  .where((r) => r.resourceName.startsWith('condition_') && r.current > 0)
-                  .toList();
-
-              final hasExhaustion = char.exhaustionLevel > 0;
-
-              if (activeConditions.isEmpty && !hasExhaustion) {
-                return Text(
-                  l10n.conditionsNoneActive,
-                  style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13, fontStyle: FontStyle.italic),
-                );
-              }
-
-              return Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  if (hasExhaustion)
-                    ActionChip(
-                      label: Text('${l10n.conditionExhaustion} (Niv. ${char.exhaustionLevel})'),
-                      backgroundColor: AppTheme.neonRed.withValues(alpha: 0.12),
-                      side: BorderSide(color: AppTheme.neonRed.withValues(alpha: 0.3)),
-                      labelStyle: const TextStyle(color: AppTheme.neonRed, fontWeight: FontWeight.bold, fontSize: 12),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (ctx) => AlertDialog(
-                            title: Text(l10n.conditionExhaustion),
-                            content: Text(l10n.conditionExhaustionDesc),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(ctx).pop(),
-                                child: const Text('OK'),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ...activeConditions.map((r) {
-                    final key = r.resourceName.replaceFirst('condition_', '');
-                    final condName = ConditionsDialog.resolveConditionName(context, key);
-                    final condDesc = ConditionsDialog.resolveConditionDesc(context, key);
-
-                    return ActionChip(
-                      label: Text(condName),
-                      backgroundColor: Colors.amber.withValues(alpha: 0.12),
-                      side: BorderSide(color: Colors.amber.withValues(alpha: 0.3)),
-                      labelStyle: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 12),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (ctx) => AlertDialog(
-                            title: Text(condName),
-                            content: Text(condDesc),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(ctx).pop(),
-                                child: const Text('OK'),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  }),
-                ],
-              );
-            },
-          ),
-          const SizedBox(height: 16),
-
-          // ── Combat stats ─────────────────────────────────────────────────
-          _SectionTitle('Combat'),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              HexagonStatBadge(
-                label: 'CA',
-                value: '${char.armorClass}',
-                icon: Icons.shield_outlined,
-                glowColor: AppTheme.neonCyan,
+              InkWell(
+                onTap: () => _showAcDetailsDialog(context, acBreakdown),
+                borderRadius: BorderRadius.circular(16),
+                child: HexagonStatBadge(
+                  label: 'CA',
+                  value: '${acBreakdown.totalAc}',
+                  icon: Icons.shield,
+                  glowColor: (_hasShieldSpell || _hasShieldOfFaith || _hasMageArmor || _hasHaste || acBreakdown.customBonus > 0)
+                      ? Colors.amber
+                      : AppTheme.neonCyan,
+                ),
               ),
               HexagonStatBadge(
                 label: 'Vitesse',
@@ -581,6 +563,64 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                 glowColor: AppTheme.neonRed,
               ),
             ],
+          ),
+          const SizedBox(height: 10),
+          // Sorts & Modificateurs temporaires de CA
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.black26,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white10),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.auto_awesome, size: 14, color: Colors.amber),
+                    SizedBox(width: 6),
+                    Text('Sorts & Modificateurs de CA temporaires :', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white70)),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  children: [
+                    FilterChip(
+                      avatar: const Text('🛡️', style: TextStyle(fontSize: 12)),
+                      label: const Text('Bouclier (+5)', style: TextStyle(fontSize: 11)),
+                      selected: _hasShieldSpell,
+                      selectedColor: Colors.amber.withValues(alpha: 0.3),
+                      onSelected: (v) => setState(() => _hasShieldSpell = v),
+                    ),
+                    FilterChip(
+                      avatar: const Text('✨', style: TextStyle(fontSize: 12)),
+                      label: const Text('Bouclier Foi (+2)', style: TextStyle(fontSize: 11)),
+                      selected: _hasShieldOfFaith,
+                      selectedColor: Colors.amber.withValues(alpha: 0.3),
+                      onSelected: (v) => setState(() => _hasShieldOfFaith = v),
+                    ),
+                    FilterChip(
+                      avatar: const Text('🔮', style: TextStyle(fontSize: 12)),
+                      label: const Text('Armure Mage (13)', style: TextStyle(fontSize: 11)),
+                      selected: _hasMageArmor,
+                      selectedColor: Colors.cyan.withValues(alpha: 0.3),
+                      onSelected: (v) => setState(() => _hasMageArmor = v),
+                    ),
+                    FilterChip(
+                      avatar: const Text('⚡', style: TextStyle(fontSize: 12)),
+                      label: const Text('Hâte (+2)', style: TextStyle(fontSize: 11)),
+                      selected: _hasHaste,
+                      selectedColor: Colors.amber.withValues(alpha: 0.3),
+                      onSelected: (v) => setState(() => _hasHaste = v),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 12),
           // Inspiration
