@@ -303,6 +303,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
       rollMode: _rollMode,
       ammoName: _selectedAmmo?.itemName ?? '',
       ammoBonus: ammoBonus,
+      notes: _activeWeapon!.notes,
     );
 
     if (result == null) return;

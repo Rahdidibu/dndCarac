@@ -44,6 +44,7 @@ class CombatAttackDialog extends StatefulWidget {
   final int rollMode; // -1, 0, 1
   final String ammoName;
   final int ammoBonus;
+  final String notes;
 
   const CombatAttackDialog({
     super.key,
@@ -54,6 +55,7 @@ class CombatAttackDialog extends StatefulWidget {
     this.rollMode = 0,
     this.ammoName = '',
     this.ammoBonus = 0,
+    this.notes = '',
   });
 
   static Future<CombinedAttackResult?> show(
@@ -65,6 +67,7 @@ class CombatAttackDialog extends StatefulWidget {
     int rollMode = 0,
     String ammoName = '',
     int ammoBonus = 0,
+    String notes = '',
   }) {
     return showDialog<CombinedAttackResult>(
       context: context,
@@ -76,6 +79,7 @@ class CombatAttackDialog extends StatefulWidget {
         rollMode: rollMode,
         ammoName: ammoName,
         ammoBonus: ammoBonus,
+        notes: notes,
       ),
     );
   }
@@ -88,6 +92,11 @@ class _CombatAttackDialogState extends State<CombatAttackDialog> with SingleTick
   late AnimationController _animController;
   final math.Random _random = math.Random();
 
+  // Weapon trait toggles
+  late int _critThreshold;
+  late bool _rerollOnesAndTwos;
+  late bool _isVicious;
+
   late int _d20Roll1;
   int? _d20Roll2;
   late int _chosenD20;
@@ -97,6 +106,7 @@ class _CombatAttackDialogState extends State<CombatAttackDialog> with SingleTick
   late int _totalAttack;
 
   late List<int> _damageRolls;
+  late List<String> _damageRollStrings;
   late int _damageBonus;
   late int _totalDamage;
   late String _effectiveDamageExpr;
@@ -110,6 +120,12 @@ class _CombatAttackDialogState extends State<CombatAttackDialog> with SingleTick
       vsync: this,
       duration: const Duration(milliseconds: 700),
     );
+
+    // Auto-detect traits from weapon notes and name
+    final combinedNotes = '${widget.weaponName} ${widget.notes}'.toLowerCase();
+    _critThreshold = (combinedNotes.contains('19-20') || combinedNotes.contains('19') || combinedNotes.contains('critique 19')) ? 19 : 20;
+    _rerollOnesAndTwos = combinedNotes.contains('relance') || combinedNotes.contains('2 mains') || combinedNotes.contains('great weapon');
+    _isVicious = combinedNotes.contains('vicieu') || combinedNotes.contains('vicious');
 
     _executeRolls();
     _animController.forward().then((_) {
@@ -137,7 +153,7 @@ class _CombatAttackDialogState extends State<CombatAttackDialog> with SingleTick
       _chosenD20 = _d20Roll1;
     }
 
-    _isCrit = _chosenD20 == 20;
+    _isCrit = _chosenD20 >= _critThreshold;
     _isFumble = _chosenD20 == 1;
 
     _totalAttackBonus = widget.attackBonus + widget.ammoBonus;
@@ -160,10 +176,28 @@ class _CombatAttackDialogState extends State<CombatAttackDialog> with SingleTick
     // Double dice on crit
     if (_isCrit) {
       numDice *= 2;
+      if (_isVicious) {
+        _damageBonus += 7; // Arme Vicieuse: +7 dégâts sur crit
+      }
     }
 
     _effectiveDamageExpr = '${numDice}d$dieSides${_damageBonus != 0 ? (_damageBonus > 0 ? "+$_damageBonus" : "$_damageBonus") : ""}';
-    _damageRolls = List.generate(numDice, (_) => _random.nextInt(dieSides) + 1);
+
+    _damageRolls = [];
+    _damageRollStrings = [];
+
+    for (int i = 0; i < numDice; i++) {
+      int r = _random.nextInt(dieSides) + 1;
+      if (_rerollOnesAndTwos && (r == 1 || r == 2)) {
+        int r2 = _random.nextInt(dieSides) + 1;
+        _damageRollStrings.add('$r⟳$r2');
+        r = r2;
+      } else {
+        _damageRollStrings.add('$r');
+      }
+      _damageRolls.add(r);
+    }
+
     final diceTotal = _damageRolls.fold(0, (sum, r) => sum + r);
     _totalDamage = math.max(0, diceTotal + _damageBonus);
   }
@@ -316,14 +350,81 @@ class _CombatAttackDialogState extends State<CombatAttackDialog> with SingleTick
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Formule : $_effectiveDamageExpr [${_damageRolls.join("+")}]${_damageBonus != 0 ? (_damageBonus > 0 ? "+$_damageBonus" : "$_damageBonus") : ""}',
+                        'Formule : $_effectiveDamageExpr [${_damageRollStrings.join("+")}]${_damageBonus != 0 ? (_damageBonus > 0 ? "+$_damageBonus" : "$_damageBonus") : ""}',
                         style: const TextStyle(fontSize: 11, color: Colors.white60),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
               ],
+
+              // Traits d'armes & options de jet
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.black38,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white10),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Traits d\'arme & Modificateurs de jet :',
+                      style: TextStyle(fontSize: 11, color: Colors.white60, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: [
+                        FilterChip(
+                          avatar: const Text('🎯', style: TextStyle(fontSize: 12)),
+                          label: Text(
+                            _critThreshold == 19 ? 'Critique 19-20' : 'Critique 20',
+                            style: const TextStyle(fontSize: 11),
+                          ),
+                          selected: _critThreshold == 19,
+                          selectedColor: Colors.amber.withValues(alpha: 0.3),
+                          onSelected: (v) {
+                            setState(() {
+                              _critThreshold = v ? 19 : 20;
+                              _reroll();
+                            });
+                          },
+                        ),
+                        FilterChip(
+                          avatar: const Text('🔄', style: TextStyle(fontSize: 12)),
+                          label: const Text('Relancer 1 & 2', style: TextStyle(fontSize: 11)),
+                          selected: _rerollOnesAndTwos,
+                          selectedColor: Colors.cyan.withValues(alpha: 0.3),
+                          onSelected: (v) {
+                            setState(() {
+                              _rerollOnesAndTwos = v;
+                              _reroll();
+                            });
+                          },
+                        ),
+                        FilterChip(
+                          avatar: const Text('🗡️', style: TextStyle(fontSize: 12)),
+                          label: const Text('Vicieuse (+7 crit)', style: TextStyle(fontSize: 11)),
+                          selected: _isVicious,
+                          selectedColor: Colors.red.withValues(alpha: 0.3),
+                          onSelected: (v) {
+                            setState(() {
+                              _isVicious = v;
+                              _reroll();
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
 
               // Actions
               SizedBox(
