@@ -1,144 +1,106 @@
-# Le codex de l'aventurier
+# Le Codex de l'Aventurier 🎲✨
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Flutter](https://img.shields.io/badge/Flutter-3.8%2B-blue)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2)](https://dart.dev)
+[![Version](https://img.shields.io/badge/Version-v2.1.0-neonCyan)](https://github.com/Rahdidibu/dndCarac/releases)
 
 ![Le codex de l'aventurier banner](assets/readme_banner.svg)
 
-Le codex de l'aventurier is a Flutter application designed to help players create, manage, and evolve their D&D characters from a single place. The app includes a guided character creation flow, character sheets, level-up progression, spell management, equipment tracking, and themed experiences such as Batman-inspired character flows.
+**Le Codex de l'Aventurier** est une application moderne et réactive développée avec Flutter pour créer, gérer et faire évoluer vos personnages D&D 5e (Règles 2014 & 2024). L'application prend en charge la création guidée, les fiches interactives, le calcul dynamique de Classe d'Armure (CA), le lancer de combat en 1-clic, la bourse de monnaie automatique et la gestion des familiers/invocations.
 
-## Overview
+---
 
-This project is built with Flutter and Dart, with local persistence and optional Supabase integration for authentication and cloud-backed features. It is aimed at players who want a lightweight, modern tool for tracking their characters.
+## 🌟 Fonctionnalités Principales
 
-## Features
+- 🧙‍♂️ **Assistant de Création de Personnage Guidé** : Choix des règles (2014 / 2024), de la race, de la classe, de l'historique et répartition des caractéristiques.
+- ⚔️ **Attaques Rapides & Lancer de Dégâts 1-Clic** : Jet de d20 (avec Avantage/Désavantage/Normal) + dégâts combinés avec détection des coups critiques (dés doublés) et échecs critiques.
+- 🎯 **Traits d'Armes & Modificateurs de Jet** :
+  - **Plage de critique élargie (19-20)** automatique ou manuelle.
+  - **Relance automatique des 1 et 2 aux dégâts** (*Great Weapon Fighting* / Armes à deux mains).
+  - **Armes Vicieuses** (+7 dégâts fixes en critique).
+- 🛡️ **Calculateur Dynamique de Classe d'Armure (CA)** :
+  - Ajustement automatique selon l'armure équipée, le bouclier et les bonus de Dextérité.
+  - Modificateurs de sorts en 1-clic (🛡️ *Bouclier +5*, ✨ *Bouclier de la Foi +2*, 🔮 *Armure de Mage 13*, ⚡ *Hâte +2*).
+  - Modal expliquant le détail complet du calcul de la CA.
+- 💰 **Gestionnaire de Bourse de Monnaie** :
+  - Saisie rapide, conversions automatiques de pièces (PO, PP, PA, PC), optimisation de la bourse et bouton de vidage sécurisé.
+- 🐾 **Fiches de Familiers & Invocations** :
+  - Ajout rapide de compagnons (Imp, Serviteur Invisible, Élémentaire de Feu, Loup, etc.) avec PV, CA et attaques intégrées.
+- 🦇 **Univers Thématisés & La Forge** : Contenu spécial et assistant Batman/Forge.
+- 🌐 **Multilingue (Français & Anglais)** & Mode Sombre Cyber-Fantasy.
+- ☁️ **Authentification & Synchronisation Optionnelles** via Supabase.
 
-- Guided character creation wizard
-- Character sheets with core stats and progression
-- Level-up support
-- Spell management and spell details
-- Equipment and resource tracking
-- The Forge and Batman-related character flows
-- French and English localization
-- Optional Supabase authentication and data integration
+---
 
-## Features by module
-
-| Module | Description |
-| --- | --- |
-| Character management | Create, edit, and track your characters from creation to level-up. |
-| Spellbook | Browse spells, view details, and manage spell preparation. |
-| Inventory and resources | Manage equipment, currency, and class resources. |
-| The Forge | Access special character-building flows and progression tools. |
-| Batman theme | Enjoy themed character experiences and dedicated flows. |
-| Account and sync | Sign in with Supabase-enabled features for a connected experience. |
-
-## How it works
-
-1. Start by creating a character through the guided wizard.
-2. The app stores your character data locally and can optionally sync through Supabase.
-3. Use the character sheet to view stats, manage spells, equipment, and progression.
-4. Advance your character with level-up flows and additional content modules.
-5. Export or share your character information as needed.
-
-## Screenshots
-
-Here are a few screenshots of the app experience:
+## 📸 Aperçu
 
 ![Homepage](assets/screenshots/homepage.png)
-
 ![Main page](assets/screenshots/mainPage.png)
-
 ![Forge experience](assets/screenshots/forge.png)
 
-> These captures come from the live web app at [URL].
+---
 
-## Tech Stack
+## 🛠️ Stack Technique
 
-- Flutter
-- Dart
-- Riverpod for state management
-- Drift for local database storage
-- Supabase for optional backend services
+- **Framework** : [Flutter](https://flutter.dev) (Web & Android)
+- **Langage** : [Dart](https://dart.dev)
+- **Gestion d'État** : Riverpod 2.x
+- **Base de Données Locale** : Drift (SQLite avec support IndexedDB pour le Web)
+- **Backend Optionnel** : Supabase (Authentification & Synchro Cloud)
+- **Conteneurisation** : Docker & Nginx
 
-## Prerequisites
+---
 
-Make sure you have the following installed:
+## 🚀 Préréquis & Installation Local
 
-- Flutter SDK 3.8 or newer
+### Préréquis
+- Flutter SDK `3.8.0` ou supérieur
 - Dart SDK
-- An emulator, simulator, or a browser for running the app
+- Google Chrome ou un émulateur Android
 
-## Getting Started
+### Installation
 
-1. Clone the repository:
+1. **Cloner le dépôt** :
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Rahdidibu/dndCarac.git
    cd dndCarac
    ```
 
-2. Install dependencies:
+2. **Installer les dépendances** :
    ```bash
    flutter pub get
    ```
 
-3. Generate localization files if needed:
+3. **Générer les fichiers de traduction** :
    ```bash
    flutter gen-l10n
    ```
 
-4. Run the application:
-   ```bash
-   flutter run
-   ```
-
-   For web development, you can also use:
+4. **Lancer en local (Web)** :
    ```bash
    flutter run -d chrome
    ```
 
-## Configuration
+---
 
-The application can optionally use Supabase. If you want to enable it, provide the following environment variables:
+## 🐳 Déploiement Production (Docker & Raspberry Pi)
 
-```bash
-SUPABASE_URL=your-supabase-url
-SUPABASE_ANON_KEY=your-supabase-anon-key
-```
+Le projet inclut des scripts de build automatisés dans le dossier `deploy/` :
 
-You can pass them at runtime with Dart defines:
+1. **Compiler le Web & l'APK localement** :
+   ```bash
+   ./deploy/build_all.sh
+   ```
+2. **Déployer sur votre serveur / Raspberry Pi** :
+   ```bash
+   ./deploy/deploy.sh
+   ```
 
-```bash
-flutter run --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
-```
+Les conteneurs Docker utilisent Nginx optimisé avec compression Gzip, SSL et gestion de cache.
 
-## Roadmap
+---
 
-Planned improvements include:
+## 📄 Licence
 
-- Better character import/export options
-- Enhanced spellbook and combat tools
-- Improved mobile and tablet UX
-- More thematic content packs
-- Expanded cloud sync and backup features
-
-## Contributing
-
-Contributions are welcome. If you want to improve the project:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes and test them locally
-4. Open a pull request with a clear description
-
-## Project Structure
-
-- lib/: main application code
-- assets/: game data, translations, and resources
-- test/: unit and widget tests
-- supabase/: database migrations and schema files
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
