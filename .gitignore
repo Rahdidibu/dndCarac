@@ -44,10 +44,12 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# PDF Books and DB files
+# PDF Books, DB files and APKs
 *.pdf
 *.db
 *.sqlite
+*.apk
+deploy/web/*.apk
 
 # Environment keys
 .env
