@@ -6,8 +6,8 @@ on:
       - 'v*'
 
 jobs:
-  build-release:
-    name: Build & Release Android APK
+  build-and-deploy:
+    name: Build Release (APK + Web) & Deploy
     runs-on: ubuntu-latest
 
     steps:
@@ -34,10 +34,12 @@ jobs:
           echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
           echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
 
-      - name: Build Android APK
-        run: flutter build apk --release --dart-define-from-file=.env
+      - name: Build Android APK & Flutter Web
+        run: |
+          flutter build apk --release --dart-define-from-file=.env
+          flutter build web --release --pwa-strategy=none --dart-define-from-file=.env
 
-      - name: Rename APK File
+      - name: Prepare Release APK Asset
         run: |
           TAG_NAME=${GITHUB_REF#refs/tags/}
           cp build/app/outputs/flutter-apk/app-release.apk "codex-aventurier-${TAG_NAME}.apk"
@@ -53,14 +55,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  deploy-server:
-    name: Deploy to Raspberry Pi Server
-    needs: build-release
-    runs-on: ubuntu-latest
-    if: ${{ secrets.SERVER_HOST != '' }}
-
-    steps:
-      - name: SSH Deploy to Server
+      - name: Deploy to Raspberry Pi Server
+        if: ${{ secrets.SERVER_HOST != '' }}
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
