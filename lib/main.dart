@@ -29,8 +29,10 @@ void main() async {
   if (supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty) {
     await Supabase.initialize(
       url: supabaseUrl,
-      anonKey: supabaseAnonKey,
+      publishableKey: supabaseAnonKey,
     );
+  } else {
+    debugPrint('Supabase is not configured. Authentication features will be unavailable.');
   }
 
   final db = AppDatabase();

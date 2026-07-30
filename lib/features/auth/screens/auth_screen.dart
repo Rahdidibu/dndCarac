@@ -64,13 +64,13 @@ class _AuthScreenState extends State<AuthScreen> {
           password: password,
         );
       }
-    } on AuthException catch (e) {
+    } on AuthException catch (_) {
       setState(() {
-        _errorMessage = e.message;
+        _errorMessage = 'Échec de l’authentification. Vérifiez vos identifiants et réessayez.';
       });
-    } catch (e) {
+    } catch (_) {
       setState(() {
-        _errorMessage = 'Une erreur inattendue est survenue : $e';
+        _errorMessage = 'Une erreur inattendue est survenue. Veuillez réessayer plus tard.';
       });
     } finally {
       if (mounted) {

@@ -39,7 +39,7 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Connecté en tant que : ${user.email}',
+                      'Compte connecté',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 12),

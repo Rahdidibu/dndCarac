@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="500" viewBox="0 0 1400 500">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F0B09"/>
+      <stop offset="100%" stop-color="#1B1410"/>
+    </linearGradient>
+
+  </defs>
+
+  <rect width="1400" height="500" fill="url(#bg)"/>
+  <rect x="28" y="28" width="1344" height="444" rx="30" fill="#140D0A" stroke="#C59B27" stroke-opacity="0.22" stroke-width="2"/>
+
+  <circle cx="1165" cy="150" r="130" fill="#C59B27" opacity="0.12"/>
+  <circle cx="1200" cy="360" r="110" fill="#AB47BC" opacity="0.13"/>
+
+  <path d="M170 360C250 250 345 190 452 190C561 190 654 240 732 320" stroke="url(#accent)" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <path d="M190 372C268 270 350 222 447 222C548 222 628 270 706 344" stroke="#ECE5D8" stroke-opacity="0.16" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+  <rect x="90" y="120" width="260" height="8" rx="4" fill="#C59B27"/>
+  <text x="90" y="205" fill="#ECE5D8" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="700">Le codex de l&apos;aventurier</text>
+  <text x="90" y="255" fill="#EADFCF" font-family="Segoe UI, Arial, sans-serif" font-size="24">Créer, gérer et faire évoluer vos personnages D&amp;D</text>
+
+  <rect x="90" y="300" width="188" height="46" rx="23" fill="#C59B27"/>
+  <text x="184" y="332" fill="#140D0A" font-family="Segoe UI, Arial, sans-serif" font-size="20" text-anchor="middle" font-weight="600">Découvrir</text>
+
+</svg>

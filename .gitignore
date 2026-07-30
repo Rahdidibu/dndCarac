@@ -52,3 +52,5 @@ app.*.map.json
 # Environment keys
 .env
 .env.*
+!.env.template
+!.devcontainer/.env.template
