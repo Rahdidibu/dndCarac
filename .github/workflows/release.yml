@@ -29,8 +29,13 @@ jobs:
       - name: Get Dependencies
         run: flutter pub get
 
+      - name: Create .env File for Build
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+
       - name: Build Android APK
-        run: flutter build apk --release
+        run: flutter build apk --release --dart-define-from-file=.env
 
       - name: Rename APK File
         run: |
