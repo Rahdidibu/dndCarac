@@ -5,7 +5,5 @@ services:
       dockerfile: deploy/Dockerfile
     container_name: dnd_character_manager_web
     ports:
-      - "8010:443"
-    volumes:
-      - ./ssl:/etc/nginx/ssl:ro
+      - "8010:80"
     restart: unless-stopped

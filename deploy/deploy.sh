@@ -15,4 +15,4 @@ docker-compose -f deploy/docker-compose.yml down
 docker-compose -f deploy/docker-compose.yml build --no-cache
 docker-compose -f deploy/docker-compose.yml up -d
 
-echo "✅ Mise à jour terminée ! L'application est disponible sur le port 8080."
+echo "✅ Mise à jour terminée ! L'application est disponible sur le port 8010."
