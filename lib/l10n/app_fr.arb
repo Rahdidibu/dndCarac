@@ -314,6 +314,7 @@
   "authPasswordMismatch": "Les mots de passe ne correspondent pas",
   "authCreateAccount": "Créer mon compte",
   "authSignIn": "Se connecter",
+  "authBackToForm": "Retour au formulaire de connexion",
   "authHaveAccount": "Déjà un compte ? Connectez-vous",
   "authNoAccount": "Pas encore de compte ? Inscrivez-vous",
   "authDownloadAndroid": "Télécharger l’application Android (APK)",

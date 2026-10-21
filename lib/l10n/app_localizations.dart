@@ -1160,6 +1160,12 @@ abstract class AppLocalizations {
   /// **'Se connecter'**
   String get authSignIn;
 
+  /// No description provided for @authBackToForm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour au formulaire de connexion'**
+  String get authBackToForm;
+
   /// No description provided for @authHaveAccount.
   ///
   /// In fr, this message translates to:

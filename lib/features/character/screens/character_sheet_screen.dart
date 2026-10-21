@@ -49,6 +49,11 @@ class CharacterSheetScreen extends ConsumerWidget {
   final int characterId;
   const CharacterSheetScreen({super.key, required this.characterId});
 
+  void _returnToCharacters(BuildContext context, WidgetRef ref) {
+    ref.read(mainTabNavigationProvider.notifier).state = 0;
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
   Future<void> _exportPdf(BuildContext context, WidgetRef ref) async {
     final db = ref.read(databaseProvider);
     final character = await db.characterDao.getCharacterById(characterId);
@@ -92,17 +97,56 @@ class CharacterSheetScreen extends ConsumerWidget {
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, st) => Scaffold(
-        body: AsyncErrorView(
-          error: e,
-          stackTrace: st,
-          onRetry: () => ref.invalidate(characterByIdProvider(characterId)),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: AsyncErrorView(
+                  error: e,
+                  stackTrace: st,
+                  onRetry: () =>
+                      ref.invalidate(characterByIdProvider(characterId)),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: FilledButton.icon(
+                  onPressed: () => _returnToCharacters(context, ref),
+                  icon: const Icon(Icons.people_outline),
+                  label: Text(l10n.navCharacters),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       data: (character) {
         if (character == null) {
           return Scaffold(
             appBar: AppBar(title: Text(l10n.characterNotFound)),
-            body: Center(child: Text(l10n.characterNotFound)),
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.person_search_outlined,
+                      size: 40,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(l10n.characterNotFound, textAlign: TextAlign.center),
+                    const SizedBox(height: 20),
+                    FilledButton.icon(
+                      onPressed: () => _returnToCharacters(context, ref),
+                      icon: const Icon(Icons.people_outline),
+                      label: Text(l10n.navCharacters),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           );
         }
 

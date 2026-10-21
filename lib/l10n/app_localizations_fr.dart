@@ -562,6 +562,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get authSignIn => 'Se connecter';
 
   @override
+  String get authBackToForm => 'Retour au formulaire de connexion';
+
+  @override
   String get authHaveAccount => 'Déjà un compte ? Connectez-vous';
 
   @override

@@ -170,6 +170,7 @@
   "authPasswordMismatch": "Passwords do not match",
   "authCreateAccount": "Create account",
   "authSignIn": "Sign in",
+  "authBackToForm": "Back to sign-in form",
   "authHaveAccount": "Already have an account? Sign in",
   "authNoAccount": "Don't have an account yet? Sign up",
   "authDownloadAndroid": "Download the Android app (APK)",

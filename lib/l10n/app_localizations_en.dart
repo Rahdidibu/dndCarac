@@ -558,6 +558,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authSignIn => 'Sign in';
 
   @override
+  String get authBackToForm => 'Back to sign-in form';
+
+  @override
   String get authHaveAccount => 'Already have an account? Sign in';
 
   @override

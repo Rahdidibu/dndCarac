@@ -16,6 +16,7 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _emailFocusNode = FocusNode();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -25,6 +26,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   void dispose() {
+    _emailFocusNode.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -213,20 +215,41 @@ class _AuthScreenState extends State<AuthScreen> {
                                 color: colorScheme.error.withValues(alpha: 0.4),
                               ),
                             ),
-                            child: Row(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(
-                                  Icons.error_outline,
-                                  color: colorScheme.error,
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(
-                                    _errorMessage!,
-                                    style: TextStyle(
-                                      color: colorScheme.onErrorContainer,
-                                      fontSize: 13,
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.error_outline,
+                                      color: colorScheme.error,
                                     ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        _errorMessage!,
+                                        style: TextStyle(
+                                          color: colorScheme.onErrorContainer,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton.icon(
+                                    onPressed: () {
+                                      setState(() => _errorMessage = null);
+                                      FocusScope.of(
+                                        context,
+                                      ).requestFocus(_emailFocusNode);
+                                    },
+                                    icon: const Icon(
+                                      Icons.arrow_back,
+                                      size: 18,
+                                    ),
+                                    label: Text(l10n.authBackToForm),
                                   ),
                                 ),
                               ],
@@ -238,6 +261,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         // Email input
                         TextFormField(
                           controller: _emailController,
+                          focusNode: _emailFocusNode,
                           textInputAction: TextInputAction.next,
                           decoration: InputDecoration(
                             labelText: l10n.authEmailLabel,
