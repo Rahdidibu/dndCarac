@@ -367,6 +367,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorGeneric => 'An error occurred';
 
   @override
+  String get errorNetwork =>
+      'Unable to connect. Check your network and try again.';
+
+  @override
+  String get errorPermission => 'This action is not allowed for this account.';
+
+  @override
+  String get actionRetry => 'Retry';
+
+  @override
   String get step4RaceLabel => 'Race';
 
   @override

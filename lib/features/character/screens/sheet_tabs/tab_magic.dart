@@ -133,7 +133,7 @@ class _MagicTab extends ConsumerWidget {
           const SizedBox(height: 8),
           slotsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Text('Erreur: $e'),
+            error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
             data: (slots) {
               if (slots.isEmpty) {
                 return Text('Aucun emplacement de sort.',
@@ -154,13 +154,13 @@ class _MagicTab extends ConsumerWidget {
           // ── Spells list ───────────────────────────────────────────────────
           classesAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Text('Erreur: $e'),
+            error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
             data: (classes) => scoresAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Text('Erreur: $e'),
+              error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
               data: (scores) => totalLevelAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, _) => Text('Erreur: $e'),
+                error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
                 data: (totalLevel) {
                   final scoreMap = {
                     'str': scores?.strength ?? 10,
@@ -203,7 +203,7 @@ class _MagicTab extends ConsumerWidget {
                     error: (e, _) => const SizedBox(),
                     data: (slots) => spellsAsync.when(
                       loading: () => const Center(child: CircularProgressIndicator()),
-                      error: (e, _) => Text('Erreur: $e'),
+                      error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
                       data: (spells) {
                         final preparedSpells = spells.where((s) => s.prepared).toList();
                         // Cantrips do not count towards preparation limit
@@ -220,7 +220,7 @@ class _MagicTab extends ConsumerWidget {
 
                         final srdSpellsLoaded = srdSpellsAsync.when(
                           loading: () => const Center(child: CircularProgressIndicator()),
-                          error: (e, _) => Text('Erreur compendium: $e'),
+                          error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
                           data: (srdList) {
                             final srdMap = {for (final s in srdList) s.id: s};
                             final grouped = <int, List<({CharacterSpell charSpell, SrdSpell srdSpell})>>{};

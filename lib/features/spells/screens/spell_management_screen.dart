@@ -13,6 +13,8 @@ import '../../character/providers/character_providers.dart';
 import '../../../core/utils/dnd_rules.dart';
 import '../../../core/utils/character_service.dart';
 import '../../../core/utils/string_utils.dart';
+import '../../../core/widgets/async_error_view.dart';
+import '../../../core/utils/app_errors.dart';
 
 class SpellManagementScreen extends ConsumerStatefulWidget {
   final int characterId;
@@ -42,7 +44,7 @@ class _SpellManagementScreenState
 
     return charAsync.when(
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, _) => Scaffold(body: Center(child: Text('Erreur: $e'))),
+      error: (e, st) => Scaffold(body: AsyncErrorView(error: e, stackTrace: st, onRetry: () => ref.invalidate(characterByIdProvider(widget.characterId)))),
       data: (character) {
         if (character == null) return const Scaffold(body: SizedBox());
 
@@ -96,7 +98,7 @@ class _SpellManagementScreenState
                 // ── Tab 1: My spells ───────────────────────────────────────
                 mySpellsAsync.when(
                   loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (e, _) => Center(child: Text('Erreur: $e')),
+                  error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
                   data: (mySpells) => _MySpellsTab(
                     characterId: widget.characterId,
                     mySpells: mySpells,
@@ -163,7 +165,7 @@ class _CompendiumTab extends ConsumerWidget {
       if (decoded is List) {
         return decoded.any((element) => element.toString().toUpperCase().contains(compChar));
       }
-    } catch (_) {}
+    } catch (e, st) { AppErrors.log(e, st, context: 'SpellManagement.parse'); }
     return spell.components.toUpperCase().contains(compChar);
   }
 
@@ -175,13 +177,13 @@ class _CompendiumTab extends ConsumerWidget {
 
     return mySpellsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Erreur: $e')),
+      error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
       data: (mySpells) {
         final mySpellIds = mySpells.map((s) => s.spellId).toSet();
 
         return classesAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('Erreur: $e')),
+          error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
           data: (classes) {
             return FutureBuilder<List<SrdSpell>>(
               future: ref.read(databaseProvider).compendiumDao.getAllSpells(ruleset),
@@ -250,7 +252,7 @@ class _CompendiumTab extends ConsumerWidget {
                         }
                       }
                     }
-                  } catch (_) {}
+                  } catch (e, st) { AppErrors.log(e, st, context: 'SpellManagement.parse'); }
                   return false;
                 }).toList();
 

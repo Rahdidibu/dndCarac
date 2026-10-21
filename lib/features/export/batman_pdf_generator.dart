@@ -5,6 +5,7 @@ import 'package:pdf/widgets.dart' as pw;
 
 import '../../core/database/app_database.dart';
 import '../batman/providers/batman_providers.dart';
+import '../../core/utils/app_errors.dart';
 
 // ─── Palette Batman ─────────────────────────────────────────────────────────
 
@@ -418,7 +419,7 @@ class BatmanPdfGenerator {
     List<dynamic> ranks = [];
     try {
       ranks = json.decode(way.ranksJson) as List<dynamic>;
-    } catch (_) {}
+    } catch (e, st) { AppErrors.log(e, st, context: 'BatmanPdf.ranks'); }
 
     final acquiredRanks =
         ranks.where((r) => (r['rank'] as int) <= rankAcquired).toList();

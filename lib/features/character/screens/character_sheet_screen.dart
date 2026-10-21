@@ -33,6 +33,8 @@ import '../../../core/widgets/currency_manager_dialog.dart';
 import '../../../core/widgets/combat_attack_dialog.dart';
 import '../../../core/utils/armor_class_helper.dart';
 import 'sheet_tabs/tab_companions.dart';
+import '../../../core/widgets/async_error_view.dart';
+import '../../../core/utils/app_errors.dart';
 
 part 'sheet_tabs/tab_stats.dart';
 part 'sheet_tabs/tab_combat.dart';
@@ -91,7 +93,7 @@ class CharacterSheetScreen extends ConsumerWidget {
 
     return charAsync.when(
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, _) => Scaffold(body: Center(child: Text('Erreur: $e'))),
+      error: (e, st) => Scaffold(body: AsyncErrorView(error: e, stackTrace: st, onRetry: () => ref.invalidate(characterByIdProvider(characterId)))),
       data: (character) {
         if (character == null) {
           return Scaffold(

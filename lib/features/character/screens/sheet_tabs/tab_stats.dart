@@ -71,7 +71,7 @@ class _StatsTab extends ConsumerWidget {
 
     return scoresAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Erreur: $e')),
+      error: (e, st) => AsyncErrorView(error: e, stackTrace: st, onRetry: () => ref.invalidate(characterAbilityScoresProvider(characterId))),
       data: (scores) {
         if (scores == null) return const Center(child: Text('Scores non trouvés'));
 
@@ -86,7 +86,7 @@ class _StatsTab extends ConsumerWidget {
 
         return profsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('Erreur: $e')),
+          error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
           data: (profs) {
             final profKeys = profs.map((p) => p.proficiencyKey).toSet();
             final expertiseKeys = profs

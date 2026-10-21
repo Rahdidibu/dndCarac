@@ -5,6 +5,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../core/utils/string_utils.dart';
 import '../../providers/character_providers.dart';
 import '../../providers/wizard_provider.dart';
+import '../../../../core/widgets/async_error_view.dart';
 
 // All SRD skills with associated ability (sorted by ability, then alphabetically by French name)
 const List<({String key, String name, String ability})> _allSkills = [
@@ -113,7 +114,7 @@ class Step6Proficiencies extends ConsumerWidget {
         const SizedBox(height: 8),
         classesAsync.when(
           loading: () => const LinearProgressIndicator(),
-          error: (e, _) => Text('Erreur: $e'),
+          error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
           data: (classes) {
             final primaryClassId = wizard.classes.firstOrNull?.classId ?? '';
             final maxSkills = _skillCountForClass(primaryClassId);

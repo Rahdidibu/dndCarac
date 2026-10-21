@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/providers/database_provider.dart';
 import '../providers/batman_providers.dart';
+import '../../../core/widgets/async_error_view.dart';
+import '../../../core/utils/app_errors.dart';
 
 /// Écran de montée en rang pour un personnage Batman RPG.
 /// Permet :
@@ -44,7 +46,7 @@ class _BatmanLevelUpScreenState extends ConsumerState<BatmanLevelUpScreen> {
       ),
       body: batAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('$e')),
+        error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
         data: (bat) {
           if (bat == null) {
             return const Center(
@@ -53,10 +55,10 @@ class _BatmanLevelUpScreenState extends ConsumerState<BatmanLevelUpScreen> {
           }
           return charWaysAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('$e')),
+            error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
             data: (charWays) => allWaysAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('$e')),
+              error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
               data: (allWays) => _buildBody(bat, charWays, allWays),
             ),
           );
@@ -289,7 +291,8 @@ class _BatmanLevelUpScreenState extends ConsumerState<BatmanLevelUpScreen> {
       final found =
           ranks.firstWhere((r) => r['rank'] == rank, orElse: () => null);
       return found != null ? (found['name'] as String? ?? '?') : '?';
-    } catch (_) {
+    } catch (e, st) {
+      AppErrors.log(e, st, context: 'BatmanLevelUp.ranks');
       return '?';
     }
   }
@@ -299,7 +302,8 @@ class _BatmanLevelUpScreenState extends ConsumerState<BatmanLevelUpScreen> {
       final ranks = json.decode(ranksJson) as List<dynamic>;
       return ranks.firstWhere((r) => r['rank'] == rank,
           orElse: () => null) as Map<String, dynamic>?;
-    } catch (_) {
+    } catch (e, st) {
+      AppErrors.log(e, st, context: 'BatmanLevelUp.ranks');
       return null;
     }
   }

@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../utils/app_errors.dart';
 
 /// Stream provider pour écouter la session d'authentification Supabase
 final authSessionProvider = StreamProvider<Session?>((ref) {
   try {
     return Supabase.instance.client.auth.onAuthStateChange.map((event) => event.session);
-  } catch (_) {
+  } catch (e, st) {
+    AppErrors.log(e, st, context: 'authSessionProvider');
     return Stream.value(null);
   }
 });

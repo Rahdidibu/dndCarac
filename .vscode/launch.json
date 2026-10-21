@@ -9,7 +9,7 @@
       "deviceId": "web-server",
       "toolArgs": [
         "--web-hostname=0.0.0.0",
-        "--web-port=8080",
+        "--web-port=8035",
         "--dart-define-from-file=${workspaceFolder}/.env"
       ]
     }

@@ -111,15 +111,15 @@ s'exécute sur l'hôte.
 4. Dans le projet Supabase de développement, vérifier que les migrations de
    [supabase/migrations/](supabase/migrations/) sont appliquées et que
    l'authentification email/mot de passe est activée. Dans **Authentication >
-   URL Configuration**, autoriser `http://localhost:8080` comme URL de site/de
+   URL Configuration**, autoriser `http://localhost:8035` comme URL de site/de
    redirection pour les confirmations d'inscription. Utiliser un projet dédié
    aux tests plutôt que modifier les données de production.
 5. Lancer **Flutter Web (devcontainer)** avec F5, ou exécuter :
    ```bash
-   flutter run -d web-server --web-hostname=0.0.0.0 --web-port=8080 \
+   flutter run -d web-server --web-hostname=0.0.0.0 --web-port=8035 \
      --dart-define-from-file=.env
    ```
-6. Ouvrir `http://localhost:8080` dans le navigateur de l'hôte, depuis l'onglet
+6. Ouvrir `http://localhost:8035` dans le navigateur de l'hôte, depuis l'onglet
    **Ports** si nécessaire. En session distante, utiliser l'URL effectivement
    transférée et l'autoriser aussi dans Supabase. Le serveur `web-server` a des
    capacités de débogage plus limitées que le périphérique Chrome.
@@ -140,7 +140,7 @@ flutter build web --release --dart-define-from-file=.env
 ```
 
 Les avertissements de `flutter doctor` sur Chrome et Android sont attendus dans
-ce conteneur Web. Le port `8080` est transféré automatiquement; les ports
+ce conteneur Web. Le port `8035` est transféré automatiquement; les ports
 `54321`/`54323` et Supabase CLI restent disponibles pour un éventuel backend
 local, mais aucun service Supabase local n'est démarré dans ce parcours.
 Le template [.devcontainer/.env.template](.devcontainer/.env.template) décrit

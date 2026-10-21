@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../providers/batman_providers.dart';
+import '../../../../core/widgets/async_error_view.dart';
 
 class Step1ProfileMode extends ConsumerWidget {
   const Step1ProfileMode({super.key});
@@ -30,7 +31,7 @@ class Step1ProfileMode extends ConsumerWidget {
         const SizedBox(height: 8),
         profilesAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Text('Erreur: $e'),
+          error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
           data: (profiles) {
             final filtered =
                 profiles.where((p) => _profileFitsMode(p.mode, wizard.mode)).toList();

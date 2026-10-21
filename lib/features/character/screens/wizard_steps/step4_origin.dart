@@ -8,6 +8,8 @@ import '../../../../core/utils/markdown_text.dart';
 import '../../../../core/utils/string_utils.dart';
 import '../../providers/character_providers.dart';
 import '../../providers/wizard_provider.dart';
+import '../../../../core/widgets/async_error_view.dart';
+import '../../../../core/utils/app_errors.dart';
 
 class Step4Origin extends ConsumerStatefulWidget {
   const Step4Origin({super.key});
@@ -36,7 +38,8 @@ class _Step4OriginState extends ConsumerState<Step4Origin> {
     try {
       final List<dynamic> list = json.decode(asiJson);
       return list.map((a) => _abilityLabel(a.toString())).join(', ');
-    } catch (_) {
+    } catch (e, st) {
+      AppErrors.log(e, st, context: 'Step4.asiJson');
       return '';
     }
   }
@@ -90,7 +93,7 @@ class _Step4OriginState extends ConsumerState<Step4Origin> {
           const SizedBox(height: 8),
           racesAsync.when(
             loading: () => const LinearProgressIndicator(),
-            error: (e, _) => Text('Erreur: $e'),
+            error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
             data: (races) {
               final sortedRaces = races.toList()
                 ..sort((a, b) => StringUtils.compareAlphabetically(a.name, b.name));
@@ -138,7 +141,7 @@ class _Step4OriginState extends ConsumerState<Step4Origin> {
 
           backgroundsAsync.when(
             loading: () => const LinearProgressIndicator(),
-            error: (e, _) => Text('Erreur: $e'),
+            error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
             data: (backgrounds) {
               // Calculate counts per ability for filters
               final Map<String, int> counts = {};
@@ -149,7 +152,7 @@ class _Step4OriginState extends ConsumerState<Step4Origin> {
                     for (final a in list.cast<String>()) {
                       counts[a] = (counts[a] ?? 0) + 1;
                     }
-                  } catch (_) {}
+                  } catch (e, st) { AppErrors.log(e, st, context: 'Step4.asiJson'); }
                 }
               }
 
@@ -160,7 +163,8 @@ class _Step4OriginState extends ConsumerState<Step4Origin> {
                   try {
                     final List<dynamic> list = json.decode(bg.asiJson!);
                     return list.cast<String>().contains(_selectedFilterAbility);
-                  } catch (_) {
+                  } catch (e, st) {
+                    AppErrors.log(e, st, context: 'Step4.asiJson');
                     return false;
                   }
                 }).toList();
@@ -313,7 +317,7 @@ class _OriginFeatCard extends ConsumerWidget {
 
     return featAsync.when(
       loading: () => const SizedBox(height: 50, child: Center(child: CircularProgressIndicator())),
-      error: (e, _) => Text('Erreur chargement don: $e'),
+      error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
       data: (feat) {
         if (feat == null) return const SizedBox.shrink();
         return Card(

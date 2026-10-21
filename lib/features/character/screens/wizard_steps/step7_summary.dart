@@ -8,6 +8,7 @@ import '../../../../core/database/tables/tables.dart';
 import '../../../../core/utils/markdown_text.dart';
 import '../../providers/character_providers.dart';
 import '../../providers/wizard_provider.dart';
+import '../../../../core/widgets/async_error_view.dart';
 
 class Step7Summary extends ConsumerWidget {
   const Step7Summary({super.key});
@@ -169,7 +170,7 @@ class Step7Summary extends ConsumerWidget {
                   final masteriesAsync = ref.watch(srdWeaponMasteriesProvider);
                   return masteriesAsync.when(
                     loading: () => const LinearProgressIndicator(),
-                    error: (e, _) => Text('Erreur: $e'),
+                    error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
                     data: (masteries) {
                       final masteryMap = {for (final m in masteries) m.id: m.name};
                       return Wrap(

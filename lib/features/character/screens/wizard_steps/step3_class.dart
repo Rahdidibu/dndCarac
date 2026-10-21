@@ -5,6 +5,7 @@ import '../../../../core/utils/character_service.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../providers/character_providers.dart';
 import '../../providers/wizard_provider.dart';
+import '../../../../core/widgets/async_error_view.dart';
 
 class Step3Class extends ConsumerWidget {
   const Step3Class({super.key});
@@ -46,7 +47,7 @@ class Step3Class extends ConsumerWidget {
         // Add class button
         classesAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Text('Erreur: $e'),
+          error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
           data: (classes) {
             final usedClassIds =
                 wizard.classes.map((c) => c.classId).toSet();
@@ -496,7 +497,7 @@ class _WeaponMasteriesPanel extends ConsumerWidget {
             const SizedBox(height: 12),
             masteriesAsync.when(
               loading: () => const LinearProgressIndicator(),
-              error: (e, _) => Text('Erreur: $e'),
+              error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
               data: (masteries) => Wrap(
                 spacing: 8,
                 runSpacing: 4,

@@ -130,9 +130,9 @@ Si vous souhaitez coder ou tester l'application localement dans le même environ
 4. Le conteneur se construit avec les prérequis Flutter ( stable ) et résout automatiquement le `flutter pub get`.
 5. Pour lancer l'application en mode serveur web local avec rechargement à chaud (Hot Reload) depuis le conteneur :
    ```bash
-   flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0 --dart-define-from-file=.env
+   flutter run -d web-server --web-port 8035 --web-hostname 0.0.0.0 --dart-define-from-file=.env
    ```
-6. Le port `8080` est automatiquement redirigé vers votre navigateur hôte (Mac) pour pouvoir tester en direct !
+6. Le port `8035` est automatiquement redirigé vers votre navigateur hôte (Mac) pour pouvoir tester en direct !
 
 ---
 

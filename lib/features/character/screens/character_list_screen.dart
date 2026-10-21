@@ -8,6 +8,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/character_service.dart';
 import '../providers/character_providers.dart';
+import '../../../core/widgets/async_error_view.dart';
 
 
 class CharacterListScreen extends ConsumerWidget {
@@ -72,7 +73,7 @@ class CharacterListScreen extends ConsumerWidget {
           ),
           charactersAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text(e.toString())),
+            error: (e, st) => AsyncErrorView(error: e, stackTrace: st, onRetry: () => ref.invalidate(charactersProvider)),
             data: (characters) {
               if (characters.isEmpty) {
                 return _EmptyState(l10n: l10n);

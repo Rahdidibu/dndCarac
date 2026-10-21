@@ -98,7 +98,7 @@ class _JournalTabState extends ConsumerState<_JournalTab> {
             // ── Notes List ───────────────────────────────────────────
             notesAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Erreur: $e')),
+              error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
               data: (notes) {
                 final filtered = notes.where((note) {
                   final matchCategory = _selectedCategory == 'all' || note.category == _selectedCategory;

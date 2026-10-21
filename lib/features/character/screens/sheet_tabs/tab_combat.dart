@@ -43,7 +43,10 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
           children: [
             Icon(Icons.shield, color: AppTheme.neonCyan),
             SizedBox(width: 10),
-            Text('Détail de la Classe d\'Armure', style: TextStyle(color: Colors.white, fontSize: 16)),
+            Text(
+              'Détail de la Classe d\'Armure',
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
           ],
         ),
         content: Column(
@@ -55,20 +58,42 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                 children: [
                   Text(
                     '${ac.totalAc} CA',
-                    style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: AppTheme.neonCyan),
+                    style: const TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.neonCyan,
+                    ),
                   ),
-                  const Text('Classe d\'Armure Totale', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                  const Text(
+                    'Classe d\'Armure Totale',
+                    style: TextStyle(color: Colors.white54, fontSize: 12),
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
-            Text('• Armure : ${ac.armorName} (${ac.baseAc} CA)', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            Text(
+              '• Armure : ${ac.armorName} (${ac.baseAc} CA)',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             if (ac.dexBonus != 0)
-              Text('• Modificateur Dextérité : ${ac.dexBonus >= 0 ? "+${ac.dexBonus}" : "${ac.dexBonus}"}', style: const TextStyle(color: Colors.white70)),
+              Text(
+                '• Modificateur Dextérité : ${ac.dexBonus >= 0 ? "+${ac.dexBonus}" : "${ac.dexBonus}"}',
+                style: const TextStyle(color: Colors.white70),
+              ),
             if (ac.shieldBonus != 0)
-              Text('• Bouclier (${ac.shieldName}) : +${ac.shieldBonus} CA', style: const TextStyle(color: Colors.white70)),
+              Text(
+                '• Bouclier (${ac.shieldName}) : +${ac.shieldBonus} CA',
+                style: const TextStyle(color: Colors.white70),
+              ),
             if (ac.customBonus != 0)
-              Text('• Bonus Magiques / Sorts : ${ac.customBonus >= 0 ? "+${ac.customBonus}" : "${ac.customBonus}"} CA', style: const TextStyle(color: Colors.amber)),
+              Text(
+                '• Bonus Magiques / Sorts : ${ac.customBonus >= 0 ? "+${ac.customBonus}" : "${ac.customBonus}"} CA',
+                style: const TextStyle(color: Colors.amber),
+              ),
             const SizedBox(height: 14),
             Container(
               width: double.infinity,
@@ -76,16 +101,29 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
               decoration: BoxDecoration(
                 color: Colors.black45,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppTheme.neonCyan.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: AppTheme.neonCyan.withValues(alpha: 0.3),
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Détail du calcul :', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white70)),
+                  const Text(
+                    'Détail du calcul :',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white70,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   Text(
                     ac.formulaDescription,
-                    style: const TextStyle(fontSize: 12, color: AppTheme.neonCyan, fontFamily: 'monospace'),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.neonCyan,
+                      fontFamily: 'monospace',
+                    ),
                   ),
                 ],
               ),
@@ -109,7 +147,9 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
     _hpTemp = widget.character.hpTemp;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final db = ref.read(databaseProvider);
-      await CharacterService(db).ensureHitDiceResourcesExist(widget.characterId);
+      await CharacterService(
+        db,
+      ).ensureHitDiceResourcesExist(widget.characterId);
     });
   }
 
@@ -128,14 +168,16 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
   Future<void> _confirmShortRest(BuildContext context) async {
     final db = ref.read(databaseProvider);
     final service = CharacterService(db);
-    
+
     // Recharge les capacités de repos court immédiatement
     await service.shortRest(widget.characterId);
     ref.invalidate(characterResourcesProvider(widget.characterId));
     ref.invalidate(characterSpellSlotsProvider(widget.characterId));
 
     // Calcul du modificateur de constitution
-    final scores = ref.read(characterAbilityScoresProvider(widget.characterId)).value;
+    final scores = ref
+        .read(characterAbilityScoresProvider(widget.characterId))
+        .value;
     final conScore = scores?.constitution ?? 10;
     final conMod = DndRules.modifier(conScore);
 
@@ -145,9 +187,11 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
         characterId: widget.characterId,
         conMod: conMod,
       );
-      
+
       // Met à jour les PV locaux suite au dialogue
-      final updatedChar = await db.characterDao.getCharacterById(widget.characterId);
+      final updatedChar = await db.characterDao.getCharacterById(
+        widget.characterId,
+      );
       if (updatedChar != null && mounted) {
         setState(() {
           _hpCurrent = updatedChar.hpCurrent;
@@ -186,7 +230,9 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
       ref.invalidate(characterResourcesProvider(widget.characterId));
       ref.invalidate(characterSpellSlotsProvider(widget.characterId));
       ref.invalidate(characterByIdProvider(widget.characterId));
-      final updatedChar = await db.characterDao.getCharacterById(widget.characterId);
+      final updatedChar = await db.characterDao.getCharacterById(
+        widget.characterId,
+      );
       if (updatedChar != null && mounted) {
         setState(() {
           _hpCurrent = updatedChar.hpCurrent;
@@ -194,9 +240,9 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
         });
       }
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.restSuccessMessage)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.restSuccessMessage)));
       }
     }
   }
@@ -236,7 +282,10 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
     return r1 < r2 ? r1 : r2;
   }
 
-  ({int total, String breakdown}) _parseDiceExpression(String expr, {bool crit = false}) {
+  ({int total, String breakdown}) _parseDiceExpression(
+    String expr, {
+    bool crit = false,
+  }) {
     // Parse expressions like "1d8+3", "2d6", "1d10-1"
     final pattern = RegExp(r'(\d+)d(\d+)([+-]\d+)?');
     final match = pattern.firstMatch(expr.toLowerCase().replaceAll(' ', ''));
@@ -252,16 +301,21 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
     final diceTotal = rolls.fold(0, (s, r) => s + r);
     final total = diceTotal + modifier;
     final diceStr = rolls.join('+');
-    final modStr = modifier != 0 ? (modifier > 0 ? '+$modifier' : '$modifier') : '';
+    final modStr = modifier != 0
+        ? (modifier > 0 ? '+$modifier' : '$modifier')
+        : '';
     return (
       total: total,
-      breakdown: '${numDice}d$dieSides[$diceStr]$modStr=${total > 0 ? total : 0}',
+      breakdown:
+          '${numDice}d$dieSides[$diceStr]$modStr=${total > 0 ? total : 0}',
     );
   }
 
   Future<void> _rollCombinedAttack() async {
     if (_activeWeapon == null) return;
-    final weaponStats = StartingEquipmentHelper.getWeaponStats(_activeWeapon!.name);
+    final weaponStats = StartingEquipmentHelper.getWeaponStats(
+      _activeWeapon!.name,
+    );
     final requiresAmmo = weaponStats?.requiresAmmo ?? false;
 
     if (requiresAmmo) {
@@ -288,7 +342,10 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
     }
 
     final ammoBonus = (requiresAmmo && _selectedAmmo != null)
-        ? StartingEquipmentHelper.parseAmmoBonus(_selectedAmmo!.itemName, _selectedAmmo!.notes)
+        ? StartingEquipmentHelper.parseAmmoBonus(
+            _selectedAmmo!.itemName,
+            _selectedAmmo!.notes,
+          )
         : 0;
 
     final bonusStr = _activeWeapon!.attackBonus;
@@ -326,9 +383,19 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
       );
     }
 
-    final icon = result.isCrit ? '🎯' : result.isFumble ? '💀' : '⚔️';
-    final critSuffix = result.isCrit ? ' [CRITIQUE!]' : result.isFumble ? ' [FUMBLE!]' : '';
-    final dmgText = result.isFumble ? 'Raté' : '${result.totalDamage} dégâts (${result.damageType})';
+    final icon = result.isCrit
+        ? '🎯'
+        : result.isFumble
+        ? '💀'
+        : '⚔️';
+    final critSuffix = result.isCrit
+        ? ' [CRITIQUE!]'
+        : result.isFumble
+        ? ' [FUMBLE!]'
+        : '';
+    final dmgText = result.isFumble
+        ? 'Raté'
+        : '${result.totalDamage} dégâts (${result.damageType})';
 
     setState(() {
       _combatLog.insert(
@@ -340,7 +407,9 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
 
   void _rollAttack() {
     if (_activeWeapon == null) return;
-    final weaponStats = StartingEquipmentHelper.getWeaponStats(_activeWeapon!.name);
+    final weaponStats = StartingEquipmentHelper.getWeaponStats(
+      _activeWeapon!.name,
+    );
     final requiresAmmo = weaponStats?.requiresAmmo ?? false;
 
     // Block if ranged weapon has no ammo selected or ammo is exhausted
@@ -368,7 +437,10 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
     }
 
     final ammoBonus = (requiresAmmo && _selectedAmmo != null)
-        ? StartingEquipmentHelper.parseAmmoBonus(_selectedAmmo!.itemName, _selectedAmmo!.notes)
+        ? StartingEquipmentHelper.parseAmmoBonus(
+            _selectedAmmo!.itemName,
+            _selectedAmmo!.notes,
+          )
         : 0;
 
     final bonusStr = _activeWeapon!.attackBonus;
@@ -386,7 +458,9 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
       isD20: true,
       onRollCompleted: (total, breakdown) async {
         // Consume 1 ammo
-        if (requiresAmmo && _selectedAmmo != null && _selectedAmmo!.quantity > 0) {
+        if (requiresAmmo &&
+            _selectedAmmo != null &&
+            _selectedAmmo!.quantity > 0) {
           final db = ref.read(databaseProvider);
           final newQty = _selectedAmmo!.quantity - 1;
           await db.characterDao.updateEquipment(
@@ -404,7 +478,9 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
           if (newQty == 0 && mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('⚠️ Dernière ${ammoName ?? 'munition'} utilisée !'),
+                content: Text(
+                  '⚠️ Dernière ${ammoName ?? 'munition'} utilisée !',
+                ),
                 backgroundColor: Colors.orange,
               ),
             );
@@ -412,13 +488,24 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
         }
         final isCrit = breakdown.contains('d20(20)');
         final isFumble = breakdown.contains('d20(1)');
-        final icon = isCrit ? '🎯' : isFumble ? '💀' : '⚔️';
-        final suffix = isCrit ? ' CRITIQUE !' : isFumble ? ' FUMBLE !' : '';
-        final ammoBonusStr = ammoBonus != 0 ? ' (${ammoBonus >= 0 ? "+$ammoBonus" : "$ammoBonus"})' : '';
+        final icon = isCrit
+            ? '🎯'
+            : isFumble
+            ? '💀'
+            : '⚔️';
+        final suffix = isCrit
+            ? ' CRITIQUE !'
+            : isFumble
+            ? ' FUMBLE !'
+            : '';
+        final ammoBonusStr = ammoBonus != 0
+            ? ' (${ammoBonus >= 0 ? "+$ammoBonus" : "$ammoBonus"})'
+            : '';
         final ammoSuffix = ammoName != null ? ' [$ammoName$ammoBonusStr]' : '';
         setState(() {
-          _combatLog.insert(0,
-            '$icon [${_activeWeapon!.name}]$ammoSuffix Attaque: $breakdown$suffix'
+          _combatLog.insert(
+            0,
+            '$icon [${_activeWeapon!.name}]$ammoSuffix Attaque: $breakdown$suffix',
           );
         });
       },
@@ -428,10 +515,15 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
   void _rollDamage({bool crit = false}) {
     if (_activeWeapon == null) return;
 
-    final weaponStats = StartingEquipmentHelper.getWeaponStats(_activeWeapon!.name);
+    final weaponStats = StartingEquipmentHelper.getWeaponStats(
+      _activeWeapon!.name,
+    );
     final requiresAmmo = weaponStats?.requiresAmmo ?? false;
     final ammoBonus = (requiresAmmo && _selectedAmmo != null)
-        ? StartingEquipmentHelper.parseAmmoBonus(_selectedAmmo!.itemName, _selectedAmmo!.notes)
+        ? StartingEquipmentHelper.parseAmmoBonus(
+            _selectedAmmo!.itemName,
+            _selectedAmmo!.notes,
+          )
         : 0;
 
     final damageDice = _activeWeapon!.damageDice;
@@ -441,7 +533,9 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
     String expr = damageDice;
     if (crit) {
       final pattern = RegExp(r'(\d+)d(\d+)(.*)');
-      final match = pattern.firstMatch(damageDice.toLowerCase().replaceAll(' ', ''));
+      final match = pattern.firstMatch(
+        damageDice.toLowerCase().replaceAll(' ', ''),
+      );
       if (match != null) {
         final numDice = int.tryParse(match.group(1) ?? '1') ?? 1;
         final dieSides = match.group(2);
@@ -454,17 +548,22 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
       context,
       characterId: widget.characterId,
       rollType: RollType.damage,
-      title: l10n.rollDamageCheck(_activeWeapon!.name) + (crit ? ' (CRITIQUE)' : ''),
+      title:
+          l10n.rollDamageCheck(_activeWeapon!.name) +
+          (crit ? ' (CRITIQUE)' : ''),
       bonus: ammoBonus,
       isD20: false,
       diceExpression: expr,
       onRollCompleted: (total, breakdown) {
         final ammoName = _selectedAmmo?.itemName;
-        final ammoBonusStr = ammoBonus != 0 ? ' (${ammoBonus >= 0 ? "+$ammoBonus" : "$ammoBonus"})' : '';
+        final ammoBonusStr = ammoBonus != 0
+            ? ' (${ammoBonus >= 0 ? "+$ammoBonus" : "$ammoBonus"})'
+            : '';
         final ammoSuffix = ammoName != null ? ' [$ammoName$ammoBonusStr]' : '';
         setState(() {
-          _combatLog.insert(0,
-            '💥 [${_activeWeapon!.name}]$ammoSuffix Dégâts: $breakdown $damageType'
+          _combatLog.insert(
+            0,
+            '💥 [${_activeWeapon!.name}]$ammoSuffix Dégâts: $breakdown $damageType',
           );
         });
       },
@@ -474,26 +573,37 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
   @override
   Widget build(BuildContext context) {
     final char = widget.character;
-    final resourcesAsync = ref.watch(characterResourcesProvider(widget.characterId));
-    final attacksAsync = ref.watch(characterAttacksProvider(widget.characterId));
-    final equipmentAsync = ref.watch(characterEquipmentProvider(widget.characterId));
+    final resourcesAsync = ref.watch(
+      characterResourcesProvider(widget.characterId),
+    );
+    final attacksAsync = ref.watch(
+      characterAttacksProvider(widget.characterId),
+    );
+    final equipmentAsync = ref.watch(
+      characterEquipmentProvider(widget.characterId),
+    );
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
-    final classesAsync = ref.watch(characterClassesProvider(widget.characterId));
-    final mainClassId = classesAsync.value?.isNotEmpty == true ? classesAsync.value!.first.classId : '';
-    final scores = ref.watch(characterAbilityScoresProvider(widget.characterId)).value;
+    final classesAsync = ref.watch(
+      characterClassesProvider(widget.characterId),
+    );
+    final classIds = classesAsync.value?.map((c) => c.classId).join(' ') ?? '';
+    final scores = ref
+        .watch(characterAbilityScoresProvider(widget.characterId))
+        .value;
     final dexMod = DndRules.modifier(scores?.dexterity ?? 10);
     final conMod = DndRules.modifier(scores?.constitution ?? 10);
     final wisMod = DndRules.modifier(scores?.wisdom ?? 10);
-    final equippedItems = equipmentAsync.value?.where((e) => e.equipped).toList() ?? [];
+    final equippedItems =
+        equipmentAsync.value?.where((e) => e.equipped).toList() ?? [];
 
     final acBreakdown = ArmorClassHelper.calculateAc(
       equippedItems: equippedItems,
       dexMod: dexMod,
       conMod: conMod,
       wisMod: wisMod,
-      className: mainClassId,
+      className: classIds,
       hasShieldSpell: _hasShieldSpell,
       hasShieldOfFaith: _hasShieldOfFaith,
       hasMageArmor: _hasMageArmor,
@@ -529,8 +639,18 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
             children: [
               _SectionTitle('Combat'),
               TextButton.icon(
-                icon: const Icon(Icons.info_outline, size: 16, color: AppTheme.neonCyan),
-                label: Text('${acBreakdown.totalAc} CA', style: const TextStyle(color: AppTheme.neonCyan, fontWeight: FontWeight.bold)),
+                icon: const Icon(
+                  Icons.info_outline,
+                  size: 16,
+                  color: AppTheme.neonCyan,
+                ),
+                label: Text(
+                  '${acBreakdown.totalAc} CA',
+                  style: const TextStyle(
+                    color: AppTheme.neonCyan,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 onPressed: () => _showAcDetailsDialog(context, acBreakdown),
               ),
             ],
@@ -546,7 +666,12 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                   label: 'CA',
                   value: '${acBreakdown.totalAc}',
                   icon: Icons.shield,
-                  glowColor: (_hasShieldSpell || _hasShieldOfFaith || _hasMageArmor || _hasHaste || acBreakdown.customBonus > 0)
+                  glowColor:
+                      (_hasShieldSpell ||
+                          _hasShieldOfFaith ||
+                          _hasMageArmor ||
+                          _hasHaste ||
+                          acBreakdown.customBonus > 0)
                       ? Colors.amber
                       : AppTheme.neonCyan,
                 ),
@@ -582,7 +707,14 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                   children: [
                     Icon(Icons.auto_awesome, size: 14, color: Colors.amber),
                     SizedBox(width: 6),
-                    Text('Sorts & Modificateurs de CA temporaires :', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white70)),
+                    Text(
+                      'Sorts & Modificateurs de CA temporaires :',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white70,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -592,28 +724,40 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                   children: [
                     FilterChip(
                       avatar: const Text('🛡️', style: TextStyle(fontSize: 12)),
-                      label: const Text('Bouclier (+5)', style: TextStyle(fontSize: 11)),
+                      label: const Text(
+                        'Bouclier (+5)',
+                        style: TextStyle(fontSize: 11),
+                      ),
                       selected: _hasShieldSpell,
                       selectedColor: Colors.amber.withValues(alpha: 0.3),
                       onSelected: (v) => setState(() => _hasShieldSpell = v),
                     ),
                     FilterChip(
                       avatar: const Text('✨', style: TextStyle(fontSize: 12)),
-                      label: const Text('Bouclier Foi (+2)', style: TextStyle(fontSize: 11)),
+                      label: const Text(
+                        'Bouclier Foi (+2)',
+                        style: TextStyle(fontSize: 11),
+                      ),
                       selected: _hasShieldOfFaith,
                       selectedColor: Colors.amber.withValues(alpha: 0.3),
                       onSelected: (v) => setState(() => _hasShieldOfFaith = v),
                     ),
                     FilterChip(
                       avatar: const Text('🔮', style: TextStyle(fontSize: 12)),
-                      label: const Text('Armure Mage (13)', style: TextStyle(fontSize: 11)),
+                      label: const Text(
+                        'Armure Mage (13)',
+                        style: TextStyle(fontSize: 11),
+                      ),
                       selected: _hasMageArmor,
                       selectedColor: Colors.cyan.withValues(alpha: 0.3),
                       onSelected: (v) => setState(() => _hasMageArmor = v),
                     ),
                     FilterChip(
                       avatar: const Text('⚡', style: TextStyle(fontSize: 12)),
-                      label: const Text('Hâte (+2)', style: TextStyle(fontSize: 11)),
+                      label: const Text(
+                        'Hâte (+2)',
+                        style: TextStyle(fontSize: 11),
+                      ),
                       selected: _hasHaste,
                       selectedColor: Colors.amber.withValues(alpha: 0.3),
                       onSelected: (v) => setState(() => _hasHaste = v),
@@ -625,7 +769,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
           ),
           const SizedBox(height: 12),
           // Inspiration
-           Card(
+          Card(
             child: SwitchListTile(
               title: const Text('Inspiration héroïque'),
               value: char.heroicInspiration,
@@ -637,9 +781,11 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
           // ── Armor & AC Management ─────────────────────────────────────────
           equipmentAsync.when(
             loading: () => const LinearProgressIndicator(),
-            error: (e, _) => Text('Erreur équipements: $e'),
+            error: (e, st) =>
+                AsyncErrorView(error: e, stackTrace: st, compact: true),
             data: (equipment) {
-              final armorsAndShields = <({CharacterEquipmentData data, ArmorInfo info})>[];
+              final armorsAndShields =
+                  <({CharacterEquipmentData data, ArmorInfo info})>[];
               for (final item in equipment) {
                 final info = CharacterService.parseEquipmentAsArmor(item);
                 if (info != null) {
@@ -647,185 +793,128 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                 }
               }
 
-              final scoresAsync = ref.watch(characterAbilityScoresProvider(widget.characterId));
-              final classesAsync = ref.watch(characterClassesProvider(widget.characterId));
+              final finalAc = acBreakdown.totalAc;
 
-              return scoresAsync.when(
-                loading: () => const SizedBox.shrink(),
-                error: (_, _) => const SizedBox.shrink(),
-                data: (scores) {
-                  return classesAsync.when(
-                    loading: () => const SizedBox.shrink(),
-                    error: (_, _) => const SizedBox.shrink(),
-                    data: (classes) {
-                      final dexScore = scores?.dexterity ?? 10;
-                      final conScore = scores?.constitution ?? 10;
-                      final wisScore = scores?.wisdom ?? 10;
-                      final dexMod = DndRules.modifier(dexScore);
-                      final conMod = DndRules.modifier(conScore);
-                      final wisMod = DndRules.modifier(wisScore);
+              return Card(
+                margin: const EdgeInsets.only(bottom: 16),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.shield,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Gestion de l\'Armure & CA',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      const Divider(),
 
-                      ArmorInfo? equippedArmor;
-                      final equippedShields = <ArmorInfo>[];
-                      for (final item in armorsAndShields) {
-                        if (item.data.equipped) {
-                          if (item.info.type == 'shield') {
-                            equippedShields.add(item.info);
-                          } else {
-                            equippedArmor = item.info;
-                          }
-                        }
-                      }
-
-                      String formula = 'Sans armure';
-                      int baseAc = 10;
-                      int? maxDex;
-
-                      if (equippedArmor != null) {
-                        baseAc = equippedArmor.baseAc;
-                        formula = '${equippedArmor.name} (CA base $baseAc)';
-                        maxDex = equippedArmor.maxDex;
-                      } else {
-                        bool isBarbarian = classes.any((c) => c.classId == 'barbarian');
-                        bool isMonk = classes.any((c) => c.classId == 'monk');
-                        if (isBarbarian) {
-                          baseAc = 10 + conMod;
-                          formula = 'Défense sans armure (Barbare : 10 + $conMod Con)';
-                        } else if (isMonk) {
-                          if (equippedShields.isEmpty) {
-                            baseAc = 10 + wisMod;
-                            formula = 'Défense sans armure (Moine : 10 + $wisMod Sag)';
-                          } else {
-                            formula = 'Sans armure (Moine, mais bouclier équipé)';
-                          }
-                        }
-                      }
-
-                      int dexBonus = dexMod;
-                      String dexText = '${dexMod >= 0 ? "+" : ""}$dexMod Dex';
-                      if (maxDex != null) {
-                        if (dexBonus > maxDex) {
-                          dexBonus = maxDex;
-                          dexText = '+ $dexBonus Dex (max $maxDex)';
-                        }
-                      }
-
-                      String shieldText = '';
-                      int shieldBonus = 0;
-                      for (final s in equippedShields) {
-                        shieldBonus += s.baseAc;
-                      }
-                      if (shieldBonus > 0) {
-                        shieldText = ' + $shieldBonus (Bouclier)';
-                      }
-
-                      final finalAc = baseAc + dexBonus + shieldBonus;
-
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.shield, color: Theme.of(context).colorScheme.primary),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Gestion de l\'Armure & CA',
-                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                  ),
-                                ],
-                              ),
-                              const Divider(),
-                              
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  'Formule : $baseAc ($formula) + $dexText$shieldText = $finalAc CA',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-
-                              if (armorsAndShields.isEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 8),
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.info_outline, size: 16),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          'Aucune armure ou bouclier dans l\'inventaire. Créez-en dans la forge ou ajoutez-en dans l\'onglet Équipement.',
-                                          style: Theme.of(context).textTheme.bodySmall,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              else
-                                ...armorsAndShields.map((item) {
-                                  return SwitchListTile(
-                                    title: Text(item.data.itemName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                                    subtitle: Text(
-                                      item.info.type == 'shield' ? 'Bouclier (+${item.info.baseAc} CA)' : 'Armure (CA base ${item.info.baseAc})',
-                                      style: const TextStyle(fontSize: 11),
-                                    ),
-                                    value: item.data.equipped,
-                                    dense: true,
-                                    onChanged: (val) async {
-                                      final db = ref.read(databaseProvider);
-                                      if (val && item.info.type != 'shield') {
-                                        for (final other in armorsAndShields) {
-                                          if (other.data.id != item.data.id && other.info.type != 'shield' && other.data.equipped) {
-                                            await db.characterDao.updateEquipment(
-                                              CharacterEquipmentCompanion(
-                                                id: Value(other.data.id),
-                                                characterId: Value(widget.characterId),
-                                                itemName: Value(other.data.itemName),
-                                                quantity: Value(other.data.quantity),
-                                                weight: Value(other.data.weight),
-                                                equipped: const Value(false),
-                                                attuned: Value(other.data.attuned),
-                                                notes: Value(other.data.notes),
-                                              ),
-                                            );
-                                          }
-                                        }
-                                      }
-
-                                      await db.characterDao.updateEquipment(
-                                        CharacterEquipmentCompanion(
-                                          id: Value(item.data.id),
-                                          characterId: Value(widget.characterId),
-                                          itemName: Value(item.data.itemName),
-                                          quantity: Value(item.data.quantity),
-                                          weight: Value(item.data.weight),
-                                          equipped: Value(val),
-                                          attuned: Value(item.data.attuned),
-                                          notes: Value(item.data.notes),
-                                        ),
-                                      );
-                                      await CharacterService(db).recalculateCharacterAc(widget.characterId);
-                                    },
-                                  );
-                                }),
-                            ],
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          'Formule : ${acBreakdown.formulaDescription} = $finalAc CA',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
                           ),
                         ),
-                      );
-                    },
-                  );
-                },
+                      ),
+                      const SizedBox(height: 12),
+
+                      if (armorsAndShields.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.info_outline, size: 16),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Aucune armure ou bouclier dans l\'inventaire. Créez-en dans la forge ou ajoutez-en dans l\'onglet Équipement.',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        ...armorsAndShields.map((item) {
+                          return SwitchListTile(
+                            title: Text(
+                              item.data.itemName,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              item.info.type == 'shield'
+                                  ? 'Bouclier (+${item.info.baseAc} CA)'
+                                  : 'Armure (CA base ${item.info.baseAc})',
+                              style: const TextStyle(fontSize: 11),
+                            ),
+                            value: item.data.equipped,
+                            dense: true,
+                            onChanged: (val) async {
+                              final db = ref.read(databaseProvider);
+                              if (val && item.info.type != 'shield') {
+                                for (final other in armorsAndShields) {
+                                  if (other.data.id != item.data.id &&
+                                      other.info.type != 'shield' &&
+                                      other.data.equipped) {
+                                    await db.characterDao.updateEquipment(
+                                      CharacterEquipmentCompanion(
+                                        id: Value(other.data.id),
+                                        characterId: Value(widget.characterId),
+                                        itemName: Value(other.data.itemName),
+                                        quantity: Value(other.data.quantity),
+                                        weight: Value(other.data.weight),
+                                        equipped: const Value(false),
+                                        attuned: Value(other.data.attuned),
+                                        notes: Value(other.data.notes),
+                                      ),
+                                    );
+                                  }
+                                }
+                              }
+
+                              await db.characterDao.updateEquipment(
+                                CharacterEquipmentCompanion(
+                                  id: Value(item.data.id),
+                                  characterId: Value(widget.characterId),
+                                  itemName: Value(item.data.itemName),
+                                  quantity: Value(item.data.quantity),
+                                  weight: Value(item.data.weight),
+                                  equipped: Value(val),
+                                  attuned: Value(item.data.attuned),
+                                  notes: Value(item.data.notes),
+                                ),
+                              );
+                              await CharacterService(
+                                db,
+                              ).recalculateCharacterAc(widget.characterId);
+                            },
+                          );
+                        }),
+                    ],
+                  ),
+                ),
               );
             },
           ),
@@ -846,14 +935,21 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
             loading: () => const SizedBox.shrink(),
             error: (_, _) => const SizedBox.shrink(),
             data: (resources) {
-              final classResources = resources.where((r) => !r.resourceName.startsWith('condition_')).toList();
+              final classResources = resources
+                  .where((r) => !r.resourceName.startsWith('condition_'))
+                  .toList();
               if (classResources.isEmpty) return const SizedBox.shrink();
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _SectionTitle('Ressources de classe'),
                   const SizedBox(height: 8),
-                  ...classResources.map((r) => _ResourceRow(resource: r, characterId: widget.character.id)),
+                  ...classResources.map(
+                    (r) => _ResourceRow(
+                      resource: r,
+                      characterId: widget.character.id,
+                    ),
+                  ),
                   const SizedBox(height: 16),
                 ],
               );
@@ -865,8 +961,11 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
             loading: () => const SizedBox.shrink(),
             error: (_, _) => const SizedBox.shrink(),
             data: (dbAttacks) {
-              final equipment = equipmentAsync.value ?? <CharacterEquipmentData>[];
-              final scoresAsync = ref.watch(characterAbilityScoresProvider(widget.characterId));
+              final equipment =
+                  equipmentAsync.value ?? <CharacterEquipmentData>[];
+              final scoresAsync = ref.watch(
+                characterAbilityScoresProvider(widget.characterId),
+              );
               final scores = scoresAsync.value;
 
               final int strScore = scores?.strength ?? 10;
@@ -886,11 +985,13 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
               // We need to suppress any dbAttack whose name fuzzy-matches an
               // unequipped item (regardless of whether the item was recognised
               // by getWeaponStats — the user might have manually named the weapon).
-              final List<CharacterAttack> combinedAttacks = dbAttacks.where((a) {
+              final List<CharacterAttack> combinedAttacks = dbAttacks.where((
+                a,
+              ) {
                 // Find a matching inventory item for this attack.
-                final matchingItem = equipment.where(
-                  (e) => nameMatchesItem(a.name, e.itemName),
-                ).firstOrNull;
+                final matchingItem = equipment
+                    .where((e) => nameMatchesItem(a.name, e.itemName))
+                    .firstOrNull;
                 // If no inventory item matches, it's a manually-added attack — always show.
                 if (matchingItem == null) return true;
                 // Otherwise only show if that inventory item is equipped.
@@ -902,31 +1003,58 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
               final profBonus = DndRules.proficiencyBonus(widget.totalLevel);
               for (final item in equipment) {
                 if (!item.equipped) continue;
-                var weapon = StartingEquipmentHelper.getWeaponStats(item.itemName);
+                var weapon = StartingEquipmentHelper.getWeaponStats(
+                  item.itemName,
+                );
                 final itemLower = item.itemName.toLowerCase();
 
                 // If weapon is null but item name sounds like a weapon, fallback to 1d6
-                if (weapon == null && (itemLower.contains('hache') || itemLower.contains('épée') || itemLower.contains('dague') || itemLower.contains('arc') || itemLower.contains('arbalète') || itemLower.contains('masse') || itemLower.contains('marteau') || itemLower.contains('lance') || itemLower.contains('arme') || itemLower.contains('baton') || itemLower.contains('bâton') || itemLower.contains('rapière') || itemLower.contains('cimeterre') || itemLower.contains('fouet') || itemLower.contains('fronde'))) {
-                  weapon = StartingWeaponStats(name: item.itemName, baseDice: '1d6', damageType: 'Tranchant', scalingAbility: 'str');
+                if (weapon == null &&
+                    (itemLower.contains('hache') ||
+                        itemLower.contains('épée') ||
+                        itemLower.contains('dague') ||
+                        itemLower.contains('arc') ||
+                        itemLower.contains('arbalète') ||
+                        itemLower.contains('masse') ||
+                        itemLower.contains('marteau') ||
+                        itemLower.contains('lance') ||
+                        itemLower.contains('arme') ||
+                        itemLower.contains('baton') ||
+                        itemLower.contains('bâton') ||
+                        itemLower.contains('rapière') ||
+                        itemLower.contains('cimeterre') ||
+                        itemLower.contains('fouet') ||
+                        itemLower.contains('fronde'))) {
+                  weapon = StartingWeaponStats(
+                    name: item.itemName,
+                    baseDice: '1d6',
+                    damageType: 'Tranchant',
+                    scalingAbility: 'str',
+                  );
                 }
 
                 if (weapon != null) {
                   final nameLower = weapon.name.toLowerCase();
-                  final alreadyExists = combinedAttacks.any((a) =>
-                      a.name.toLowerCase() == nameLower ||
-                      a.name.toLowerCase() == itemLower);
+                  final alreadyExists = combinedAttacks.any(
+                    (a) =>
+                        a.name.toLowerCase() == nameLower ||
+                        a.name.toLowerCase() == itemLower,
+                  );
                   if (!alreadyExists) {
                     int abilityMod;
                     if (weapon.scalingAbility == 'str') {
                       abilityMod = strMod;
                     } else if (weapon.scalingAbility == 'dex') {
                       abilityMod = dexMod;
-                    } else { // finesse
+                    } else {
+                      // finesse
                       abilityMod = strMod > dexMod ? strMod : dexMod;
                     }
 
                     final int totalAttackBonus = abilityMod + profBonus;
-                    final String attackBonusStr = totalAttackBonus >= 0 ? '+$totalAttackBonus' : '$totalAttackBonus';
+                    final String attackBonusStr = totalAttackBonus >= 0
+                        ? '+$totalAttackBonus'
+                        : '$totalAttackBonus';
                     final String damageDiceStr = abilityMod != 0
                         ? '${weapon.baseDice}${abilityMod > 0 ? '+$abilityMod' : '$abilityMod'}'
                         : weapon.baseDice;
@@ -939,7 +1067,10 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                         attackBonus: attackBonusStr,
                         damageDice: damageDiceStr,
                         damageType: weapon.damageType,
-                        masteryProperty: widget.character.ruleset == RulesetVersion.dnd2024 ? weapon.mastery : null,
+                        masteryProperty:
+                            widget.character.ruleset == RulesetVersion.dnd2024
+                            ? weapon.mastery
+                            : null,
                         notes: 'Depuis l\'inventaire',
                       ),
                     );
@@ -965,51 +1096,70 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                   if (combinedAttacks.isEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Text('Aucune attaque configurée.',
-                          style: TextStyle(color: colorScheme.onSurfaceVariant)),
+                      child: Text(
+                        'Aucune attaque configurée.',
+                        style: TextStyle(color: colorScheme.onSurfaceVariant),
+                      ),
                     )
                   else ...[
                     // Weapon selection cards
-                    ...combinedAttacks.map((a) => _WeaponCard(
-                      attack: a,
-                      isActive: _activeWeapon?.id == a.id,
-                      character: widget.character,
-                      onTap: () => setState(() {
-                        if (_activeWeapon?.id == a.id) {
-                          _activeWeapon = null;
-                          _selectedAmmo = null;
-                        } else {
-                          _activeWeapon = a;
-                          _selectedAmmo = null; // Reset ammo when switching weapon
-                        }
-                      }),
-                      onDelete: () async {
-                        final db = ref.read(databaseProvider);
-                        await db.characterDao.deleteAttack(a.id);
-                        if (_activeWeapon?.id == a.id) {
-                          setState(() => _activeWeapon = null);
-                        }
-                      },
-                    )),
+                    ...combinedAttacks.map(
+                      (a) => _WeaponCard(
+                        attack: a,
+                        isActive: _activeWeapon?.id == a.id,
+                        character: widget.character,
+                        onTap: () => setState(() {
+                          if (_activeWeapon?.id == a.id) {
+                            _activeWeapon = null;
+                            _selectedAmmo = null;
+                          } else {
+                            _activeWeapon = a;
+                            _selectedAmmo =
+                                null; // Reset ammo when switching weapon
+                          }
+                        }),
+                        onDelete: () async {
+                          final db = ref.read(databaseProvider);
+                          await db.characterDao.deleteAttack(a.id);
+                          if (_activeWeapon?.id == a.id) {
+                            setState(() => _activeWeapon = null);
+                          }
+                        },
+                      ),
+                    ),
 
                     // Ammo selector — shown when active weapon requires ammo
                     if (_activeWeapon != null) ...[
                       () {
-                        final wStats = StartingEquipmentHelper.getWeaponStats(_activeWeapon!.name);
-                        if (wStats?.requiresAmmo != true) return const SizedBox.shrink();
+                        final wStats = StartingEquipmentHelper.getWeaponStats(
+                          _activeWeapon!.name,
+                        );
+                        if (wStats?.requiresAmmo != true)
+                          return const SizedBox.shrink();
                         final ammoItems = equipment
-                            .where((e) => StartingEquipmentHelper.isAmmunitionItem(e.itemName))
+                            .where(
+                              (e) => StartingEquipmentHelper.isAmmunitionItem(
+                                e.itemName,
+                              ),
+                            )
                             .toList();
                         if (ammoItems.isEmpty) {
                           return Padding(
                             padding: const EdgeInsets.only(top: 8),
                             child: Row(
                               children: [
-                                const Icon(Icons.warning_amber, size: 14, color: Colors.orange),
+                                const Icon(
+                                  Icons.warning_amber,
+                                  size: 14,
+                                  color: Colors.orange,
+                                ),
                                 const SizedBox(width: 6),
                                 Text(
                                   'Aucune munition dans l\'inventaire',
-                                  style: TextStyle(fontSize: 12, color: Colors.orange.shade300),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.orange.shade300,
+                                  ),
                                 ),
                               ],
                             ),
@@ -1018,7 +1168,8 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                         return _AmmoSelector(
                           ammoItems: ammoItems,
                           selectedAmmo: _selectedAmmo,
-                          onSelected: (ammo) => setState(() => _selectedAmmo = ammo),
+                          onSelected: (ammo) =>
+                              setState(() => _selectedAmmo = ammo),
                         );
                       }(),
                     ],
@@ -1047,7 +1198,10 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                         _SectionTitle('Journal de combat'),
                         TextButton.icon(
                           icon: const Icon(Icons.clear_all, size: 16),
-                          label: const Text('Effacer', style: TextStyle(fontSize: 12)),
+                          label: const Text(
+                            'Effacer',
+                            style: TextStyle(fontSize: 12),
+                          ),
                           onPressed: () => setState(() => _combatLog.clear()),
                         ),
                       ],
@@ -1055,7 +1209,9 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                     const SizedBox(height: 4),
                     Container(
                       decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                        color: colorScheme.surfaceContainerHighest.withValues(
+                          alpha: 0.5,
+                        ),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: colorScheme.outlineVariant),
                       ),
@@ -1067,7 +1223,11 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                         separatorBuilder: (_, _) => const Divider(height: 4),
                         itemBuilder: (_, i) => Text(
                           _combatLog[i],
-                          style: TextStyle(fontSize: 11, fontFamily: 'monospace', color: colorScheme.onSurface),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontFamily: 'monospace',
+                            color: colorScheme.onSurface,
+                          ),
                         ),
                       ),
                     ),
@@ -1099,10 +1259,28 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Nom')),
-                  TextField(controller: bonusCtrl, decoration: const InputDecoration(labelText: 'Bonus (ex: +5)')),
-                  TextField(controller: diceCtrl, decoration: const InputDecoration(labelText: 'Dégâts (ex: 1d8+3)')),
-                  TextField(controller: typeCtrl, decoration: const InputDecoration(labelText: 'Type (ex: perforants)')),
+                  TextField(
+                    controller: nameCtrl,
+                    decoration: const InputDecoration(labelText: 'Nom'),
+                  ),
+                  TextField(
+                    controller: bonusCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Bonus (ex: +5)',
+                    ),
+                  ),
+                  TextField(
+                    controller: diceCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Dégâts (ex: 1d8+3)',
+                    ),
+                  ),
+                  TextField(
+                    controller: typeCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Type (ex: perforants)',
+                    ),
+                  ),
                   if (widget.character.ruleset == RulesetVersion.dnd2024) ...[
                     const SizedBox(height: 16),
                     masteriesAsync.when(
@@ -1110,7 +1288,11 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                         height: 40,
                         child: Center(child: CircularProgressIndicator()),
                       ),
-                      error: (e, _) => Text('Erreur maîtrises: $e'),
+                      error: (e, st) => AsyncErrorView(
+                        error: e,
+                        stackTrace: st,
+                        compact: true,
+                      ),
                       data: (list) => DropdownButtonFormField<String>(
                         decoration: const InputDecoration(
                           labelText: 'Maîtrise d\'arme (2024)',
@@ -1118,11 +1300,16 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                         ),
                         initialValue: selectedMastery,
                         items: [
-                          const DropdownMenuItem(value: null, child: Text('Aucune')),
-                          ...list.map((m) => DropdownMenuItem(
-                                value: m.id,
-                                child: Text(m.name),
-                              )),
+                          const DropdownMenuItem(
+                            value: null,
+                            child: Text('Aucune'),
+                          ),
+                          ...list.map(
+                            (m) => DropdownMenuItem(
+                              value: m.id,
+                              child: Text(m.name),
+                            ),
+                          ),
                         ],
                         onChanged: (v) {
                           selectedMastery = v;
@@ -1136,19 +1323,30 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
           },
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Annuler')),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Annuler'),
+          ),
           FilledButton(
             onPressed: () async {
               if (nameCtrl.text.trim().isEmpty) return;
               final db = ref.read(databaseProvider);
-              await db.characterDao.insertAttack(CharacterAttacksCompanion.insert(
-                characterId: widget.characterId,
-                name: nameCtrl.text.trim(),
-                attackBonus: bonusCtrl.text.trim().isEmpty ? '+0' : bonusCtrl.text.trim(),
-                damageDice: diceCtrl.text.trim().isEmpty ? '—' : diceCtrl.text.trim(),
-                damageType: typeCtrl.text.trim().isEmpty ? '—' : typeCtrl.text.trim(),
-                masteryProperty: Value(selectedMastery),
-              ));
+              await db.characterDao.insertAttack(
+                CharacterAttacksCompanion.insert(
+                  characterId: widget.characterId,
+                  name: nameCtrl.text.trim(),
+                  attackBonus: bonusCtrl.text.trim().isEmpty
+                      ? '+0'
+                      : bonusCtrl.text.trim(),
+                  damageDice: diceCtrl.text.trim().isEmpty
+                      ? '—'
+                      : diceCtrl.text.trim(),
+                  damageType: typeCtrl.text.trim().isEmpty
+                      ? '—'
+                      : typeCtrl.text.trim(),
+                  masteryProperty: Value(selectedMastery),
+                ),
+              );
               if (ctx.mounted) Navigator.of(ctx).pop();
             },
             child: const Text('Ajouter'),
@@ -1183,14 +1381,20 @@ class _WeaponCard extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     final scoresAsync = ref.watch(characterAbilityScoresProvider(character.id));
-    final totalLevelAsync = ref.watch(characterTotalLevelProvider(character.id));
+    final totalLevelAsync = ref.watch(
+      characterTotalLevelProvider(character.id),
+    );
 
     String? breakdown;
     if (scoresAsync.hasValue && totalLevelAsync.hasValue) {
       final scores = scoresAsync.value;
       final totalLevel = totalLevelAsync.value ?? 1;
       final profBonus = DndRules.proficiencyBonus(totalLevel);
-      final bonusVal = int.tryParse(attack.attackBonus.replaceAll('+', '').replaceAll(' ', '')) ?? 0;
+      final bonusVal =
+          int.tryParse(
+            attack.attackBonus.replaceAll('+', '').replaceAll(' ', ''),
+          ) ??
+          0;
 
       if (scores != null) {
         final strMod = DndRules.modifier(scores.strength);
@@ -1217,11 +1421,14 @@ class _WeaponCard extends ConsumerWidget {
           final diffDex = bonusVal - dexMod - profBonus;
           final diffCon = bonusVal - conMod - profBonus;
           if (diffStr > 0) {
-            breakdown = 'Force ($strSign) + Maîtrise ($profSign) + Magie (+$diffStr)';
+            breakdown =
+                'Force ($strSign) + Maîtrise ($profSign) + Magie (+$diffStr)';
           } else if (diffDex > 0) {
-            breakdown = 'Dextérité ($dexSign) + Maîtrise ($profSign) + Magie (+$diffDex)';
+            breakdown =
+                'Dextérité ($dexSign) + Maîtrise ($profSign) + Magie (+$diffDex)';
           } else if (diffCon > 0) {
-            breakdown = 'Constitution ($conSign) + Maîtrise ($profSign) + Magie (+$diffCon)';
+            breakdown =
+                'Constitution ($conSign) + Maîtrise ($profSign) + Magie (+$diffCon)';
           }
         }
       }
@@ -1236,7 +1443,9 @@ class _WeaponCard extends ConsumerWidget {
           color: isActive ? colorScheme.primary : colorScheme.outlineVariant,
           width: isActive ? 2 : 1,
         ),
-        color: isActive ? colorScheme.primaryContainer.withValues(alpha: 0.3) : null,
+        color: isActive
+            ? colorScheme.primaryContainer.withValues(alpha: 0.3)
+            : null,
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -1248,7 +1457,9 @@ class _WeaponCard extends ConsumerWidget {
               Icon(
                 isActive ? Icons.gavel : Icons.gavel_outlined,
                 size: 20,
-                color: isActive ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                color: isActive
+                    ? colorScheme.primary
+                    : colorScheme.onSurfaceVariant,
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -1270,19 +1481,32 @@ class _WeaponCard extends ConsumerWidget {
                         if (isActive) ...[
                           const SizedBox(width: 6),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: colorScheme.primary,
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: Text('ACTIVE', style: TextStyle(fontSize: 8, color: colorScheme.onPrimary, fontWeight: FontWeight.bold)),
+                            child: Text(
+                              'ACTIVE',
+                              style: TextStyle(
+                                fontSize: 8,
+                                color: colorScheme.onPrimary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ],
                       ],
                     ),
                     Text(
                       '${attack.attackBonus} • ${attack.damageDice} ${attack.damageType}',
-                      style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     if (breakdown != null)
                       Padding(
@@ -1292,21 +1516,31 @@ class _WeaponCard extends ConsumerWidget {
                           style: TextStyle(
                             fontSize: 10,
                             fontStyle: FontStyle.italic,
-                            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                            color: colorScheme.onSurfaceVariant.withValues(
+                              alpha: 0.7,
+                            ),
                           ),
                         ),
                       ),
-                    if (character.ruleset == RulesetVersion.dnd2024 && attack.masteryProperty != null && attack.masteryProperty!.isNotEmpty)
+                    if (character.ruleset == RulesetVersion.dnd2024 &&
+                        attack.masteryProperty != null &&
+                        attack.masteryProperty!.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
-                        child: _WeaponMasteryBadge(masteryId: attack.masteryProperty!),
+                        child: _WeaponMasteryBadge(
+                          masteryId: attack.masteryProperty!,
+                        ),
                       ),
                   ],
                 ),
               ),
               if (attack.id >= 0)
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                  icon: const Icon(
+                    Icons.delete_outline,
+                    size: 18,
+                    color: Colors.red,
+                  ),
                   onPressed: onDelete,
                 )
               else
@@ -1362,8 +1596,14 @@ class _QuickCombatPanel extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Combat rapide — ${activeWeapon.name}',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary, fontSize: 13)),
+                Text(
+                  'Combat rapide — ${activeWeapon.name}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.primary,
+                    fontSize: 13,
+                  ),
+                ),
                 Text(
                   'Touche: ${activeWeapon.attackBonus} | Dégâts: ${activeWeapon.damageDice}',
                   style: const TextStyle(fontSize: 11, color: Colors.white70),
@@ -1398,14 +1638,29 @@ class _QuickCombatPanel extends StatelessWidget {
                 Expanded(
                   child: SegmentedButton<int>(
                     segments: const [
-                      ButtonSegment(value: -1, label: Text('Désavantage', style: TextStyle(fontSize: 10))),
-                      ButtonSegment(value: 0, label: Text('Normal', style: TextStyle(fontSize: 10))),
-                      ButtonSegment(value: 1, label: Text('Avantage', style: TextStyle(fontSize: 10))),
+                      ButtonSegment(
+                        value: -1,
+                        label: Text(
+                          'Désavantage',
+                          style: TextStyle(fontSize: 10),
+                        ),
+                      ),
+                      ButtonSegment(
+                        value: 0,
+                        label: Text('Normal', style: TextStyle(fontSize: 10)),
+                      ),
+                      ButtonSegment(
+                        value: 1,
+                        label: Text('Avantage', style: TextStyle(fontSize: 10)),
+                      ),
                     ],
                     selected: {rollMode},
                     onSelectionChanged: (s) => onRollModeChanged(s.first),
                     style: const ButtonStyle(
-                      visualDensity: VisualDensity(horizontal: -4, vertical: -4),
+                      visualDensity: VisualDensity(
+                        horizontal: -4,
+                        vertical: -4,
+                      ),
                     ),
                   ),
                 ),
@@ -1420,8 +1675,13 @@ class _QuickCombatPanel extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: onRollAttack,
                     icon: const Text('🎲', style: TextStyle(fontSize: 14)),
-                    label: const Text('Touche seule', style: TextStyle(fontSize: 10)),
-                    style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 8)),
+                    label: const Text(
+                      'Touche seule',
+                      style: TextStyle(fontSize: 10),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 6),
@@ -1429,8 +1689,13 @@ class _QuickCombatPanel extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: onRollDamage,
                     icon: const Text('💥', style: TextStyle(fontSize: 12)),
-                    label: Text(activeWeapon.damageDice, style: const TextStyle(fontSize: 10)),
-                    style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 8)),
+                    label: Text(
+                      activeWeapon.damageDice,
+                      style: const TextStyle(fontSize: 10),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 6),
@@ -1438,7 +1703,10 @@ class _QuickCombatPanel extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: onRollCrit,
                     icon: const Text('🎯', style: TextStyle(fontSize: 12)),
-                    label: const Text('Critique!', style: TextStyle(fontSize: 10)),
+                    label: const Text(
+                      'Critique!',
+                      style: TextStyle(fontSize: 10),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red.withValues(alpha: 0.15),
                       foregroundColor: Colors.redAccent,
@@ -1454,8 +1722,6 @@ class _QuickCombatPanel extends StatelessWidget {
     );
   }
 }
-
-
 
 class _WeaponMasteryBadge extends ConsumerWidget {
   final String masteryId;
@@ -1552,12 +1818,15 @@ class _HpTracker extends StatelessWidget {
     final hpColor = hpPct > 0.5
         ? Colors.green
         : hpPct > 0.25
-            ? Colors.orange
-            : Colors.red;
+        ? Colors.orange
+        : Colors.red;
 
     return GlassContainer(
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-      border: Border.all(color: AppTheme.neonRed.withValues(alpha: 0.2), width: 1.2),
+      border: Border.all(
+        color: AppTheme.neonRed.withValues(alpha: 0.2),
+        width: 1.2,
+      ),
       child: Column(
         children: [
           Row(
@@ -1570,16 +1839,23 @@ class _HpTracker extends StatelessWidget {
                     color: AppTheme.neonRed.withValues(alpha: 0.12),
                     shape: const CircleBorder(),
                     child: IconButton(
-                      icon: const Icon(Icons.remove, color: AppTheme.neonRed, size: 28),
+                      icon: const Icon(
+                        Icons.remove,
+                        color: AppTheme.neonRed,
+                        size: 28,
+                      ),
                       onPressed: () => onCurrentChanged(hpCurrent - 1),
                       tooltip: 'Dégâts (-1 PV)',
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text('Dégâts', style: TextStyle(fontSize: 11, color: AppTheme.neonRed)),
+                  const Text(
+                    'Dégâts',
+                    style: TextStyle(fontSize: 11, color: AppTheme.neonRed),
+                  ),
                 ],
               ),
-              
+
               // Circular progress
               Stack(
                 alignment: Alignment.center,
@@ -1629,15 +1905,29 @@ class _HpTracker extends StatelessWidget {
                           if (hpTemp > 0) ...[
                             const SizedBox(height: 4),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
-                                color: AppTheme.neonCyan.withValues(alpha: 0.12),
+                                color: AppTheme.neonCyan.withValues(
+                                  alpha: 0.12,
+                                ),
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: AppTheme.neonCyan.withValues(alpha: 0.3), width: 0.8),
+                                border: Border.all(
+                                  color: AppTheme.neonCyan.withValues(
+                                    alpha: 0.3,
+                                  ),
+                                  width: 0.8,
+                                ),
                               ),
                               child: Text(
                                 '+$hpTemp Temp',
-                                style: const TextStyle(fontSize: 10, color: AppTheme.neonCyan, fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  color: AppTheme.neonCyan,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ],
@@ -1655,13 +1945,20 @@ class _HpTracker extends StatelessWidget {
                     color: AppTheme.neonCyan.withValues(alpha: 0.12),
                     shape: const CircleBorder(),
                     child: IconButton(
-                      icon: const Icon(Icons.add, color: AppTheme.neonCyan, size: 28),
+                      icon: const Icon(
+                        Icons.add,
+                        color: AppTheme.neonCyan,
+                        size: 28,
+                      ),
                       onPressed: () => onCurrentChanged(hpCurrent + 1),
                       tooltip: 'Soins (+1 PV)',
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text('Soins', style: TextStyle(fontSize: 11, color: AppTheme.neonCyan)),
+                  const Text(
+                    'Soins',
+                    style: TextStyle(fontSize: 11, color: AppTheme.neonCyan),
+                  ),
                 ],
               ),
             ],
@@ -1669,23 +1966,34 @@ class _HpTracker extends StatelessWidget {
           const SizedBox(height: 16),
           const Divider(),
           const SizedBox(height: 8),
-          
+
           // Temp HP management
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 'Points de vie temporaires : ',
-                style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.7)),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.white.withValues(alpha: 0.7),
+                ),
               ),
               const SizedBox(width: 8),
               Text(
                 '$hpTemp',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.neonCyan),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.neonCyan,
+                ),
               ),
               const SizedBox(width: 16),
               IconButton(
-                icon: const Icon(Icons.remove, size: 18, color: AppTheme.neonRed),
+                icon: const Icon(
+                  Icons.remove,
+                  size: 18,
+                  color: AppTheme.neonRed,
+                ),
                 onPressed: () => onTempChanged((hpTemp - 1).clamp(0, 99)),
               ),
               IconButton(
@@ -1720,37 +2028,43 @@ class _DeathSaveRow extends StatelessWidget {
           children: [
             const Text('Succès', style: TextStyle(fontSize: 12)),
             const SizedBox(width: 8),
-            ...List.generate(3, (i) => GestureDetector(
-                  onTap: () {
-                    final newVal = i < successes ? i : i + 1;
-                    onChanged(newVal.clamp(0, 3), failures);
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Icon(
-                      i < successes ? Icons.favorite : Icons.favorite_border,
-                      color: Colors.green,
-                      size: 22,
-                    ),
+            ...List.generate(
+              3,
+              (i) => GestureDetector(
+                onTap: () {
+                  final newVal = i < successes ? i : i + 1;
+                  onChanged(newVal.clamp(0, 3), failures);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Icon(
+                    i < successes ? Icons.favorite : Icons.favorite_border,
+                    color: Colors.green,
+                    size: 22,
                   ),
-                )),
+                ),
+              ),
+            ),
             const Spacer(),
             const Text('Échecs', style: TextStyle(fontSize: 12)),
             const SizedBox(width: 8),
-            ...List.generate(3, (i) => GestureDetector(
-                  onTap: () {
-                    final newVal = i < failures ? i : i + 1;
-                    onChanged(successes, newVal.clamp(0, 3));
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Icon(
-                      i < failures ? Icons.close : Icons.circle_outlined,
-                      color: Colors.red,
-                      size: 22,
-                    ),
+            ...List.generate(
+              3,
+              (i) => GestureDetector(
+                onTap: () {
+                  final newVal = i < failures ? i : i + 1;
+                  onChanged(successes, newVal.clamp(0, 3));
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Icon(
+                    i < failures ? Icons.close : Icons.circle_outlined,
+                    color: Colors.red,
+                    size: 22,
                   ),
-                )),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -1767,18 +2081,30 @@ class _ResourceRow extends ConsumerWidget {
   static String _resolveResourceName(BuildContext context, String key) {
     final l10n = AppLocalizations.of(context)!;
     switch (key) {
-      case 'resourceRage': return l10n.resourceRage;
-      case 'resourceKi': return l10n.resourceKi;
-      case 'resourceSorceryPoints': return l10n.resourceSorceryPoints;
-      case 'resourceChannelDivinity': return l10n.resourceChannelDivinity;
-      case 'resourceWildShape': return l10n.resourceWildShape;
-      case 'resourceActionSurge': return l10n.resourceActionSurge;
-      case 'resourceLucky': return 'Points de chance (Lucky)';
-      case 'hitDice_d6': return l10n.resourceHitDiceD6;
-      case 'hitDice_d8': return l10n.resourceHitDiceD8;
-      case 'hitDice_d10': return l10n.resourceHitDiceD10;
-      case 'hitDice_d12': return l10n.resourceHitDiceD12;
-      default: return key;
+      case 'resourceRage':
+        return l10n.resourceRage;
+      case 'resourceKi':
+        return l10n.resourceKi;
+      case 'resourceSorceryPoints':
+        return l10n.resourceSorceryPoints;
+      case 'resourceChannelDivinity':
+        return l10n.resourceChannelDivinity;
+      case 'resourceWildShape':
+        return l10n.resourceWildShape;
+      case 'resourceActionSurge':
+        return l10n.resourceActionSurge;
+      case 'resourceLucky':
+        return 'Points de chance (Lucky)';
+      case 'hitDice_d6':
+        return l10n.resourceHitDiceD6;
+      case 'hitDice_d8':
+        return l10n.resourceHitDiceD8;
+      case 'hitDice_d10':
+        return l10n.resourceHitDiceD10;
+      case 'hitDice_d12':
+        return l10n.resourceHitDiceD12;
+      default:
+        return key;
     }
   }
 
@@ -1793,10 +2119,14 @@ class _ResourceRow extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_resolveResourceName(context, resource.resourceName),
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
-                  Text('${resource.current} / ${resource.maximum}',
-                      style: const TextStyle(fontSize: 12)),
+                  Text(
+                    _resolveResourceName(context, resource.resourceName),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    '${resource.current} / ${resource.maximum}',
+                    style: const TextStyle(fontSize: 12),
+                  ),
                 ],
               ),
             ),
@@ -1924,11 +2254,16 @@ class _HexagonPainter extends CustomPainter {
     path.close();
 
     // Draw shadow/glow
-    canvas.drawShadow(path.shift(const Offset(0, 2)), color.withValues(alpha: 0.1), 6, true);
-    
+    canvas.drawShadow(
+      path.shift(const Offset(0, 2)),
+      color.withValues(alpha: 0.1),
+      6,
+      true,
+    );
+
     // Draw fill
     canvas.drawPath(path, paint);
-    
+
     // Draw border
     canvas.drawPath(path, borderPaint);
   }
@@ -1984,25 +2319,31 @@ class _AmmoSelector extends StatelessWidget {
             children: ammoItems.map((ammo) {
               final isSelected = selectedAmmo?.id == ammo.id;
               final outOfStock = ammo.quantity <= 0;
-              final ammoBonus = StartingEquipmentHelper.parseAmmoBonus(ammo.itemName, ammo.notes);
+              final ammoBonus = StartingEquipmentHelper.parseAmmoBonus(
+                ammo.itemName,
+                ammo.notes,
+              );
               return GestureDetector(
                 onTap: outOfStock ? null : () => onSelected(ammo),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 180),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? Colors.amber.withValues(alpha: 0.25)
                         : outOfStock
-                            ? Colors.red.withValues(alpha: 0.08)
-                            : Colors.white.withValues(alpha: 0.06),
+                        ? Colors.red.withValues(alpha: 0.08)
+                        : Colors.white.withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: isSelected
                           ? Colors.amber
                           : outOfStock
-                              ? Colors.red.withValues(alpha: 0.4)
-                              : Colors.white24,
+                          ? Colors.red.withValues(alpha: 0.4)
+                          : Colors.white24,
                       width: isSelected ? 1.5 : 1,
                     ),
                   ),
@@ -2012,7 +2353,11 @@ class _AmmoSelector extends StatelessWidget {
                       if (isSelected)
                         const Padding(
                           padding: EdgeInsets.only(right: 4),
-                          child: Icon(Icons.check, size: 12, color: Colors.amber),
+                          child: Icon(
+                            Icons.check,
+                            size: 12,
+                            color: Colors.amber,
+                          ),
                         ),
                       Text(
                         ammo.itemName,
@@ -2021,21 +2366,36 @@ class _AmmoSelector extends StatelessWidget {
                           color: isSelected
                               ? Colors.amber
                               : outOfStock
-                                  ? Colors.red.shade300
-                                  : Colors.white70,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          decoration: outOfStock ? TextDecoration.lineThrough : null,
+                              ? Colors.red.shade300
+                              : Colors.white70,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          decoration: outOfStock
+                              ? TextDecoration.lineThrough
+                              : null,
                         ),
                       ),
                       if (ammoBonus != 0) ...[
                         const SizedBox(width: 4),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 1,
+                          ),
                           decoration: BoxDecoration(
-                            color: (ammoBonus > 0 ? AppTheme.neonCyan : AppTheme.neonRed).withValues(alpha: 0.2),
+                            color:
+                                (ammoBonus > 0
+                                        ? AppTheme.neonCyan
+                                        : AppTheme.neonRed)
+                                    .withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(
-                              color: (ammoBonus > 0 ? AppTheme.neonCyan : AppTheme.neonRed).withValues(alpha: 0.5),
+                              color:
+                                  (ammoBonus > 0
+                                          ? AppTheme.neonCyan
+                                          : AppTheme.neonRed)
+                                      .withValues(alpha: 0.5),
                               width: 0.8,
                             ),
                           ),
@@ -2044,14 +2404,19 @@ class _AmmoSelector extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
-                              color: ammoBonus > 0 ? AppTheme.neonCyan : AppTheme.neonRed,
+                              color: ammoBonus > 0
+                                  ? AppTheme.neonCyan
+                                  : AppTheme.neonRed,
                             ),
                           ),
                         ),
                       ],
                       const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 5,
+                          vertical: 1,
+                        ),
                         decoration: BoxDecoration(
                           color: outOfStock
                               ? Colors.red.withValues(alpha: 0.2)
@@ -2078,7 +2443,11 @@ class _AmmoSelector extends StatelessWidget {
               padding: const EdgeInsets.only(top: 6),
               child: Text(
                 '← Sélectionnez des munitions pour tirer',
-                style: TextStyle(fontSize: 10, color: Colors.orange.shade300, fontStyle: FontStyle.italic),
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Colors.orange.shade300,
+                  fontStyle: FontStyle.italic,
+                ),
               ),
             ),
         ],

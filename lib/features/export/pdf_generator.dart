@@ -9,6 +9,7 @@ import '../../core/database/app_database.dart';
 import '../../core/utils/dnd_rules.dart';
 
 import '../../core/models/character_note.dart';
+import '../../core/utils/app_errors.dart';
 
 // ─── Palette ────────────────────────────────────────────────────────────────
 
@@ -518,7 +519,7 @@ class PdfGenerator {
       currency =
           (jsonDecode(c.currency) as Map<String, dynamic>)
               .map((k, v) => MapEntry(k, (v as num).toInt()));
-    } catch (_) {}
+    } catch (e, st) { AppErrors.log(e, st, context: 'Pdf.currency'); }
 
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,

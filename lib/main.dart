@@ -19,6 +19,7 @@ import 'features/character/screens/character_sheet_screen.dart';
 import 'features/character/screens/level_up_screen.dart';
 import 'features/spells/screens/spell_management_screen.dart';
 import 'l10n/app_localizations.dart';
+import 'core/utils/app_errors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -125,7 +126,7 @@ class DndApp extends ConsumerWidget {
           try {
             final currentSession = Supabase.instance.client.auth.currentSession;
             if (currentSession != null) return const MainScaffold();
-          } catch (_) {}
+          } catch (e, st) { AppErrors.log(e, st, context: 'main.currentSession'); }
           return const Scaffold(
               body: Center(child: CircularProgressIndicator()));
         },

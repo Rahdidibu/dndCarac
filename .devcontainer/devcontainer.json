@@ -22,9 +22,9 @@
       "enableNonRootDocker": "true"
     }
   },
-  "forwardPorts": [8080, 54321, 54323],
+  "forwardPorts": [8035, 54321, 54323],
   "portsAttributes": {
-    "8080": {
+    "8035": {
       "label": "Serveur Flutter Web",
       "onAutoForward": "openPreview"
     },

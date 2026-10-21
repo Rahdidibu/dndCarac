@@ -9,6 +9,7 @@ import '../providers/database_provider.dart';
 import '../theme/app_theme.dart';
 import '../../../features/character/providers/character_providers.dart';
 import '../utils/character_service.dart';
+import 'async_error_view.dart';
 
 class ShortRestDialog extends ConsumerStatefulWidget {
   final int characterId;
@@ -52,7 +53,7 @@ class _ShortRestDialogState extends ConsumerState<ShortRestDialog> {
           height: 100,
           child: Center(child: CircularProgressIndicator()),
         ),
-        error: (e, _) => Text('Erreur: $e'),
+        error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
         data: (char) {
           if (char == null) return const Text('Personnage introuvable');
 
@@ -61,7 +62,7 @@ class _ShortRestDialogState extends ConsumerState<ShortRestDialog> {
               height: 100,
               child: Center(child: CircularProgressIndicator()),
             ),
-            error: (e, _) => Text('Erreur: $e'),
+            error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
             data: (resources) {
               final hitDice = resources
                   .where((r) => r.resourceName.startsWith('hitDice_d'))

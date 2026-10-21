@@ -15,7 +15,7 @@ class _EquipmentTab extends ConsumerWidget {
     try {
       final decoded = jsonDecode(character.currency) as Map<String, dynamic>;
       currency = decoded.map((k, v) => MapEntry(k, (v as num).toInt()));
-    } catch (_) {}
+    } catch (e, st) { AppErrors.log(e, st, context: 'Equipment.currency'); }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
@@ -70,7 +70,7 @@ class _EquipmentTab extends ConsumerWidget {
           const SizedBox(height: 8),
           equipAsync.when(
             loading: () => const CircularProgressIndicator(),
-            error: (e, _) => Text('Erreur: $e'),
+            error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
             data: (items) {
               if (items.isEmpty) {
                 return Text('Aucun objet.',

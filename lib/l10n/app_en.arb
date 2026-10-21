@@ -134,6 +134,9 @@
   "errorRequired": "This field is required",
   "errorInvalidNumber": "Please enter a valid number",
   "errorGeneric": "An error occurred",
+  "errorNetwork": "Unable to connect. Check your network and try again.",
+  "errorPermission": "This action is not allowed for this account.",
+  "actionRetry": "Retry",
 
   "step4RaceLabel": "Race",
   "step4SpeciesLabel": "Species",

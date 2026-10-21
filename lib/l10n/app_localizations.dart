@@ -794,6 +794,24 @@ abstract class AppLocalizations {
   /// **'Une erreur est survenue'**
   String get errorGeneric;
 
+  /// No description provided for @errorNetwork.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion impossible. Vérifiez votre réseau et réessayez.'**
+  String get errorNetwork;
+
+  /// No description provided for @errorPermission.
+  ///
+  /// In fr, this message translates to:
+  /// **'Action non autorisée pour ce compte.'**
+  String get errorPermission;
+
+  /// No description provided for @actionRetry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get actionRetry;
+
   /// No description provided for @step4RaceLabel.
   ///
   /// In fr, this message translates to:

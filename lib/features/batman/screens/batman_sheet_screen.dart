@@ -13,6 +13,7 @@ import '../../character/providers/character_providers.dart';
 import '../../export/batman_pdf_generator.dart';
 import '../providers/batman_providers.dart';
 import 'batman_level_up_screen.dart';
+import '../../../core/widgets/async_error_view.dart';
 
 class BatmanSheetScreen extends ConsumerWidget {
   final int characterId;
@@ -26,7 +27,7 @@ class BatmanSheetScreen extends ConsumerWidget {
     return characterAsync.when(
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, _) => Scaffold(body: Center(child: Text('$e'))),
+      error: (e, st) => Scaffold(body: AsyncErrorView(error: e, stackTrace: st)),
       data: (character) {
         if (character == null) {
           return const Scaffold(
@@ -35,7 +36,7 @@ class BatmanSheetScreen extends ConsumerWidget {
         return batmanAsync.when(
           loading: () => const Scaffold(
               body: Center(child: CircularProgressIndicator())),
-          error: (e, _) => Scaffold(body: Center(child: Text('$e'))),
+          error: (e, st) => Scaffold(body: AsyncErrorView(error: e, stackTrace: st)),
           data: (batman) {
             if (batman == null) {
               return const Scaffold(
@@ -638,10 +639,10 @@ class _WaysTab extends ConsumerWidget {
 
     return charWaysAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('$e')),
+      error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
       data: (charWays) => allWaysAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('$e')),
+        error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
         data: (allWays) {
           if (charWays.isEmpty) {
             return const Center(

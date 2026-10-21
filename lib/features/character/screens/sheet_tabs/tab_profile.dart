@@ -342,7 +342,7 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
           ),
           ref.watch(characterProficienciesProvider(widget.characterId)).when(
             loading: () => const LinearProgressIndicator(),
-            error: (e, _) => Text('Erreur maîtrises: $e'),
+            error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
             data: (profs) {
               return ref.watch(srdWeaponMasteriesProvider).when(
                 loading: () => const SizedBox.shrink(),
@@ -441,7 +441,7 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
           ),
           featsAsync.when(
             loading: () => const LinearProgressIndicator(),
-            error: (e, _) => Text('Erreur dons: $e'),
+            error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
             data: (feats) {
               return Card(
                 margin: const EdgeInsets.only(bottom: 16),
@@ -820,11 +820,11 @@ class _AddFeatDialogState extends ConsumerState<_AddFeatDialog> {
             Expanded(
               child: allFeatsAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, _) => Center(child: Text('Erreur: $e')),
+                error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
                 data: (allFeats) {
                   return currentFeatsAsync.when(
                     loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (e, _) => Center(child: Text('Erreur: $e')),
+                    error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
                     data: (currentFeats) {
                       final currentIds = currentFeats.map((f) => f.id).toSet();
                       final availableFeats = allFeats
@@ -910,8 +910,7 @@ Future<void> _showFeatProficienciesDialog(
   String featId,
 ) async {
   final db = ref.read(databaseProvider);
-  final existingProfs = await (db.select(db.characterProficiencies)
-    ..where((p) => p.characterId.equals(characterId))).get();
+  final existingProfs = await db.characterDao.getProficiencies(characterId);
   final existingKeys = existingProfs.map((p) => p.proficiencyKey).toSet();
 
   List<({String key, String name, String subtitle})> eligible = [];
@@ -1091,6 +1090,7 @@ class _ManageProficienciesDialog extends ConsumerStatefulWidget {
 
 class _ManageProficienciesDialogState extends ConsumerState<_ManageProficienciesDialog> {
   late Map<String, ({bool isProficient, bool hasExpertise})> _profMap;
+  bool _saving = false;
 
   @override
   void initState() {
@@ -1192,7 +1192,7 @@ class _ManageProficienciesDialogState extends ConsumerState<_ManageProficiencies
             child: const Text('Annuler'),
           ),
           FilledButton(
-            onPressed: _save,
+            onPressed: _saving ? null : _save,
             child: const Text('Enregistrer'),
           ),
         ],
@@ -1201,6 +1201,8 @@ class _ManageProficienciesDialogState extends ConsumerState<_ManageProficiencies
   }
 
   Future<void> _save() async {
+    if (_saving) return;
+    setState(() => _saving = true);
     final db = ref.read(databaseProvider);
 
     final existingOtherProfs = widget.initialProfs.where((p) => 

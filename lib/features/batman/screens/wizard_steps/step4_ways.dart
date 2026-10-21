@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers/batman_providers.dart';
+import '../../../../core/widgets/async_error_view.dart';
 
 class Step4Ways extends ConsumerWidget {
   const Step4Ways({super.key});
@@ -14,10 +15,10 @@ class Step4Ways extends ConsumerWidget {
 
     return waysAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Erreur: $e')),
+      error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
       data: (ways) => profilesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Erreur: $e')),
+        error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
         data: (profiles) {
           final profile =
               profiles.where((p) => p.id == wizard.profileId).firstOrNull;

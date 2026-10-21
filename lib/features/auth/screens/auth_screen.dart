@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/utils/url_helper.dart';
 import '../../../../core/constants/app_version.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../core/utils/app_errors.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -64,11 +65,13 @@ class _AuthScreenState extends State<AuthScreen> {
           password: password,
         );
       }
-    } on AuthException catch (_) {
+    } on AuthException catch (e, st) {
+      AppErrors.log(e, st, context: 'Auth');
       setState(() {
         _errorMessage = 'Échec de l’authentification. Vérifiez vos identifiants et réessayez.';
       });
-    } catch (_) {
+    } catch (e, st) {
+      AppErrors.log(e, st, context: 'Auth');
       setState(() {
         _errorMessage = 'Une erreur inattendue est survenue. Veuillez réessayer plus tard.';
       });

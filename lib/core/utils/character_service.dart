@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 
 import '../database/app_database.dart';
 import '../database/tables/tables.dart';
+import '../utils/app_errors.dart';
+import '../utils/armor_class_helper.dart';
 import '../utils/dnd_rules.dart';
 import '../utils/starting_equipment_helper.dart';
 import '../../features/character/providers/wizard_provider.dart';
@@ -600,65 +602,22 @@ class CharacterService {
     final classes = await db.characterDao.getCharacterClasses(characterId);
 
     // 3. Get equipment
-    final equipment = await (db.select(db.characterEquipment)
-          ..where((e) => e.characterId.equals(characterId)))
-        .get();
+    final equipment = await db.characterDao.getEquipment(characterId);
 
-    // 4. Parse equipped items
-    ArmorInfo? equippedArmor;
-    final equippedShields = <ArmorInfo>[];
-
-    for (final item in equipment) {
-      if (!item.equipped) continue;
-      final armor = parseEquipmentAsArmor(item);
-      if (armor == null) continue;
-      if (armor.type == 'shield') {
-        equippedShields.add(armor);
-      } else {
-        equippedArmor = armor;
-      }
-    }
-
-    final dexMod = DndRules.modifier(dexScore);
-    final conMod = DndRules.modifier(conScore);
-    final wisMod = DndRules.modifier(wisScore);
-
-    int baseAc = 10;
-    int? maxDex;
-
-    if (equippedArmor != null) {
-      baseAc = equippedArmor.baseAc;
-      maxDex = equippedArmor.maxDex;
-    } else {
-      // Unarmored Defense checking
-      final isBarbarian = classes.any((c) => c.classId == 'barbarian');
-      final isMonk = classes.any((c) => c.classId == 'monk');
-      
-      if (isBarbarian) {
-        baseAc = 10 + conMod;
-      } else if (isMonk) {
-        if (equippedShields.isEmpty) {
-          baseAc = 10 + wisMod;
-        }
-      }
-    }
-
-    int dexBonus = dexMod;
-    if (maxDex != null) {
-      if (dexBonus > maxDex) dexBonus = maxDex;
-    }
-
-    int totalAc = baseAc + dexBonus;
-    for (final shield in equippedShields) {
-      totalAc += shield.baseAc;
-    }
+    final totalAc = ArmorClassHelper.calculateAc(
+      equippedItems: equipment.where((e) => e.equipped).toList(),
+      dexMod: DndRules.modifier(dexScore),
+      conMod: DndRules.modifier(conScore),
+      wisMod: DndRules.modifier(wisScore),
+      className: classes.map((c) => c.classId).join(' '),
+    ).totalAc;
 
     // 5. Update character AC in DB
-    await (db.update(db.characters)..where((c) => c.id.equals(characterId)))
-        .write(CharactersCompanion(
-          armorClass: Value(totalAc),
-          updatedAt: Value(DateTime.now().toIso8601String()),
-        ));
+    await db.characterDao.updateCharacter(CharactersCompanion(
+      id: Value(characterId),
+      armorClass: Value(totalAc),
+      updatedAt: Value(DateTime.now().toIso8601String()),
+    ));
 
     return totalAc;
   }
@@ -789,16 +748,18 @@ class CharacterService {
     // Fetch character to update currency field
     final character = await db.characterDao.getCharacterById(characterId);
     if (character != null) {
-      final String currentCurrencyJson = character.currency;
       try {
-        final Map<String, dynamic> currMap = jsonDecode(currentCurrencyJson);
+        final Map<String, dynamic> currMap = jsonDecode(character.currency);
         currMap['gp'] = (currMap['gp'] ?? 0) + gold;
-        await (db.update(db.characters)..where((t) => t.id.equals(characterId))).write(
+        await db.characterDao.updateCharacter(
           CharactersCompanion(
+            id: Value(characterId),
             currency: Value(jsonEncode(currMap)),
           ),
         );
-      } catch (_) {}
+      } on FormatException catch (e, st) {
+        AppErrors.log(e, st, context: 'Initial currency JSON');
+      }
     }
   }
 

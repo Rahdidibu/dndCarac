@@ -10,6 +10,7 @@ import '../../../core/utils/character_service.dart';
 import '../../../core/utils/dnd_rules.dart';
 import '../../../l10n/app_localizations.dart';
 import '../providers/character_providers.dart';
+import '../../../core/widgets/async_error_view.dart';
 
 class LevelUpScreen extends ConsumerStatefulWidget {
   final int characterId;
@@ -44,7 +45,7 @@ class _LevelUpScreenState extends ConsumerState<LevelUpScreen> {
       ),
       body: charAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Erreur: $e')),
+        error: (e, st) => AsyncErrorView(error: e, stackTrace: st, onRetry: () => ref.invalidate(characterByIdProvider(widget.characterId))),
         data: (character) {
           if (character == null) return const Center(child: Text('Personnage introuvable'));
 
@@ -52,7 +53,7 @@ class _LevelUpScreenState extends ConsumerState<LevelUpScreen> {
 
           return classesAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('Erreur: $e')),
+            error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
             data: (classes) {
               final hitDie = _getHitDie(_selectedClassId ?? (classes.isNotEmpty ? classes.first.classId : null));
 

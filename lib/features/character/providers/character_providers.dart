@@ -7,6 +7,7 @@ import '../../../core/database/tables/tables.dart';
 import '../../../core/models/character_note.dart';
 import '../../../core/models/character_companion.dart';
 import '../../../core/providers/database_provider.dart';
+import '../../../core/utils/proficiency_utils.dart';
 import '../../../core/utils/supabase_mapper.dart';
 import '../../../core/providers/auth_provider.dart';
 import 'wizard_provider.dart';
@@ -188,10 +189,11 @@ final characterProficienciesProvider =
       .from('character_proficiencies')
       .select()
       .eq('character_id', characterId);
-  return response.map((m) {
-    final camelMap = SupabaseMapper.toCamelCaseMap(m);
-    return CharacterProficiency.fromJson(camelMap);
-  }).toList();
+  return dedupeProficiencies<CharacterProficiency>(
+    response.map((m) => CharacterProficiency.fromJson(SupabaseMapper.toCamelCaseMap(m))),
+    keyOf: (p) => p.proficiencyKey,
+    hasExpertise: (p) => p.hasExpertise,
+  );
 });
 
 final srdSpellsProvider = FutureProvider.family<List<SrdSpell>, RulesetVersion>((ref, ruleset) {

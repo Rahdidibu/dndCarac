@@ -5,6 +5,7 @@ import '../app_database.dart';
 import '../tables/tables.dart';
 import '../../models/character_note.dart';
 import '../../models/character_companion.dart';
+import '../../utils/proficiency_utils.dart';
 import '../../utils/supabase_mapper.dart';
 
 part 'character_dao.g.dart';
@@ -215,16 +216,50 @@ class CharacterDao extends DatabaseAccessor<AppDatabase>
 
   Future<void> replaceAllProficiencies(
       int characterId, List<CharacterProficienciesCompanion> companions) async {
-    final client = Supabase.instance.client;
-    await client
-        .from('character_proficiencies')
-        .delete()
-        .eq('character_id', characterId);
+    final unique = dedupeProficiencies<CharacterProficienciesCompanion>(
+      companions,
+      keyOf: (c) => c.proficiencyKey.value,
+      hasExpertise: (c) => c.hasExpertise.present && c.hasExpertise.value,
+    );
+    await _replaceCharacterRows(
+      'character_proficiencies',
+      characterId,
+      unique.map((c) => SupabaseMapper.insertableToMap(c)).toList(),
+    );
+  }
 
-    if (companions.isNotEmpty) {
-      final maps = companions.map((c) => SupabaseMapper.insertableToMap(c)).toList();
-      await client.from('character_proficiencies').insert(maps);
-    }
+  // Les appels concurrents sur une même table/personnage sont exécutés l'un après l'autre.
+  static final Map<String, Future<void>> _replaceQueues = {};
+
+  /// Remplace toutes les lignes d'un personnage dans [table] sans jamais perdre
+  /// les anciennes données si l'insertion échoue : insertion d'abord, puis
+  /// suppression des anciennes lignes (par id).
+  Future<void> _replaceCharacterRows(
+    String table,
+    int characterId,
+    List<Map<String, dynamic>> rows,
+  ) {
+    final queueKey = '$table:$characterId';
+    final previous = _replaceQueues[queueKey] ?? Future<void>.value();
+    final current = previous.catchError((_) {}).then((_) async {
+      final client = Supabase.instance.client;
+      final oldRows =
+          await client.from(table).select('id').eq('character_id', characterId);
+      final oldIds = oldRows.map((r) => r['id'] as int).toList();
+
+      if (rows.isNotEmpty) {
+        await client.from(table).insert(rows);
+      }
+      if (oldIds.isNotEmpty) {
+        await client.from(table).delete().inFilter('id', oldIds);
+      }
+    });
+    _replaceQueues[queueKey] = current;
+    return current.whenComplete(() {
+      if (identical(_replaceQueues[queueKey], current)) {
+        _replaceQueues.remove(queueKey);
+      }
+    });
   }
 
   // ── Spells ───────────────────────────────────────────────
@@ -297,16 +332,11 @@ class CharacterDao extends DatabaseAccessor<AppDatabase>
 
   Future<void> replaceAllSpellSlots(
       int characterId, List<CharacterSpellSlotsCompanion> slots) async {
-    final client = Supabase.instance.client;
-    await client
-        .from('character_spell_slots')
-        .delete()
-        .eq('character_id', characterId);
-
-    if (slots.isNotEmpty) {
-      final maps = slots.map((s) => SupabaseMapper.insertableToMap(s)).toList();
-      await client.from('character_spell_slots').insert(maps);
-    }
+    await _replaceCharacterRows(
+      'character_spell_slots',
+      characterId,
+      slots.map((s) => SupabaseMapper.insertableToMap(s)).toList(),
+    );
   }
 
   Future<bool> updateSpellSlot(CharacterSpellSlotsCompanion companion) async {
@@ -378,16 +408,11 @@ class CharacterDao extends DatabaseAccessor<AppDatabase>
 
   Future<void> replaceAllResources(
       int characterId, List<CharacterResourcesCompanion> resources) async {
-    final client = Supabase.instance.client;
-    await client
-        .from('character_resources')
-        .delete()
-        .eq('character_id', characterId);
-
-    if (resources.isNotEmpty) {
-      final maps = resources.map((r) => SupabaseMapper.insertableToMap(r)).toList();
-      await client.from('character_resources').insert(maps);
-    }
+    await _replaceCharacterRows(
+      'character_resources',
+      characterId,
+      resources.map((r) => SupabaseMapper.insertableToMap(r)).toList(),
+    );
   }
 
   // ── Attacks ──────────────────────────────────────────────
@@ -445,6 +470,15 @@ class CharacterDao extends DatabaseAccessor<AppDatabase>
         .map((list) {
           return list.map((m) => CharacterEquipmentData.fromJson(SupabaseMapper.toCamelCaseMap(m))).toList();
         });
+  }
+
+  Future<List<CharacterEquipmentData>> getEquipment(int characterId) async {
+    final client = Supabase.instance.client;
+    final response = await client
+        .from('character_equipment')
+        .select()
+        .eq('character_id', characterId);
+    return response.map((m) => CharacterEquipmentData.fromJson(SupabaseMapper.toCamelCaseMap(m))).toList();
   }
 
   Future<int> insertEquipment(CharacterEquipmentCompanion companion) async {

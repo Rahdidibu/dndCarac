@@ -62,7 +62,7 @@
   lorsque possible. [test/](../test/) couvre les regles, l'etat du wizard et un
   widget du wizard; ne pas en deduire une couverture de Supabase/auth/PDF.
 - Web dans le conteneur :
-  `flutter run -d web-server --web-hostname=0.0.0.0 --web-port=8080 --dart-define-from-file=.env`.
+  `flutter run -d web-server --web-hostname=0.0.0.0 --web-port=8035 --dart-define-from-file=.env`.
   Chrome tourne sur l'hote; `flutter run -d chrome` suppose un Chrome disponible
   dans l'environnement Flutter.
 - Mettre ce contexte a jour lorsque l'architecture ou le parcours local evolue.

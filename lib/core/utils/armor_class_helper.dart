@@ -45,74 +45,96 @@ class ArmorClassHelper {
     int dexBonus = dexMod;
     int shieldBonus = 0;
     int customBonus = 0;
-
+    int armorMagicBonus = 0;
     String armorName = 'Sans armure';
     String shieldName = '';
     String armorCategory = 'none'; // 'none', 'light', 'medium', 'heavy'
 
     for (final item in equippedItems) {
       if (!item.equipped) continue;
-      final nameLower = item.itemName.toLowerCase();
-      final notesLower = (item.notes ?? '').toLowerCase();
 
-      // Detection Bouclier
-      if (nameLower.contains('bouclier') || nameLower.contains('shield')) {
-        shieldBonus = 2;
-        shieldName = item.itemName;
-        if (notesLower.contains('+1')) shieldBonus += 1;
-        if (notesLower.contains('+2')) shieldBonus += 2;
-        if (notesLower.contains('+3')) shieldBonus += 3;
+      final itemName = item.itemName.toLowerCase();
+      final notes = (item.notes ?? '').toLowerCase();
+      final magicMatch = RegExp(r'\+\s*([1-3])(?!\d)').firstMatch(item.notes ?? '');
+      final magicBonus = magicMatch != null ? int.parse(magicMatch.group(1)!) : 0;
+
+      // Shield
+      if (itemName.contains('bouclier') || itemName.contains('shield') || itemName.contains('buckler') || itemName.contains('pavois')) {
+        int shieldAc = 2;
+        if (itemName.contains('buckler') || itemName.contains('poing')) shieldAc = 1;
+        if (itemName.contains('pavois') || itemName.contains('tower')) shieldAc = 3;
+        shieldBonus += shieldAc + magicBonus;
+        shieldName = shieldName.isEmpty ? item.itemName : '$shieldName, ${item.itemName}';
         continue;
       }
 
-      // Detection Armures Lourdes
-      if (nameLower.contains('harnois') || nameLower.contains('plate') || nameLower.contains('clibanion') || nameLower.contains('splint') || nameLower.contains('cotte de mailles') || nameLower.contains('chain mail') || nameLower.contains('broigne') || nameLower.contains('ring mail')) {
+      // Heavy armor
+      if (itemName.contains('harnois') || itemName.contains('plate') || itemName.contains('clavandier') || itemName.contains('splint') || itemName.contains('cotte de mailles') || itemName.contains('chain mail') || itemName.contains('chainmail')) {
         armorCategory = 'heavy';
         armorName = item.itemName;
-        if (nameLower.contains('harnois') || nameLower.contains('full plate')) {
-          armorBase = 18;
-        } else if (nameLower.contains('clibanion') || nameLower.contains('splint')) {
+        if (itemName.contains('splint') || itemName.contains('clavandier')) {
           armorBase = 17;
-        } else if (nameLower.contains('cotte de mailles') || nameLower.contains('chain mail')) {
+        } else if (itemName.contains('cotte de mailles') || itemName.contains('chain mail') || itemName.contains('chainmail')) {
           armorBase = 16;
         } else {
-          armorBase = 14;
+          armorBase = 18;
         }
-        dexBonus = 0; // Aucun bonus de DEX pour armure lourde
-      }
-      // Detection Armures Intermédiaires
-      else if (nameLower.contains('demi-plaque') || nameLower.contains('half plate') || nameLower.contains('cuirasse') || nameLower.contains('breastplate') || nameLower.contains('chemise de mailles') || nameLower.contains('chain shirt') || nameLower.contains('écaille') || nameLower.contains('scale mail') || nameLower.contains('peau') || nameLower.contains('hide')) {
-        armorCategory = 'medium';
-        armorName = item.itemName;
-        if (nameLower.contains('demi-plaque') || nameLower.contains('half plate')) {
-          armorBase = 15;
-        } else if (nameLower.contains('cuirasse') || nameLower.contains('breastplate')) {
-          armorBase = 14;
-        } else if (nameLower.contains('chemise de mailles') || nameLower.contains('chain shirt')) {
-          armorBase = 13;
-        } else {
-          armorBase = 12;
-        }
-        dexBonus = math.min(dexMod, 2); // Max +2 de DEX
-      }
-      // Detection Armures Légères
-      else if (nameLower.contains('cuir clouté') || nameLower.contains('studded leather') || nameLower.contains('cuir') || nameLower.contains('leather') || nameLower.contains('matelassée') || nameLower.contains('padded')) {
-        armorCategory = 'light';
-        armorName = item.itemName;
-        if (nameLower.contains('cuir clouté') || nameLower.contains('studded leather')) {
-          armorBase = 12;
-        } else if (nameLower.contains('cuir') || nameLower.contains('leather')) {
-          armorBase = 11;
-        } else {
-          armorBase = 11;
-        }
-        dexBonus = dexMod; // Totalité du bonus de DEX
+        dexBonus = 0;
+        customBonus += magicBonus;
+        armorMagicBonus += magicBonus;
+        continue;
       }
 
-      // Detect magical bonus (+1, +2, +3)
-      if (notesLower.contains('+1')) customBonus += 1;
-      if (notesLower.contains('+2')) customBonus += 2;
-      if (notesLower.contains('+3')) customBonus += 3;
+      // Medium armor
+      if (itemName.contains('chemise de mailles') || itemName.contains('chainshirt') || itemName.contains('cuirasse') || itemName.contains('breastplate') || itemName.contains('écailles') || itemName.contains('scale mail') || itemName.contains('demi-harnois') || itemName.contains('half plate') || itemName.contains('hide') || itemName.contains('peau')) {
+        armorCategory = 'medium';
+        armorName = item.itemName;
+        if (itemName.contains('cuirasse') || itemName.contains('breastplate') || itemName.contains('écailles') || itemName.contains('scale')) {
+          armorBase = 14;
+        } else if (itemName.contains('demi-harnois') || itemName.contains('half plate')) {
+          armorBase = 15;
+        } else if (itemName.contains('hide') || itemName.contains('peau')) {
+          armorBase = 12;
+        } else {
+          armorBase = 13;
+        }
+        dexBonus = math.min(dexMod, 2);
+        customBonus += magicBonus;
+        armorMagicBonus += magicBonus;
+        continue;
+      }
+
+      // Light armor
+      if (itemName.contains('cuir') || itemName.contains('leather') || itemName.contains('matelassé') || itemName.contains('padded') || itemName.contains('studded') || itemName.contains('cuir clouté')) {
+        armorCategory = 'light';
+        armorName = item.itemName;
+        if (itemName.contains('studded') || itemName.contains('clouté')) {
+          armorBase = 12;
+        } else {
+          armorBase = 11;
+        }
+        dexBonus = dexMod;
+        customBonus += magicBonus;
+        armorMagicBonus += magicBonus;
+        continue;
+      }
+
+      // CA X in notes
+      final caMatch = RegExp(r'ca\s*([0-9]+)').firstMatch(notes);
+      if (caMatch != null) {
+        final val = int.parse(caMatch.group(1)!);
+        armorCategory = notes.contains('+') ? 'shield' : val >= 16 ? 'heavy' : val >= 13 ? 'medium' : 'light';
+        armorBase = val;
+        armorName = item.itemName;
+        if (notes.contains('+')) {
+          shieldBonus += val + magicBonus;
+          shieldName = shieldName.isEmpty ? item.itemName : '$shieldName, ${item.itemName}';
+        } else {
+          dexBonus = armorCategory == 'heavy' ? 0 : armorCategory == 'medium' ? math.min(dexMod, 2) : dexMod;
+          customBonus += magicBonus;
+          armorMagicBonus += magicBonus;
+        }
+      }
     }
 
     // Unarmored / Mage Armor / Barkskin
@@ -125,7 +147,7 @@ class ArmorClassHelper {
         if (clsLower.contains('barbare') || clsLower.contains('barbarian')) {
           baseAc = 10 + conMod;
           armorName = 'Défense sans armure (Barbare)';
-        } else if (clsLower.contains('moine') || clsLower.contains('monk')) {
+        } else if ((clsLower.contains('moine') || clsLower.contains('monk')) && shieldBonus == 0) {
           baseAc = 10 + wisMod;
           armorName = 'Défense sans armure (Moine)';
         } else {
@@ -156,6 +178,7 @@ class ArmorClassHelper {
     List<String> parts = ['$baseAc ($armorName)'];
     if (dexBonus != 0) parts.add('${dexBonus >= 0 ? "+$dexBonus" : "$dexBonus"} DEX');
     if (shieldBonus != 0) parts.add('+$shieldBonus Bouclier');
+    if (armorMagicBonus != 0) parts.add('+$armorMagicBonus Bonus magique');
     if (hasShieldSpell) parts.add('+5 Sort Bouclier');
     if (hasShieldOfFaith) parts.add('+2 Bouclier de la foi');
     if (hasHaste) parts.add('+2 Hâte');

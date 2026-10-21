@@ -9,6 +9,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/roll_result_dialog.dart';
 import '../../../../core/widgets/combat_attack_dialog.dart';
 import '../../providers/character_providers.dart';
+import '../../../../core/utils/app_errors.dart';
 
 class TabCompanions extends ConsumerWidget {
   final int characterId;
@@ -312,7 +313,7 @@ class _CompanionCardState extends ConsumerState<_CompanionCard> {
     List<dynamic> attacksList = [];
     try {
       attacksList = jsonDecode(c.attacks) as List<dynamic>;
-    } catch (_) {}
+    } catch (e, st) { AppErrors.log(e, st, context: 'Companions.attacks'); }
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -643,7 +644,7 @@ class _AddEditCompanionDialogState extends ConsumerState<_AddEditCompanionDialog
     
     List<dynamic> attacks = [];
     if (c != null) {
-      try { attacks = jsonDecode(c.attacks); } catch (_) {}
+      try { attacks = jsonDecode(c.attacks); } catch (e, st) { AppErrors.log(e, st, context: 'Companions.attacks'); }
     }
     final firstAtk = attacks.isNotEmpty ? attacks.first : {};
     _atkNameController = TextEditingController(text: firstAtk['name'] ?? '');

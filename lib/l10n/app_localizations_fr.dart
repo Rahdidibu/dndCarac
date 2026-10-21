@@ -368,6 +368,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get errorGeneric => 'Une erreur est survenue';
 
   @override
+  String get errorNetwork =>
+      'Connexion impossible. Vérifiez votre réseau et réessayez.';
+
+  @override
+  String get errorPermission => 'Action non autorisée pour ce compte.';
+
+  @override
+  String get actionRetry => 'Réessayer';
+
+  @override
   String get step4RaceLabel => 'Race';
 
   @override
