@@ -56,3 +56,6 @@ deploy/web/*.apk
 .env.*
 !.env.template
 !.devcontainer/.env.template
+
+# Local corporate certificate authorities for devcontainer HTTPS downloads
+.devcontainer/certificates/*.crt

@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter Web (devcontainer)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "deviceId": "web-server",
+      "toolArgs": [
+        "--web-hostname=0.0.0.0",
+        "--web-port=8080",
+        "--dart-define-from-file=${workspaceFolder}/.env"
+      ]
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 # Le Codex de l'Aventurier 🎲✨
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Flutter](https://img.shields.io/badge/Flutter-3.8%2B-blue)](https://flutter.dev)
+[![Flutter](https://img.shields.io/badge/Flutter-3.44%2B-blue)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2)](https://dart.dev)
 [![Version](https://img.shields.io/badge/Version-v2.1.0-neonCyan)](https://github.com/Rahdidibu/dndCarac/releases)
 
@@ -29,7 +29,7 @@
   - Ajout rapide de compagnons (Imp, Serviteur Invisible, Élémentaire de Feu, Loup, etc.) avec PV, CA et attaques intégrées.
 - 🦇 **Univers Thématisés & La Forge** : Contenu spécial et assistant Batman/Forge.
 - 🌐 **Multilingue (Français & Anglais)** & Mode Sombre Cyber-Fantasy.
-- ☁️ **Authentification & Synchronisation Optionnelles** via Supabase.
+- ☁️ **Authentification & Données Cloud** via Supabase.
 
 ---
 
@@ -47,7 +47,7 @@
 - **Langage** : [Dart](https://dart.dev)
 - **Gestion d'État** : Riverpod 2.x
 - **Base de Données Locale** : Drift (SQLite avec support IndexedDB pour le Web)
-- **Backend Optionnel** : Supabase (Authentification & Synchro Cloud)
+- **Backend** : Supabase (Authentification & Données Cloud)
 - **Conteneurisation** : Docker & Nginx
 
 ---
@@ -55,8 +55,8 @@
 ## 🚀 Préréquis & Installation Local
 
 ### Préréquis
-- Flutter SDK `3.8.0` ou supérieur
-- Dart SDK
+- Flutter SDK compatible avec [pubspec.lock](pubspec.lock) : Flutter `>=3.44.0`
+  et Dart `>=3.12.0` pour les dépendances actuellement verrouillées
 - Google Chrome ou un émulateur Android
 
 ### Installation
@@ -77,10 +77,77 @@
    flutter gen-l10n
    ```
 
-4. **Lancer en local (Web)** :
+4. **Configurer Supabase et lancer en local (Web)** :
    ```bash
-   flutter run -d chrome
+   cp .env.template .env
+   # Renseigner SUPABASE_URL et SUPABASE_ANON_KEY dans .env.
+   ./run_local_chrome.sh
    ```
+
+### Développement Web dans VS Code avec Dev Containers
+
+Ce parcours lance l'interface en local et utilise un **projet Supabase hébergé**.
+Le conteneur fournit Flutter `3.44.4`, Supabase CLI et l'accès au Docker de
+l'hôte. Il ne contient ni Chrome, ni SDK/émulateur Android : le navigateur
+s'exécute sur l'hôte.
+
+1. Installer Docker et l'extension VS Code **Dev Containers**, puis démarrer Docker.
+   Si le réseau utilise un proxy HTTPS d'entreprise, copier ses certificats
+   d'autorité approuvés (format PEM, extension `.crt`) dans
+   [.devcontainer/certificates/](.devcontainer/certificates/) **avant** la
+   construction. Ces fichiers locaux sont ignorés par Git et intégrés au magasin
+   de confiance du conteneur. Ne jamais copier de clé privée.
+2. Ouvrir le dépôt dans VS Code et exécuter **Dev Containers: Reopen in Container**.
+   Après une modification du Dockerfile, utiliser **Rebuild Container**.
+   La création restaure les versions de dépendances verrouillées et génère les
+   traductions; le premier téléchargement du SDK peut être long.
+3. Dans un terminal du conteneur, à la racine du dépôt :
+   ```bash
+   cp .env.template .env
+   ```
+   Renseigner l'URL du projet Supabase et sa clé **publique/publishable ou anon**.
+   Ne jamais utiliser une clé `service_role`. Le fichier `.env` est ignoré par Git.
+   Les constantes fournies à Flutter Web sont visibles dans le navigateur.
+4. Dans le projet Supabase de développement, vérifier que les migrations de
+   [supabase/migrations/](supabase/migrations/) sont appliquées et que
+   l'authentification email/mot de passe est activée. Dans **Authentication >
+   URL Configuration**, autoriser `http://localhost:8080` comme URL de site/de
+   redirection pour les confirmations d'inscription. Utiliser un projet dédié
+   aux tests plutôt que modifier les données de production.
+5. Lancer **Flutter Web (devcontainer)** avec F5, ou exécuter :
+   ```bash
+   flutter run -d web-server --web-hostname=0.0.0.0 --web-port=8080 \
+     --dart-define-from-file=.env
+   ```
+6. Ouvrir `http://localhost:8080` dans le navigateur de l'hôte, depuis l'onglet
+   **Ports** si nécessaire. En session distante, utiliser l'URL effectivement
+   transférée et l'autoriser aussi dans Supabase. Le serveur `web-server` a des
+   capacités de débogage plus limitées que le périphérique Chrome.
+
+Le fichier `.env` n'est pas lu automatiquement : le paramètre
+`--dart-define-from-file` est indispensable. Après toute modification de `.env`,
+arrêter puis relancer Flutter. Sans configuration/session Supabase, l'application
+ne permet pas actuellement le parcours complet hors ligne.
+
+Vérifications dans le conteneur :
+
+```bash
+flutter --version
+flutter doctor
+flutter analyze
+flutter test
+flutter build web --release --dart-define-from-file=.env
+```
+
+Les avertissements de `flutter doctor` sur Chrome et Android sont attendus dans
+ce conteneur Web. Le port `8080` est transféré automatiquement; les ports
+`54321`/`54323` et Supabase CLI restent disponibles pour un éventuel backend
+local, mais aucun service Supabase local n'est démarré dans ce parcours.
+Le template [.devcontainer/.env.template](.devcontainer/.env.template) décrit
+uniquement des variables de proxy; il ne remplace pas le `.env` applicatif racine.
+En cas d'erreur `unable to get local issuer certificate`, vérifier les certificats
+dans ce dossier puis reconstruire le conteneur; ne pas désactiver la
+vérification TLS.
 
 ---
 

@@ -37,6 +37,6 @@
       "onAutoForward": "silent"
     }
   },
-  "postCreateCommand": "flutter doctor && flutter pub get",
+  "postCreateCommand": "flutter pub get --enforce-lockfile && flutter gen-l10n",
   "remoteUser": "vscode"
 }
