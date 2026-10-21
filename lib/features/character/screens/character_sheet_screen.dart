@@ -18,6 +18,7 @@ import '../../../core/utils/dnd_rules.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/starting_equipment_helper.dart';
 import '../../../core/utils/string_utils.dart';
+import '../../../core/utils/skills_catalog.dart';
 import '../../export/pdf_generator.dart';
 import '../providers/character_providers.dart';
 import '../../../core/theme/app_theme.dart';
@@ -25,6 +26,7 @@ import '../../../core/providers/forge_navigation_provider.dart';
 import '../../../core/utils/markdown_text.dart';
 import '../../../core/widgets/hp_modifier_dialog.dart';
 import '../../../core/widgets/short_rest_dialog.dart';
+import '../../../core/widgets/undo_snackbar.dart';
 import '../../../core/widgets/conditions_dialog.dart';
 import '../../../core/widgets/roll_result_dialog.dart';
 import '../../../core/widgets/universal_dice_roller.dart';
@@ -55,12 +57,9 @@ class CharacterSheetScreen extends ConsumerWidget {
     final abilityScores = await db.characterDao.getAbilityScores(characterId);
     final proficiencies = await db.characterDao.getProficiencies(characterId);
     final charSpells = await db.characterDao.getCharacterSpells(characterId);
-    final srdSpells =
-        await db.compendiumDao.getAllSpells(character.ruleset);
-    final attacks =
-        await db.characterDao.watchAttacks(characterId).first;
-    final equipment =
-        await db.characterDao.watchEquipment(characterId).first;
+    final srdSpells = await db.compendiumDao.getAllSpells(character.ruleset);
+    final attacks = await db.characterDao.watchAttacks(characterId).first;
+    final equipment = await db.characterDao.watchEquipment(characterId).first;
     final feats = await db.characterDao.getCharacterFeats(characterId);
     final srdFeats = await db.compendiumDao.getAllFeats(character.ruleset);
     final notes = await db.characterDao.getCharacterNotes(characterId);
@@ -79,9 +78,7 @@ class CharacterSheetScreen extends ConsumerWidget {
       notes: notes,
     );
 
-    await Printing.layoutPdf(
-      onLayout: (_) async => Uint8List.fromList(bytes),
-    );
+    await Printing.layoutPdf(onLayout: (_) async => Uint8List.fromList(bytes));
   }
 
   @override
@@ -92,27 +89,47 @@ class CharacterSheetScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return charAsync.when(
-      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, st) => Scaffold(body: AsyncErrorView(error: e, stackTrace: st, onRetry: () => ref.invalidate(characterByIdProvider(characterId)))),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (e, st) => Scaffold(
+        body: AsyncErrorView(
+          error: e,
+          stackTrace: st,
+          onRetry: () => ref.invalidate(characterByIdProvider(characterId)),
+        ),
+      ),
       data: (character) {
         if (character == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Personnage introuvable')),
-            body: const Center(child: Text('Ce personnage n\'existe plus.')),
+            appBar: AppBar(title: Text(l10n.characterNotFound)),
+            body: Center(child: Text(l10n.characterNotFound)),
           );
         }
 
         final totalLevel = totalLevelAsync.whenData((v) => v).valueOrNull ?? 1;
-        final classLine = classesAsync.whenData((list) {
-          return list.map((c) {
-            final name = CharacterService.classDisplayName(c.classId, l10n);
-            return '$name ${c.level}';
-          }).join(' / ');
-        }).valueOrNull ?? '';
+        final classLine =
+            classesAsync.whenData((list) {
+              return list
+                  .map((c) {
+                    final name = CharacterService.classDisplayName(
+                      c.classId,
+                      l10n,
+                    );
+                    return '$name ${c.level}';
+                  })
+                  .join(' / ');
+            }).valueOrNull ??
+            '';
 
-        final speciesName = ref.watch(characterSpeciesNameProvider(characterId)).valueOrNull;
-        final subspeciesName = ref.watch(characterSubspeciesNameProvider(characterId)).valueOrNull;
-        final backgroundName = ref.watch(characterBackgroundNameProvider(characterId)).valueOrNull;
+        final speciesName = ref
+            .watch(characterSpeciesNameProvider(characterId))
+            .valueOrNull;
+        final subspeciesName = ref
+            .watch(characterSubspeciesNameProvider(characterId))
+            .valueOrNull;
+        final backgroundName = ref
+            .watch(characterBackgroundNameProvider(characterId))
+            .valueOrNull;
 
         final speciesPart = speciesName != null
             ? '$speciesName${subspeciesName != null ? ' ($subspeciesName)' : ''}'
@@ -132,7 +149,8 @@ class CharacterSheetScreen extends ConsumerWidget {
           appBar: AppBar(
             title: Row(
               children: [
-                if (character.imageUrl != null && character.imageUrl!.isNotEmpty) ...[
+                if (character.imageUrl != null &&
+                    character.imageUrl!.isNotEmpty) ...[
                   Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
@@ -152,9 +170,21 @@ class CharacterSheetScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(character.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text(
+                        character.name,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       if (subtitleText.isNotEmpty)
-                        Text(subtitleText, style: const TextStyle(fontSize: 12, color: Colors.white70)),
+                        Text(
+                          subtitleText,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white70,
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -163,20 +193,23 @@ class CharacterSheetScreen extends ConsumerWidget {
             actions: [
               IconButton(
                 icon: const Icon(Icons.gavel, color: AppTheme.neonCyan),
-                tooltip: 'Accéder à la Forge',
+                tooltip: l10n.navForge,
                 onPressed: () {
-                  ref.read(forgeSelectedCharacterIdProvider.notifier).state = character.id;
+                  ref.read(forgeSelectedCharacterIdProvider.notifier).state =
+                      character.id;
                   ref.read(mainTabNavigationProvider.notifier).state = 1;
                   Navigator.of(context).pop();
                 },
               ),
               IconButton(
-                icon: const Icon(Icons.arrow_upward, color: AppTheme.neonPurple),
-                tooltip: l10n.levelUp,
-                onPressed: () => Navigator.of(context).pushNamed(
-                  '/character/levelup',
-                  arguments: characterId,
+                icon: const Icon(
+                  Icons.arrow_upward,
+                  color: AppTheme.neonPurple,
                 ),
+                tooltip: l10n.levelUp,
+                onPressed: () => Navigator.of(
+                  context,
+                ).pushNamed('/character/levelup', arguments: characterId),
               ),
               IconButton(
                 icon: const Icon(Icons.delete_outline, color: AppTheme.neonRed),
@@ -184,7 +217,10 @@ class CharacterSheetScreen extends ConsumerWidget {
                 onPressed: () => _confirmDelete(context, ref, character),
               ),
               IconButton(
-                icon: const Icon(Icons.picture_as_pdf, color: AppTheme.neonCyan),
+                icon: const Icon(
+                  Icons.picture_as_pdf,
+                  color: AppTheme.neonCyan,
+                ),
                 tooltip: l10n.exportCharacterSheet,
                 onPressed: () => _exportPdf(context, ref),
               ),
@@ -200,8 +236,8 @@ class CharacterSheetScreen extends ConsumerWidget {
                       Tab(text: l10n.sheetTabMagic),
                       Tab(text: l10n.sheetTabEquipment),
                       Tab(text: l10n.sheetTabProfile),
-                      const Tab(text: 'Journal'),
-                      const Tab(text: 'Compagnons'),
+                      Tab(text: l10n.sheetTabJournalShort),
+                      Tab(text: l10n.sheetTabCompanionsShort),
                     ],
                   ),
           ),
@@ -211,29 +247,60 @@ class CharacterSheetScreen extends ConsumerWidget {
                   children: [
                     Expanded(
                       flex: 3,
-                      child: _StatsTab(characterId: characterId, character: character, totalLevel: totalLevel),
+                      child: _StatsTab(
+                        characterId: characterId,
+                        character: character,
+                        totalLevel: totalLevel,
+                      ),
                     ),
-                    VerticalDivider(width: 1, color: Colors.white.withValues(alpha: 0.08)),
+                    VerticalDivider(
+                      width: 1,
+                      color: Colors.white.withValues(alpha: 0.08),
+                    ),
                     Expanded(
                       flex: 4,
-                      child: _CombatTab(characterId: characterId, character: character, totalLevel: totalLevel),
+                      child: _CombatTab(
+                        characterId: characterId,
+                        character: character,
+                        totalLevel: totalLevel,
+                      ),
                     ),
-                    VerticalDivider(width: 1, color: Colors.white.withValues(alpha: 0.08)),
+                    VerticalDivider(
+                      width: 1,
+                      color: Colors.white.withValues(alpha: 0.08),
+                    ),
                     Expanded(
                       flex: 4,
-                      child: _RightTabbedPanel(characterId: characterId, character: character),
+                      child: _RightTabbedPanel(
+                        characterId: characterId,
+                        character: character,
+                      ),
                     ),
                   ],
                 )
               : TabBarView(
                   children: [
-                    _StatsTab(characterId: characterId, character: character, totalLevel: totalLevel),
-                    _CombatTab(characterId: characterId, character: character, totalLevel: totalLevel),
+                    _StatsTab(
+                      characterId: characterId,
+                      character: character,
+                      totalLevel: totalLevel,
+                    ),
+                    _CombatTab(
+                      characterId: characterId,
+                      character: character,
+                      totalLevel: totalLevel,
+                    ),
                     _MagicTab(characterId: characterId, character: character),
-                    _EquipmentTab(characterId: characterId, character: character),
+                    _EquipmentTab(
+                      characterId: characterId,
+                      character: character,
+                    ),
                     _ProfileTab(characterId: characterId, character: character),
                     _JournalTab(characterId: characterId),
-                    TabCompanions(characterId: characterId, character: character),
+                    TabCompanions(
+                      characterId: characterId,
+                      character: character,
+                    ),
                   ],
                 ),
           floatingActionButton: FloatingActionButton(
@@ -246,16 +313,16 @@ class CharacterSheetScreen extends ConsumerWidget {
 
         return isDesktop
             ? mainScaffold
-            : DefaultTabController(
-                length: 7,
-                child: mainScaffold,
-              );
+            : DefaultTabController(length: 7, child: mainScaffold);
       },
     );
   }
 
   Future<void> _confirmDelete(
-      BuildContext context, WidgetRef ref, Character character) async {
+    BuildContext context,
+    WidgetRef ref,
+    Character character,
+  ) async {
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
@@ -298,7 +365,8 @@ class _RightTabbedPanel extends StatefulWidget {
   State<_RightTabbedPanel> createState() => _RightTabbedPanelState();
 }
 
-class _RightTabbedPanelState extends State<_RightTabbedPanel> with SingleTickerProviderStateMixin {
+class _RightTabbedPanelState extends State<_RightTabbedPanel>
+    with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
   @override
@@ -324,19 +392,31 @@ class _RightTabbedPanelState extends State<_RightTabbedPanel> with SingleTickerP
             Tab(text: l10n.sheetTabMagic),
             Tab(text: l10n.sheetTabEquipment),
             Tab(text: l10n.sheetTabProfile),
-            const Tab(text: 'Journal'),
-            const Tab(text: 'Compagnons'),
+            Tab(text: l10n.sheetTabJournalShort),
+            Tab(text: l10n.sheetTabCompanionsShort),
           ],
         ),
         Expanded(
           child: TabBarView(
             controller: _tabController,
             children: [
-              _MagicTab(characterId: widget.characterId, character: widget.character),
-              _EquipmentTab(characterId: widget.characterId, character: widget.character),
-              _ProfileTab(characterId: widget.characterId, character: widget.character),
+              _MagicTab(
+                characterId: widget.characterId,
+                character: widget.character,
+              ),
+              _EquipmentTab(
+                characterId: widget.characterId,
+                character: widget.character,
+              ),
+              _ProfileTab(
+                characterId: widget.characterId,
+                character: widget.character,
+              ),
               _JournalTab(characterId: widget.characterId),
-              TabCompanions(characterId: widget.characterId, character: widget.character),
+              TabCompanions(
+                characterId: widget.characterId,
+                character: widget.character,
+              ),
             ],
           ),
         ),

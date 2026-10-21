@@ -5,6 +5,7 @@ import 'package:drift/drift.dart' show Value;
 import '../database/app_database.dart';
 import '../providers/database_provider.dart';
 import '../../features/character/providers/character_providers.dart';
+import '../../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
 class CurrencyManagerDialog extends StatefulWidget {
@@ -36,7 +37,8 @@ class CurrencyManagerDialog extends StatefulWidget {
   State<CurrencyManagerDialog> createState() => _CurrencyManagerDialogState();
 }
 
-class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with SingleTickerProviderStateMixin {
+class _CurrencyManagerDialogState extends State<CurrencyManagerDialog>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   // Currencies
@@ -88,7 +90,8 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
     super.dispose();
   }
 
-  int get _totalCP => _cp + (_sp * 10) + (_ep * 50) + (_gp * 100) + (_pp * 1000);
+  int get _totalCP =>
+      _cp + (_sp * 10) + (_ep * 50) + (_gp * 100) + (_pp * 1000);
   double get _totalGP => _totalCP / 100.0;
   int get _totalCoins => _cp + _sp + _ep + _gp + _pp;
   double get _totalWeightLbs => _totalCoins / 50.0;
@@ -112,6 +115,7 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
   }
 
   void _optimizeCurrency() {
+    final l10n = AppLocalizations.of(context)!;
     final total = _totalCP;
     int remaining = total;
 
@@ -135,14 +139,15 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('✨ Bourse optimisée : Pièces inférieures converties en Or et Platine !'),
+      SnackBar(
+        content: Text(l10n.currencyOptimized),
         duration: Duration(seconds: 2),
       ),
     );
   }
 
   void _executeTransaction() {
+    final l10n = AppLocalizations.of(context)!;
     final amount = int.tryParse(_transAmountCtrl.text) ?? 0;
     if (amount <= 0) return;
 
@@ -169,15 +174,17 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
 
     if (!_isAddTransaction && transCP > _totalCP) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('❌ Fonds insuffisants dans la bourse !'),
+        SnackBar(
+          content: Text(l10n.currencyInsufficientFunds),
           backgroundColor: Colors.redAccent,
         ),
       );
       return;
     }
 
-    final newTotalCP = _isAddTransaction ? (_totalCP + transCP) : (_totalCP - transCP);
+    final newTotalCP = _isAddTransaction
+        ? (_totalCP + transCP)
+        : (_totalCP - transCP);
 
     // Re-distribute
     int remaining = newTotalCP;
@@ -202,38 +209,44 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(_isAddTransaction
-            ? '💰 +$amount ${_transType.toUpperCase()} ajoutés à la bourse !'
-            : '💸 -$amount ${_transType.toUpperCase()} dépensés (monnaie rendue automatiquement) !'),
+        content: Text(
+          _isAddTransaction
+              ? l10n.currencyAdded(amount, _transType.toUpperCase())
+              : l10n.currencySpent(amount, _transType.toUpperCase()),
+        ),
       ),
     );
   }
 
   void _emptyPurse() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: Colors.grey.shade900,
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.warning_amber_rounded, color: Colors.orangeAccent),
             SizedBox(width: 10),
-            Text('Vider la bourse ?', style: TextStyle(color: Colors.white)),
+            Text(
+              l10n.currencyEmptyTitle,
+              style: const TextStyle(color: Colors.white),
+            ),
           ],
         ),
-        content: const Text(
-          'Voulez-vous vraiment réinitialiser toutes les pièces de la bourse à 0 ?',
-          style: TextStyle(color: Colors.white70),
+        content: Text(
+          l10n.currencyEmptyConfirm,
+          style: const TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Annuler'),
+            child: Text(l10n.actionCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Vider'),
+            child: Text(l10n.currencyEmptyButton),
           ),
         ],
       ),
@@ -248,8 +261,8 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
           _updateControllers();
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('🗑️ Bourse vidée (toutes les pièces remises à 0).'),
+          SnackBar(
+            content: Text(l10n.currencyEmptied),
             duration: Duration(seconds: 2),
           ),
         );
@@ -260,13 +273,7 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
   Future<void> _save(WidgetRef ref) async {
     _updateFromControllers();
 
-    final newMap = {
-      'cp': _cp,
-      'sp': _sp,
-      'ep': _ep,
-      'gp': _gp,
-      'pp': _pp,
-    };
+    final newMap = {'cp': _cp, 'sp': _sp, 'ep': _ep, 'gp': _gp, 'pp': _pp};
 
     final db = ref.read(databaseProvider);
     await db.characterDao.updateCharacter(
@@ -284,11 +291,15 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer(
       builder: (context, ref, child) {
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 24,
+          ),
           child: GlassContainer(
             borderRadius: 24,
             padding: const EdgeInsets.all(20),
@@ -304,24 +315,35 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
                   // En-tête de la bourse
                   Row(
                     children: [
-                      const Icon(Icons.account_balance_wallet, color: Colors.amber, size: 28),
+                      const Icon(
+                        Icons.account_balance_wallet,
+                        color: Colors.amber,
+                        size: 28,
+                      ),
                       const SizedBox(width: 10),
-                      const Text(
-                        'Bourse & Monnaies',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      Expanded(
+                        child: Text(
+                          l10n.currencyDialogTitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                      const Spacer(),
                       IconButton(
-                        icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-                        tooltip: 'Vider la bourse',
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.redAccent,
+                        ),
+                        tooltip: l10n.currencyEmptyButton,
                         onPressed: _emptyPurse,
                       ),
                       IconButton(
                         icon: const Icon(Icons.close, color: Colors.white70),
+                        tooltip: l10n.actionClose,
                         onPressed: () => Navigator.of(context).pop(),
                       ),
                     ],
@@ -335,20 +357,26 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
                     decoration: BoxDecoration(
                       color: Colors.amber.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+                      border: Border.all(
+                        color: Colors.amber.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         Column(
                           children: [
-                            const Text(
-                              'VALEUR TOTALE',
-                              style: TextStyle(fontSize: 10, color: Colors.white60, letterSpacing: 1),
+                            Text(
+                              l10n.currencyTotalValue.toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: Colors.white60,
+                                letterSpacing: 1,
+                              ),
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '${_totalGP.toStringAsFixed(2)} PO',
+                              '${_totalGP.toStringAsFixed(2)} ${l10n.currencyGold}',
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -360,13 +388,20 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
                         Container(height: 30, width: 1, color: Colors.white24),
                         Column(
                           children: [
-                            const Text(
-                              'POIDS DE LA BOURSE',
-                              style: TextStyle(fontSize: 10, color: Colors.white60, letterSpacing: 1),
+                            Text(
+                              l10n.currencyPurseWeight.toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: Colors.white60,
+                                letterSpacing: 1,
+                              ),
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '${_totalWeightLbs.toStringAsFixed(1)} lb (${_totalCoins} p.)',
+                              l10n.currencyWeightSummary(
+                                _totalWeightLbs.toStringAsFixed(1),
+                                _totalCoins,
+                              ),
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -384,13 +419,15 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
                   // Onglets
                   TabBar(
                     controller: _tabController,
+                    isScrollable: true,
+                    tabAlignment: TabAlignment.center,
                     indicatorColor: AppTheme.neonCyan,
                     labelColor: AppTheme.neonCyan,
                     unselectedLabelColor: Colors.white60,
-                    tabs: const [
-                      Tab(text: 'Détail'),
-                      Tab(text: 'Transaction'),
-                      Tab(text: 'Optimiser'),
+                    tabs: [
+                      Tab(text: l10n.currencyDetailTab),
+                      Tab(text: l10n.currencyTransactionTab),
+                      Tab(text: l10n.currencyOptimizeTab),
                     ],
                   ),
 
@@ -429,12 +466,12 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text('Annuler'),
+                          child: Text(l10n.actionCancel),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: FilledButton.icon(
+                        child: FilledButton(
                           onPressed: () => _save(ref),
                           style: FilledButton.styleFrom(
                             backgroundColor: Colors.amber,
@@ -443,10 +480,9 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          icon: const Icon(Icons.check, size: 20),
-                          label: const Text(
-                            'Enregistrer',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                          child: Text(
+                            l10n.actionSave,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -462,20 +498,52 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
   }
 
   Widget _buildManualTab() {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       child: Column(
         children: [
-          _buildCoinInputRow('PC (Cuivre)', _cpCtrl, Colors.brown, (v) => setState(() => _cp = v)),
-          _buildCoinInputRow('PA (Argent)', _spCtrl, Colors.grey, (v) => setState(() => _sp = v)),
-          _buildCoinInputRow('PE (Électrum)', _epCtrl, Colors.blueGrey, (v) => setState(() => _ep = v)),
-          _buildCoinInputRow('PO (Or)', _gpCtrl, Colors.amber, (v) => setState(() => _gp = v)),
-          _buildCoinInputRow('PP (Platine)', _ppCtrl, Colors.white70, (v) => setState(() => _pp = v)),
+          _buildCoinInputRow(
+            '${l10n.currencyCopper} (${l10n.currencyCopperName})',
+            _cpCtrl,
+            Colors.brown,
+            (v) => setState(() => _cp = v),
+          ),
+          _buildCoinInputRow(
+            '${l10n.currencySilver} (${l10n.currencySilverName})',
+            _spCtrl,
+            Colors.grey,
+            (v) => setState(() => _sp = v),
+          ),
+          _buildCoinInputRow(
+            '${l10n.currencyElectrum} (${l10n.currencyElectrumName})',
+            _epCtrl,
+            Colors.blueGrey,
+            (v) => setState(() => _ep = v),
+          ),
+          _buildCoinInputRow(
+            '${l10n.currencyGold} (${l10n.currencyGoldName})',
+            _gpCtrl,
+            Colors.amber,
+            (v) => setState(() => _gp = v),
+          ),
+          _buildCoinInputRow(
+            '${l10n.currencyPlatinum} (${l10n.currencyPlatinumName})',
+            _ppCtrl,
+            Colors.white70,
+            (v) => setState(() => _pp = v),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildCoinInputRow(String label, TextEditingController ctrl, Color color, Function(int) onChanged) {
+  Widget _buildCoinInputRow(
+    String label,
+    TextEditingController ctrl,
+    Color color,
+    Function(int) onChanged,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -496,7 +564,12 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.remove_circle_outline, size: 20, color: Colors.white54),
+            icon: const Icon(
+              Icons.remove_circle_outline,
+              size: 20,
+              color: Colors.white54,
+            ),
+            tooltip: l10n.currencyDecreaseTooltip(label),
             onPressed: () {
               final val = (int.tryParse(ctrl.text) ?? 0) - 1;
               if (val >= 0) {
@@ -511,10 +584,16 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
               controller: ctrl,
               keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
               decoration: const InputDecoration(
                 isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 8,
+                ),
                 border: OutlineInputBorder(),
               ),
               onChanged: (text) {
@@ -524,7 +603,12 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.add_circle_outline, size: 20, color: AppTheme.neonCyan),
+            icon: const Icon(
+              Icons.add_circle_outline,
+              size: 20,
+              color: AppTheme.neonCyan,
+            ),
+            tooltip: l10n.currencyIncreaseTooltip(label),
             onPressed: () {
               final val = (int.tryParse(ctrl.text) ?? 0) + 1;
               ctrl.text = val.toString();
@@ -537,13 +621,14 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
   }
 
   Widget _buildTransactionTab() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         Row(
           children: [
             Expanded(
               child: ChoiceChip(
-                label: const Text('💰 Recevoir (Butin)'),
+                label: Text(l10n.currencyReceiveLoot),
                 selected: _isAddTransaction,
                 selectedColor: Colors.green.shade800,
                 onSelected: (val) {
@@ -554,7 +639,7 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
             const SizedBox(width: 8),
             Expanded(
               child: ChoiceChip(
-                label: const Text('💸 Dépenser (Achat)'),
+                label: Text(l10n.currencySpendPurchase),
                 selected: !_isAddTransaction,
                 selectedColor: Colors.red.shade800,
                 onSelected: (val) {
@@ -572,8 +657,8 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
               child: TextField(
                 controller: _transAmountCtrl,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Montant',
+                decoration: InputDecoration(
+                  labelText: l10n.currencyAmount,
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.calculate),
                 ),
@@ -583,12 +668,37 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
             DropdownButton<String>(
               value: _transType,
               dropdownColor: Colors.grey.shade900,
-              items: const [
-                DropdownMenuItem(value: 'cp', child: Text('PC (Cuivre)')),
-                DropdownMenuItem(value: 'sp', child: Text('PA (Argent)')),
-                DropdownMenuItem(value: 'ep', child: Text('PE (Électrum)')),
-                DropdownMenuItem(value: 'gp', child: Text('PO (Or)')),
-                DropdownMenuItem(value: 'pp', child: Text('PP (Platine)')),
+              items: [
+                DropdownMenuItem(
+                  value: 'cp',
+                  child: Text(
+                    '${l10n.currencyCopper} (${l10n.currencyCopperName})',
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'sp',
+                  child: Text(
+                    '${l10n.currencySilver} (${l10n.currencySilverName})',
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'ep',
+                  child: Text(
+                    '${l10n.currencyElectrum} (${l10n.currencyElectrumName})',
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'gp',
+                  child: Text(
+                    '${l10n.currencyGold} (${l10n.currencyGoldName})',
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'pp',
+                  child: Text(
+                    '${l10n.currencyPlatinum} (${l10n.currencyPlatinumName})',
+                  ),
+                ),
               ],
               onChanged: (val) {
                 if (val != null) setState(() => _transType = val);
@@ -605,10 +715,16 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
           child: FilledButton.icon(
             onPressed: _executeTransaction,
             style: FilledButton.styleFrom(
-              backgroundColor: _isAddTransaction ? Colors.green.shade700 : Colors.orange.shade800,
+              backgroundColor: _isAddTransaction
+                  ? Colors.green.shade700
+                  : Colors.orange.shade800,
             ),
             icon: Icon(_isAddTransaction ? Icons.add : Icons.remove),
-            label: Text(_isAddTransaction ? 'Ajouter à la bourse' : 'Effectuer le paiement'),
+            label: Text(
+              _isAddTransaction
+                  ? l10n.currencyAddToPurse
+                  : l10n.currencyMakePayment,
+            ),
           ),
         ),
       ],
@@ -616,18 +732,23 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
   }
 
   Widget _buildOptimizeTab() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Icon(Icons.auto_awesome, size: 40, color: Colors.amber),
         const SizedBox(height: 12),
-        const Text(
-          'Optimiseur de Bourse',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+        Text(
+          l10n.currencyOptimizerTitle,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Convertit automatiquement l\'ensemble des pièces de Cuivre et d\'Argent inférieures vers les coupures d\'Or et de Platine supérieures pour réduire le poids de votre bourse.',
+        Text(
+          l10n.currencyOptimizerDescription,
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 12, color: Colors.white70),
         ),
@@ -639,7 +760,7 @@ class _CurrencyManagerDialogState extends State<CurrencyManagerDialog> with Sing
             foregroundColor: Colors.black,
           ),
           icon: const Icon(Icons.swap_vert, size: 20),
-          label: const Text('Convertir & Aléger la bourse'),
+          label: Text(l10n.currencyOptimizeButton),
         ),
       ],
     );

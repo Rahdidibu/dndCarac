@@ -13,13 +13,45 @@ class _JournalTabState extends ConsumerState<_JournalTab> {
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
 
-  final List<({String id, String label, IconData icon, Color color})> _categories = const [
-    (id: 'all', label: 'Toutes', icon: Icons.all_inclusive, color: AppTheme.neonCyan),
-    (id: 'journal', label: 'Journal', icon: Icons.book, color: Colors.blueAccent),
-    (id: 'quest', label: 'Quêtes', icon: Icons.military_tech, color: Colors.amber),
-    (id: 'npc', label: 'PNJ', icon: Icons.person, color: AppTheme.neonPurple),
-    (id: 'location', label: 'Lieux', icon: Icons.map, color: Colors.teal),
-    (id: 'treasure', label: 'Trésors', icon: Icons.diamond, color: Colors.orangeAccent),
+  List<({String id, String label, IconData icon, Color color})> _categories(
+    AppLocalizations l10n,
+  ) => [
+    (
+      id: 'all',
+      label: l10n.journalCategoryAll,
+      icon: Icons.all_inclusive,
+      color: AppTheme.neonCyan,
+    ),
+    (
+      id: 'journal',
+      label: l10n.journalCategoryJournal,
+      icon: Icons.book,
+      color: Colors.blueAccent,
+    ),
+    (
+      id: 'quest',
+      label: l10n.journalCategoryQuest,
+      icon: Icons.military_tech,
+      color: Colors.amber,
+    ),
+    (
+      id: 'npc',
+      label: l10n.journalCategoryNpc,
+      icon: Icons.person,
+      color: AppTheme.neonPurple,
+    ),
+    (
+      id: 'location',
+      label: l10n.journalCategoryLocation,
+      icon: Icons.map,
+      color: Colors.teal,
+    ),
+    (
+      id: 'treasure',
+      label: l10n.journalCategoryTreasure,
+      icon: Icons.diamond,
+      color: Colors.orangeAccent,
+    ),
   ];
 
   @override
@@ -30,6 +62,8 @@ class _JournalTabState extends ConsumerState<_JournalTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final categories = _categories(l10n);
     final notesAsync = ref.watch(characterNotesProvider(widget.characterId));
 
     return Scaffold(
@@ -37,7 +71,10 @@ class _JournalTabState extends ConsumerState<_JournalTab> {
         backgroundColor: AppTheme.neonCyan,
         foregroundColor: Colors.black,
         icon: const Icon(Icons.note_add),
-        label: const Text('Nouvelle Note', style: TextStyle(fontWeight: FontWeight.bold)),
+        label: Text(
+          l10n.journalNewNote,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         onPressed: () => _openNoteDialog(context),
       ),
       body: SingleChildScrollView(
@@ -49,21 +86,28 @@ class _JournalTabState extends ConsumerState<_JournalTab> {
             TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Rechercher une note, une quête, un PNJ...',
+                hintText: l10n.journalSearchHint,
                 prefixIcon: const Icon(Icons.search, color: AppTheme.neonCyan),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear),
+                        tooltip: l10n.actionClear,
                         onPressed: () {
                           _searchController.clear();
                           setState(() => _searchQuery = '');
                         },
                       )
                     : null,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              onChanged: (val) => setState(() => _searchQuery = val.trim().toLowerCase()),
+              onChanged: (val) =>
+                  setState(() => _searchQuery = val.trim().toLowerCase()),
             ),
             const SizedBox(height: 12),
 
@@ -71,22 +115,32 @@ class _JournalTabState extends ConsumerState<_JournalTab> {
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children: _categories.map((cat) {
+                children: categories.map((cat) {
                   final isSelected = _selectedCategory == cat.id;
                   return Padding(
                     padding: const EdgeInsets.only(right: 6),
                     child: ChoiceChip(
                       showCheckmark: false,
-                      avatar: Icon(cat.icon, size: 14, color: isSelected ? Colors.black : cat.color),
-                      label: Text(cat.label, style: const TextStyle(fontSize: 12)),
+                      avatar: Icon(
+                        cat.icon,
+                        size: 14,
+                        color: isSelected ? Colors.black : cat.color,
+                      ),
+                      label: Text(
+                        cat.label,
+                        style: const TextStyle(fontSize: 12),
+                      ),
                       selected: isSelected,
                       selectedColor: cat.color,
                       labelStyle: TextStyle(
                         color: isSelected ? Colors.black : Colors.white,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                       onSelected: (selected) {
-                        if (selected) setState(() => _selectedCategory = cat.id);
+                        if (selected)
+                          setState(() => _selectedCategory = cat.id);
                       },
                     ),
                   );
@@ -101,8 +155,11 @@ class _JournalTabState extends ConsumerState<_JournalTab> {
               error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
               data: (notes) {
                 final filtered = notes.where((note) {
-                  final matchCategory = _selectedCategory == 'all' || note.category == _selectedCategory;
-                  final matchSearch = _searchQuery.isEmpty ||
+                  final matchCategory =
+                      _selectedCategory == 'all' ||
+                      note.category == _selectedCategory;
+                  final matchSearch =
+                      _searchQuery.isEmpty ||
                       note.title.toLowerCase().contains(_searchQuery) ||
                       note.content.toLowerCase().contains(_searchQuery);
                   return matchCategory && matchSearch;
@@ -115,13 +172,21 @@ class _JournalTabState extends ConsumerState<_JournalTab> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.auto_stories, size: 48, color: Colors.white.withValues(alpha: 0.3)),
+                          Icon(
+                            Icons.auto_stories,
+                            size: 48,
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
                           const SizedBox(height: 12),
                           Text(
-                            _searchQuery.isNotEmpty || _selectedCategory != 'all'
-                                ? 'Aucune note ne correspond à vos filtres.'
-                                : 'Votre journal d\'aventure est vide.',
-                            style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontStyle: FontStyle.italic),
+                            _searchQuery.isNotEmpty ||
+                                    _selectedCategory != 'all'
+                                ? l10n.journalNoMatches
+                                : l10n.journalEmpty,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.6),
+                              fontStyle: FontStyle.italic,
+                            ),
                           ),
                         ],
                       ),
@@ -137,9 +202,9 @@ class _JournalTabState extends ConsumerState<_JournalTab> {
                     final note = filtered[index];
                     return _NoteCard(
                       note: note,
-                      categoryConfig: _categories.firstWhere(
+                      categoryConfig: categories.firstWhere(
                         (c) => c.id == note.category,
-                        orElse: () => _categories[1],
+                        orElse: () => categories[1],
                       ),
                       onEdit: () => _openNoteDialog(context, note: note),
                       onTogglePin: () => _togglePin(note),
@@ -164,20 +229,25 @@ class _JournalTabState extends ConsumerState<_JournalTab> {
   }
 
   Future<void> _confirmDeleteNote(CharacterNote note) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Supprimer la note ?'),
-        content: Text('Voulez-vous supprimer "${note.title.isNotEmpty ? note.title : 'cette note'}" ?'),
+        title: Text(l10n.noteDeleteTitle),
+        content: Text(
+          l10n.noteDeleteConfirm(
+            note.title.isNotEmpty ? note.title : l10n.noteUntitled,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Annuler'),
+            child: Text(l10n.actionCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppTheme.neonRed),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Supprimer'),
+            child: Text(l10n.actionDelete),
           ),
         ],
       ),
@@ -186,16 +256,31 @@ class _JournalTabState extends ConsumerState<_JournalTab> {
     if (confirmed == true) {
       final db = ref.read(databaseProvider);
       await db.characterDao.deleteNote(note.id);
+      if (mounted) {
+        showUndoSnackBar(
+          context,
+          message: l10n.noteDeleted,
+          undoLabel: l10n.actionCancel,
+          onUndo: () async {
+            final data = note.toJson()..remove('id');
+            await db.characterDao.insertNote(data);
+          },
+        );
+      }
     }
   }
 
-  Future<void> _openNoteDialog(BuildContext context, {CharacterNote? note}) async {
+  Future<void> _openNoteDialog(
+    BuildContext context, {
+    CharacterNote? note,
+  }) async {
+    final l10n = AppLocalizations.of(context)!;
     await showDialog(
       context: context,
       builder: (ctx) => _AddEditNoteDialog(
         characterId: widget.characterId,
         note: note,
-        categories: _categories.where((c) => c.id != 'all').toList(),
+        categories: _categories(l10n).where((c) => c.id != 'all').toList(),
       ),
     );
   }
@@ -222,6 +307,7 @@ class _NoteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
@@ -242,16 +328,25 @@ class _NoteCard extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: categoryConfig.color.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: categoryConfig.color.withValues(alpha: 0.4)),
+                    border: Border.all(
+                      color: categoryConfig.color.withValues(alpha: 0.4),
+                    ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(categoryConfig.icon, size: 12, color: categoryConfig.color),
+                      Icon(
+                        categoryConfig.icon,
+                        size: 12,
+                        color: categoryConfig.color,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         categoryConfig.label,
@@ -266,7 +361,11 @@ class _NoteCard extends StatelessWidget {
                 ),
                 if (note.isPinned) ...[
                   const SizedBox(width: 8),
-                  const Icon(Icons.push_pin, size: 14, color: AppTheme.neonCyan),
+                  const Icon(
+                    Icons.push_pin,
+                    size: 14,
+                    color: AppTheme.neonCyan,
+                  ),
                 ],
                 const Spacer(),
                 IconButton(
@@ -275,25 +374,39 @@ class _NoteCard extends StatelessWidget {
                     size: 18,
                     color: note.isPinned ? AppTheme.neonCyan : Colors.white54,
                   ),
-                  tooltip: note.isPinned ? 'Désépingler' : 'Épingler',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
+                  tooltip: note.isPinned ? l10n.journalUnpin : l10n.journalPin,
+                  constraints: const BoxConstraints(
+                    minWidth: 44,
+                    minHeight: 44,
+                  ),
                   onPressed: onTogglePin,
                 ),
                 const SizedBox(width: 12),
                 IconButton(
-                  icon: const Icon(Icons.edit_outlined, size: 18, color: Colors.white70),
-                  tooltip: 'Modifier',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
+                  icon: const Icon(
+                    Icons.edit_outlined,
+                    size: 18,
+                    color: Colors.white70,
+                  ),
+                  tooltip: l10n.actionEdit,
+                  constraints: const BoxConstraints(
+                    minWidth: 44,
+                    minHeight: 44,
+                  ),
                   onPressed: onEdit,
                 ),
                 const SizedBox(width: 12),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 18, color: AppTheme.neonRed),
-                  tooltip: 'Supprimer',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
+                  icon: const Icon(
+                    Icons.delete_outline,
+                    size: 18,
+                    color: AppTheme.neonRed,
+                  ),
+                  tooltip: l10n.actionDelete,
+                  constraints: const BoxConstraints(
+                    minWidth: 44,
+                    minHeight: 44,
+                  ),
                   onPressed: onDelete,
                 ),
               ],
@@ -318,7 +431,12 @@ class _NoteCard extends StatelessWidget {
             if (note.content.isNotEmpty)
               MarkdownText(
                 text: note.content,
-                style: const TextStyle(fontFamily: 'Lora', fontSize: 13, height: 1.4, color: Colors.white70),
+                style: const TextStyle(
+                  fontFamily: 'Lora',
+                  fontSize: 13,
+                  height: 1.4,
+                  color: Colors.white70,
+                ),
               ),
           ],
         ),
@@ -334,7 +452,8 @@ class _NoteCard extends StatelessWidget {
 class _AddEditNoteDialog extends ConsumerStatefulWidget {
   final int characterId;
   final CharacterNote? note;
-  final List<({String id, String label, IconData icon, Color color})> categories;
+  final List<({String id, String label, IconData icon, Color color})>
+  categories;
 
   const _AddEditNoteDialog({
     required this.characterId,
@@ -357,7 +476,9 @@ class _AddEditNoteDialogState extends ConsumerState<_AddEditNoteDialog> {
     super.initState();
     _selectedCategory = widget.note?.category ?? 'journal';
     _titleController = TextEditingController(text: widget.note?.title ?? '');
-    _contentController = TextEditingController(text: widget.note?.content ?? '');
+    _contentController = TextEditingController(
+      text: widget.note?.content ?? '',
+    );
     _isPinned = widget.note?.isPinned ?? false;
   }
 
@@ -371,11 +492,16 @@ class _AddEditNoteDialogState extends ConsumerState<_AddEditNoteDialog> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.note != null;
+    final l10n = AppLocalizations.of(context)!;
 
     return AlertDialog(
       title: Text(
-        isEditing ? 'Modifier la note' : 'Nouvelle entrée au journal',
-        style: const TextStyle(fontFamily: 'Cinzel', fontSize: 16, fontWeight: FontWeight.bold),
+        isEditing ? l10n.journalEditTitle : l10n.journalNewEntryTitle,
+        style: const TextStyle(
+          fontFamily: 'Cinzel',
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       content: SizedBox(
         width: double.maxFinite,
@@ -386,11 +512,14 @@ class _AddEditNoteDialogState extends ConsumerState<_AddEditNoteDialog> {
             children: [
               // ── Category Selector ──────────────────────────────────
               DropdownButtonFormField<String>(
-                value: _selectedCategory,
-                decoration: const InputDecoration(
-                  labelText: 'Catégorie',
+                initialValue: _selectedCategory,
+                decoration: InputDecoration(
+                  labelText: l10n.journalCategoryLabel,
                   border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                 ),
                 items: widget.categories.map((cat) {
                   return DropdownMenuItem(
@@ -413,8 +542,8 @@ class _AddEditNoteDialogState extends ConsumerState<_AddEditNoteDialog> {
               // ── Title TextField ────────────────────────────────────
               TextField(
                 controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Titre (ex. Rencontre avec le Bourgmestre)',
+                decoration: InputDecoration(
+                  labelText: l10n.journalTitleHint,
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -424,8 +553,8 @@ class _AddEditNoteDialogState extends ConsumerState<_AddEditNoteDialog> {
               TextField(
                 controller: _contentController,
                 maxLines: 6,
-                decoration: const InputDecoration(
-                  labelText: 'Détails & Notes (Markdown supporté)',
+                decoration: InputDecoration(
+                  labelText: l10n.journalContentHint,
                   alignLabelWithHint: true,
                   border: OutlineInputBorder(),
                 ),
@@ -435,7 +564,10 @@ class _AddEditNoteDialogState extends ConsumerState<_AddEditNoteDialog> {
               // ── Pinned Checkbox ────────────────────────────────────
               CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Épingler cette note en haut', style: TextStyle(fontSize: 13)),
+                title: Text(
+                  l10n.journalPinToTop,
+                  style: const TextStyle(fontSize: 13),
+                ),
                 value: _isPinned,
                 onChanged: (val) => setState(() => _isPinned = val ?? false),
               ),
@@ -446,12 +578,9 @@ class _AddEditNoteDialogState extends ConsumerState<_AddEditNoteDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Annuler'),
+          child: Text(l10n.actionCancel),
         ),
-        FilledButton(
-          onPressed: _save,
-          child: const Text('Enregistrer'),
-        ),
+        FilledButton(onPressed: _save, child: Text(l10n.actionSave)),
       ],
     );
   }

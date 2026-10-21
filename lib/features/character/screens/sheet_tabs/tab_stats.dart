@@ -1,48 +1,5 @@
 part of '../character_sheet_screen.dart';
 
-// ── Skills list (18 SRD skills mapped to their ability) ──────────────────────
-const _skillAbilityMap = {
-  'acrobatics': 'dex',
-  'animal_handling': 'wis',
-  'arcana': 'int',
-  'athletics': 'str',
-  'deception': 'cha',
-  'history': 'int',
-  'insight': 'wis',
-  'intimidation': 'cha',
-  'investigation': 'int',
-  'medicine': 'wis',
-  'nature': 'int',
-  'perception': 'wis',
-  'performance': 'cha',
-  'persuasion': 'cha',
-  'religion': 'int',
-  'sleight_of_hand': 'dex',
-  'stealth': 'dex',
-  'survival': 'wis',
-};
-
-const _skillNames = {
-  'acrobatics': 'Acrobaties',
-  'animal_handling': 'Dressage',
-  'arcana': 'Arcanes',
-  'athletics': 'Athlétisme',
-  'deception': 'Tromperie',
-  'history': 'Histoire',
-  'insight': 'Perspicacité',
-  'intimidation': 'Intimidation',
-  'investigation': 'Investigation',
-  'medicine': 'Médecine',
-  'nature': 'Nature',
-  'perception': 'Perception',
-  'performance': 'Représentation',
-  'persuasion': 'Persuasion',
-  'religion': 'Religion',
-  'sleight_of_hand': 'Escamotage',
-  'stealth': 'Discrétion',
-  'survival': 'Survie',
-};
-
 const _abilityAbbr = {
   'str': 'FOR',
   'dex': 'DEX',
@@ -71,9 +28,18 @@ class _StatsTab extends ConsumerWidget {
 
     return scoresAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, st) => AsyncErrorView(error: e, stackTrace: st, onRetry: () => ref.invalidate(characterAbilityScoresProvider(characterId))),
+      error: (e, st) => AsyncErrorView(
+        error: e,
+        stackTrace: st,
+        onRetry: () =>
+            ref.invalidate(characterAbilityScoresProvider(characterId)),
+      ),
       data: (scores) {
-        if (scores == null) return const Center(child: Text('Scores non trouvés'));
+        if (scores == null) {
+          return Center(
+            child: Text(AppLocalizations.of(context)!.sheetScoresNotFound),
+          );
+        }
 
         final scoreMap = {
           'str': scores.strength,
@@ -116,22 +82,30 @@ class _StatsTab extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Caractéristiques',
-                          style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        'Caractéristiques',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                       IconButton(
                         icon: const Icon(Icons.edit_outlined, size: 20),
-                        tooltip: 'Modifier les caractéristiques',
-                        onPressed: () => _showEditAbilitiesDialog(context, ref, scores),
+                        tooltip: AppLocalizations.of(context)!.actionEdit,
+                        onPressed: () =>
+                            _showEditAbilitiesDialog(context, ref, scores),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  _AbilityScoreGrid(characterId: characterId, scoreMap: scoreMap),
+                  _AbilityScoreGrid(
+                    characterId: characterId,
+                    scoreMap: scoreMap,
+                  ),
                   const SizedBox(height: 16),
 
                   // ── Saving throws ────────────────────────────────
-                  Text('Jets de sauvegarde',
-                      style: Theme.of(context).textTheme.titleMedium),
+                  Text(
+                    'Jets de sauvegarde',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                   const SizedBox(height: 4),
                   ...DndRules.abilityKeys.map((key) {
                     final hasProficiency = profKeys.contains('save_$key');
@@ -170,11 +144,23 @@ class _StatsTab extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Compétences',
-                          style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        'Compétences',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                       TextButton.icon(
-                        icon: const Icon(Icons.edit_note, size: 18, color: AppTheme.neonCyan),
-                        label: const Text('Gérer', style: TextStyle(fontSize: 12, color: AppTheme.neonCyan)),
+                        icon: const Icon(
+                          Icons.edit_note,
+                          size: 18,
+                          color: AppTheme.neonCyan,
+                        ),
+                        label: const Text(
+                          'Gérer',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.neonCyan,
+                          ),
+                        ),
                         onPressed: () {
                           showDialog(
                             context: context,
@@ -189,23 +175,15 @@ class _StatsTab extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   ...(() {
-                    final sortedEntries = _skillAbilityMap.entries.toList()
-                      ..sort((a, b) {
-                        const abilityOrder = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
-                        final orderA = abilityOrder.indexOf(a.value);
-                        final orderB = abilityOrder.indexOf(b.value);
-                        if (orderA != orderB) {
-                          return orderA.compareTo(orderB);
-                        }
-                        final nameA = _skillNames[a.key]!;
-                        final nameB = _skillNames[b.key]!;
-                        return StringUtils.compareAlphabetically(nameA, nameB);
-                      });
+                    final l10n = AppLocalizations.of(context)!;
+                    final sortedEntries = SkillsCatalog.sorted(l10n);
                     return sortedEntries.map((entry) {
                       final skill = entry.key;
-                      final ability = entry.value;
+                      final ability = entry.ability;
                       final isProficient = profKeys.contains('skill_$skill');
-                      final hasExpertise = expertiseKeys.contains('skill_$skill');
+                      final hasExpertise = expertiseKeys.contains(
+                        'skill_$skill',
+                      );
                       final mod = DndRules.modifier(scoreMap[ability]!);
                       int total = mod;
                       if (hasExpertise) {
@@ -213,7 +191,7 @@ class _StatsTab extends ConsumerWidget {
                       } else if (isProficient) {
                         total += profBonus;
                       }
-                      final skillLabel = _skillNames[skill]!;
+                      final skillLabel = entry.name(l10n);
                       return _ProficiencyRow(
                         label: skillLabel,
                         abbr: _abilityAbbr[ability]!,
@@ -259,14 +237,21 @@ class _QuickStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    final l10n = AppLocalizations.of(context)!;
+    return Wrap(
+      alignment: WrapAlignment.spaceEvenly,
+      spacing: 8,
+      runSpacing: 8,
       children: [
-        _StatChip(label: 'Bonus maîtrise', value: '+$profBonus'),
-        _StatChip(label: 'Perception passive', value: '$passivePerception'),
+        _StatChip(label: l10n.sheetProficiencyBonus, value: '+$profBonus'),
         _StatChip(
-            label: 'Initiative',
-            value: initiative >= 0 ? '+$initiative' : '$initiative'),
+          label: l10n.sheetPassivePerception,
+          value: '$passivePerception',
+        ),
+        _StatChip(
+          label: l10n.sheetInitiative,
+          value: initiative >= 0 ? '+$initiative' : '$initiative',
+        ),
       ],
     );
   }
@@ -288,14 +273,19 @@ class _StatChip extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(value,
-              style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.primary)),
-          Text(label,
-              style: const TextStyle(fontSize: 10),
-              textAlign: TextAlign.center),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.primary,
+            ),
+          ),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 10),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
@@ -320,7 +310,10 @@ class _AbilityScoreGrid extends StatelessWidget {
         final modStr = mod >= 0 ? '+$mod' : '$mod';
         return Container(
           margin: const EdgeInsets.all(4),
-          decoration: AppTheme.neonBorderDecoration(accentColor: AppTheme.neonCyan, borderRadius: 12),
+          decoration: AppTheme.neonBorderDecoration(
+            accentColor: AppTheme.neonCyan,
+            borderRadius: 12,
+          ),
           child: Stack(
             children: [
               Align(
@@ -328,16 +321,24 @@ class _AbilityScoreGrid extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(_abilityAbbr[key]!,
-                        style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.neonCyan,
-                            letterSpacing: 0.5)),
+                    Text(
+                      _abilityAbbr[key]!,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.neonCyan,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    Text('$score',
-                        style: const TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                    Text(
+                      '$score',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                     const SizedBox(height: 2),
                     Text(
                       modStr,
@@ -354,7 +355,12 @@ class _AbilityScoreGrid extends StatelessWidget {
                 top: 2,
                 right: 2,
                 child: IconButton(
-                  icon: const Icon(Icons.casino, size: 14, color: AppTheme.neonCyan),
+                  icon: const Icon(
+                    Icons.casino,
+                    size: 14,
+                    color: AppTheme.neonCyan,
+                  ),
+                  tooltip: AppLocalizations.of(context)!.rollAbilityDieTooltip,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                   splashRadius: 16,
@@ -418,25 +424,35 @@ class _ProficiencyRow extends StatelessWidget {
             child: expertise
                 ? Icon(Icons.star, size: 14, color: colorScheme.primary)
                 : proficient
-                    ? Icon(Icons.circle, size: 10, color: colorScheme.primary)
-                    : Icon(Icons.circle_outlined,
-                        size: 10,
-                        color: colorScheme.onSurfaceVariant),
+                ? Icon(Icons.circle, size: 10, color: colorScheme.primary)
+                : Icon(
+                    Icons.circle_outlined,
+                    size: 10,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
           ),
           const SizedBox(width: 8),
           SizedBox(
-              width: 32,
-              child: Text(bonusStr,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 13))),
+            width: 32,
+            child: Text(
+              bonusStr,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
+          ),
           Expanded(child: Text(label, style: const TextStyle(fontSize: 13))),
-          Text(abbr,
-              style: TextStyle(
-                  fontSize: 10, color: colorScheme.onSurfaceVariant)),
+          Text(
+            abbr,
+            style: TextStyle(fontSize: 10, color: colorScheme.onSurfaceVariant),
+          ),
           if (onRollPressed != null) ...[
             const SizedBox(width: 8),
             IconButton(
-              icon: const Icon(Icons.casino, size: 16, color: AppTheme.neonCyan),
+              icon: const Icon(
+                Icons.casino,
+                size: 16,
+                color: AppTheme.neonCyan,
+              ),
+              tooltip: AppLocalizations.of(context)!.rollSaveTooltip,
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
               splashRadius: 16,
@@ -480,12 +496,20 @@ class _EditAbilitiesDialogState extends ConsumerState<_EditAbilitiesDialog> {
     super.initState();
     _strCtrl = TextEditingController(text: widget.scores.strength.toString());
     _dexCtrl = TextEditingController(text: widget.scores.dexterity.toString());
-    _conCtrl = TextEditingController(text: widget.scores.constitution.toString());
-    _intCtrl = TextEditingController(text: widget.scores.intelligence.toString());
+    _conCtrl = TextEditingController(
+      text: widget.scores.constitution.toString(),
+    );
+    _intCtrl = TextEditingController(
+      text: widget.scores.intelligence.toString(),
+    );
     _wisCtrl = TextEditingController(text: widget.scores.wisdom.toString());
     _chaCtrl = TextEditingController(text: widget.scores.charisma.toString());
-    _hpMaxCtrl = TextEditingController(text: (widget.character?.hpMax ?? 10).toString());
-    _speedCtrl = TextEditingController(text: (widget.character?.speed ?? 30).toString());
+    _hpMaxCtrl = TextEditingController(
+      text: (widget.character?.hpMax ?? 10).toString(),
+    );
+    _speedCtrl = TextEditingController(
+      text: (widget.character?.speed ?? 30).toString(),
+    );
   }
 
   @override
@@ -503,22 +527,23 @@ class _EditAbilitiesDialogState extends ConsumerState<_EditAbilitiesDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: const Text('Caractéristiques & Stats'),
+      title: Text(l10n.sheetEditAbilitiesTitle),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildField('Force (STR)', _strCtrl),
-            _buildField('Dextérité (DEX)', _dexCtrl),
-            _buildField('Constitution (CON)', _conCtrl),
-            _buildField('Intelligence (INT)', _intCtrl),
-            _buildField('Sagesse (WIS)', _wisCtrl),
-            _buildField('Charisme (CHA)', _chaCtrl),
+            _buildField('${l10n.abilityStr} (STR)', _strCtrl),
+            _buildField('${l10n.abilityDex} (DEX)', _dexCtrl),
+            _buildField('${l10n.abilityCon} (CON)', _conCtrl),
+            _buildField('${l10n.abilityInt} (INT)', _intCtrl),
+            _buildField('${l10n.abilityWis} (WIS)', _wisCtrl),
+            _buildField('${l10n.abilityCha} (CHA)', _chaCtrl),
             if (widget.character != null) ...[
               const Divider(),
-              _buildField('PV Max', _hpMaxCtrl),
-              _buildField('Vitesse (mètres)', _speedCtrl),
+              _buildField(l10n.sheetHpMax, _hpMaxCtrl),
+              _buildField(l10n.sheetSpeed, _speedCtrl),
             ],
           ],
         ),
@@ -526,12 +551,9 @@ class _EditAbilitiesDialogState extends ConsumerState<_EditAbilitiesDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Annuler'),
+          child: Text(l10n.actionCancel),
         ),
-        FilledButton(
-          onPressed: _save,
-          child: const Text('Enregistrer'),
-        ),
+        FilledButton(onPressed: _save, child: Text(l10n.actionSave)),
       ],
     );
   }
@@ -594,11 +616,19 @@ class _EditAbilitiesDialogState extends ConsumerState<_EditAbilitiesDialog> {
 }
 
 void _showEditAbilitiesDialog(
-    BuildContext context, WidgetRef ref, CharacterAbilityScore scores, [Character? character]) {
+  BuildContext context,
+  WidgetRef ref,
+  CharacterAbilityScore scores, [
+  Character? character,
+]) {
   showDialog(
     context: context,
     builder: (context) {
-      return _EditAbilitiesDialog(characterId: scores.characterId, scores: scores, character: character);
+      return _EditAbilitiesDialog(
+        characterId: scores.characterId,
+        scores: scores,
+        character: character,
+      );
     },
   );
 }

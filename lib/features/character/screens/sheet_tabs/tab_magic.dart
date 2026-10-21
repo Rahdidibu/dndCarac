@@ -6,7 +6,10 @@ class _MagicTab extends ConsumerWidget {
 
   const _MagicTab({required this.characterId, required this.character});
 
-  int _computePrepLimit(List<CharacterClassesData> classes, Map<String, int> scoreMap) {
+  int _computePrepLimit(
+    List<CharacterClassesData> classes,
+    Map<String, int> scoreMap,
+  ) {
     int limit = 0;
     bool hasPreparingClass = false;
 
@@ -43,7 +46,8 @@ class _MagicTab extends ConsumerWidget {
     if (classes.isEmpty) return 'int';
     final firstClass = classes.first.classId;
     if (['cleric', 'druid', 'ranger'].contains(firstClass)) return 'wis';
-    if (['bard', 'paladin', 'sorcerer', 'warlock'].contains(firstClass)) return 'cha';
+    if (['bard', 'paladin', 'sorcerer', 'warlock'].contains(firstClass))
+      return 'cha';
     return 'int';
   }
 
@@ -56,7 +60,9 @@ class _MagicTab extends ConsumerWidget {
     final scoresAsync = ref.watch(characterAbilityScoresProvider(characterId));
     final totalLevelAsync = ref.watch(characterTotalLevelProvider(characterId));
     final equipmentAsync = ref.watch(characterEquipmentProvider(characterId));
-    final proficienciesAsync = ref.watch(characterProficienciesProvider(characterId));
+    final proficienciesAsync = ref.watch(
+      characterProficienciesProvider(characterId),
+    );
     final resourcesAsync = ref.watch(characterResourcesProvider(characterId));
 
     final colorScheme = Theme.of(context).colorScheme;
@@ -72,38 +78,80 @@ class _MagicTab extends ConsumerWidget {
             loading: () => const SizedBox.shrink(),
             error: (_, __) => const SizedBox.shrink(),
             data: (resources) {
-              final activeConc = resources.where((r) => r.resourceName.startsWith('active_concentration_') && r.current > 0).firstOrNull;
+              final activeConc = resources
+                  .where(
+                    (r) =>
+                        r.resourceName.startsWith('active_concentration_') &&
+                        r.current > 0,
+                  )
+                  .firstOrNull;
               if (activeConc == null) return const SizedBox.shrink();
 
-              final spellName = activeConc.resourceName.replaceFirst('active_concentration_', '');
+              final spellName = activeConc.resourceName.replaceFirst(
+                'active_concentration_',
+                '',
+              );
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 16),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.amber.withValues(alpha: 0.12),
-                  border: Border.all(color: Colors.amber.withValues(alpha: 0.5)),
+                  border: Border.all(
+                    color: Colors.amber.withValues(alpha: 0.5),
+                  ),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.center_focus_strong, color: Colors.amber, size: 20),
+                    const Icon(
+                      Icons.center_focus_strong,
+                      color: Colors.amber,
+                      size: 20,
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Concentration active', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.amber)),
-                          Text(spellName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                          const Text(
+                            'Concentration active',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.amber,
+                            ),
+                          ),
+                          Text(
+                            spellName,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                         ],
                       ),
                     ),
                     OutlinedButton.icon(
-                      icon: const Icon(Icons.close, size: 14, color: AppTheme.neonRed),
-                      label: const Text('Rompre', style: TextStyle(fontSize: 11, color: AppTheme.neonRed)),
+                      icon: const Icon(
+                        Icons.close,
+                        size: 14,
+                        color: AppTheme.neonRed,
+                      ),
+                      label: const Text(
+                        'Rompre',
+                        style: TextStyle(fontSize: 11, color: AppTheme.neonRed),
+                      ),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: AppTheme.neonRed),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                       ),
                       onPressed: () async {
                         final db = ref.read(databaseProvider);
@@ -121,11 +169,16 @@ class _MagicTab extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Emplacements de sorts',
-                  style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                'Emplacements de sorts',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               TextButton.icon(
                 icon: const Icon(Icons.refresh, size: 16),
-                label: Text(l10n.restLongRest, style: const TextStyle(fontSize: 12)),
+                label: Text(
+                  l10n.restLongRest,
+                  style: const TextStyle(fontSize: 12),
+                ),
                 onPressed: () => _longRest(context, ref),
               ),
             ],
@@ -133,18 +186,21 @@ class _MagicTab extends ConsumerWidget {
           const SizedBox(height: 8),
           slotsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
+            error: (e, st) =>
+                AsyncErrorView(error: e, stackTrace: st, compact: true),
             data: (slots) {
               if (slots.isEmpty) {
-                return Text('Aucun emplacement de sort.',
-                    style: TextStyle(color: colorScheme.onSurfaceVariant));
+                return Text(
+                  'Aucun emplacement de sort.',
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                );
               }
               return Column(
                 children: slots
-                    .map((slot) => _SpellSlotRow(
-                          slot: slot,
-                          characterId: characterId,
-                        ))
+                    .map(
+                      (slot) =>
+                          _SpellSlotRow(slot: slot, characterId: characterId),
+                    )
                     .toList(),
               );
             },
@@ -154,13 +210,16 @@ class _MagicTab extends ConsumerWidget {
           // ── Spells list ───────────────────────────────────────────────────
           classesAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
+            error: (e, st) =>
+                AsyncErrorView(error: e, stackTrace: st, compact: true),
             data: (classes) => scoresAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
+              error: (e, st) =>
+                  AsyncErrorView(error: e, stackTrace: st, compact: true),
               data: (scores) => totalLevelAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
+                error: (e, st) =>
+                    AsyncErrorView(error: e, stackTrace: st, compact: true),
                 data: (totalLevel) {
                   final scoreMap = {
                     'str': scores?.strength ?? 10,
@@ -180,55 +239,106 @@ class _MagicTab extends ConsumerWidget {
                   // ── Armor proficiency check for spellcasting block ───────────
                   final equipment = equipmentAsync.value ?? [];
                   final profKeys = (proficienciesAsync.value ?? [])
-                      .map((p) => p.proficiencyKey).toSet();
+                      .map((p) => p.proficiencyKey)
+                      .toSet();
                   final hasArmorAll = profKeys.contains('armor_all');
                   String? badArmorName;
                   for (final item in equipment) {
                     if (!item.equipped) continue;
-                    final kind = CharacterServiceHelper.parseEquipmentKind(item.itemName);
+                    final kind = CharacterServiceHelper.parseEquipmentKind(
+                      item.itemName,
+                    );
                     if (kind == null) continue;
                     final ok = switch (kind) {
-                      'shield' => profKeys.contains('armor_shield') || hasArmorAll,
-                      'light'  => profKeys.contains('armor_light')  || profKeys.contains('armor_medium') || hasArmorAll,
-                      'medium' => profKeys.contains('armor_medium') || hasArmorAll,
-                      'heavy'  => profKeys.contains('armor_heavy')  || hasArmorAll,
-                      _        => true,
+                      'shield' =>
+                        profKeys.contains('armor_shield') || hasArmorAll,
+                      'light' =>
+                        profKeys.contains('armor_light') ||
+                            profKeys.contains('armor_medium') ||
+                            hasArmorAll,
+                      'medium' =>
+                        profKeys.contains('armor_medium') || hasArmorAll,
+                      'heavy' =>
+                        profKeys.contains('armor_heavy') || hasArmorAll,
+                      _ => true,
                     };
-                    if (!ok) { badArmorName = item.itemName; break; }
+                    if (!ok) {
+                      badArmorName = item.itemName;
+                      break;
+                    }
                   }
                   final blockedByArmor = badArmorName != null;
 
                   return slotsAsync.when(
-                    loading: () => const Center(child: CircularProgressIndicator()),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
                     error: (e, _) => const SizedBox(),
                     data: (slots) => spellsAsync.when(
-                      loading: () => const Center(child: CircularProgressIndicator()),
-                      error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
+                      error: (e, st) => AsyncErrorView(
+                        error: e,
+                        stackTrace: st,
+                        compact: true,
+                      ),
                       data: (spells) {
-                        final preparedSpells = spells.where((s) => s.prepared).toList();
+                        final preparedSpells = spells
+                            .where((s) => s.prepared)
+                            .toList();
                         // Cantrips do not count towards preparation limit
                         final preparedCount = spells.where((s) {
                           // Find level of spell to check if it's not a cantrip
                           final srdSpells = srdSpellsAsync.value;
                           if (srdSpells == null) return s.prepared;
-                          final match = srdSpells.firstWhere((x) => x.id == s.spellId, orElse: () => const SrdSpell(
-                            id: '', name: '', level: 0, school: '', castingTime: '', range: '',
-                            components: '', duration: '', concentration: false, ritual: false, description: '', classes: '', ruleset: RulesetVersion.dnd2014, isCustom: false,
-                          ));
+                          final match = srdSpells.firstWhere(
+                            (x) => x.id == s.spellId,
+                            orElse: () => const SrdSpell(
+                              id: '',
+                              name: '',
+                              level: 0,
+                              school: '',
+                              castingTime: '',
+                              range: '',
+                              components: '',
+                              duration: '',
+                              concentration: false,
+                              ritual: false,
+                              description: '',
+                              classes: '',
+                              ruleset: RulesetVersion.dnd2014,
+                              isCustom: false,
+                            ),
+                          );
                           return s.prepared && match.level > 0;
                         }).length;
 
                         final srdSpellsLoaded = srdSpellsAsync.when(
-                          loading: () => const Center(child: CircularProgressIndicator()),
-                          error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
+                          loading: () =>
+                              const Center(child: CircularProgressIndicator()),
+                          error: (e, st) => AsyncErrorView(
+                            error: e,
+                            stackTrace: st,
+                            compact: true,
+                          ),
                           data: (srdList) {
                             final srdMap = {for (final s in srdList) s.id: s};
-                            final grouped = <int, List<({CharacterSpell charSpell, SrdSpell srdSpell})>>{};
+                            final grouped =
+                                <
+                                  int,
+                                  List<
+                                    ({
+                                      CharacterSpell charSpell,
+                                      SrdSpell srdSpell,
+                                    })
+                                  >
+                                >{};
 
                             for (final s in spells) {
                               final details = srdMap[s.spellId];
                               if (details != null) {
-                                grouped.putIfAbsent(details.level, () => []).add((charSpell: s, srdSpell: details));
+                                grouped
+                                    .putIfAbsent(details.level, () => [])
+                                    .add((charSpell: s, srdSpell: details));
                               } else {
                                 final dummySrd = SrdSpell(
                                   id: s.spellId,
@@ -246,7 +356,10 @@ class _MagicTab extends ConsumerWidget {
                                   ruleset: character.ruleset,
                                   isCustom: false,
                                 );
-                                grouped.putIfAbsent(0, () => []).add((charSpell: s, srdSpell: dummySrd));
+                                grouped.putIfAbsent(0, () => []).add((
+                                  charSpell: s,
+                                  srdSpell: dummySrd,
+                                ));
                               }
                             }
 
@@ -256,14 +369,24 @@ class _MagicTab extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: sortedLevels.map((lvl) {
                                 final list = grouped[lvl]!
-                                  ..sort((a, b) => StringUtils.compareAlphabetically(a.srdSpell.name, b.srdSpell.name));
-                                final levelName = lvl == 0 ? 'Tours de magie (Niveau 0)' : 'Sorts de Niveau $lvl';
+                                  ..sort(
+                                    (a, b) => StringUtils.compareAlphabetically(
+                                      a.srdSpell.name,
+                                      b.srdSpell.name,
+                                    ),
+                                  );
+                                final levelName = lvl == 0
+                                    ? 'Tours de magie (Niveau 0)'
+                                    : 'Sorts de Niveau $lvl';
 
                                 return Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 16, bottom: 8),
+                                      padding: const EdgeInsets.only(
+                                        top: 16,
+                                        bottom: 8,
+                                      ),
                                       child: Text(
                                         levelName,
                                         style: const TextStyle(
@@ -274,16 +397,18 @@ class _MagicTab extends ConsumerWidget {
                                         ),
                                       ),
                                     ),
-                                    ...list.map((item) => _SpellListTile(
-                                          charSpell: item.charSpell,
-                                          srdSpell: item.srdSpell,
-                                          characterId: characterId,
-                                          slots: slots,
-                                          prepLimit: prepLimit,
-                                          preparedCount: preparedCount,
-                                          spellAttackBonus: spellAttackBonus,
-                                          blockedByArmor: blockedByArmor,
-                                        )),
+                                    ...list.map(
+                                      (item) => _SpellListTile(
+                                        charSpell: item.charSpell,
+                                        srdSpell: item.srdSpell,
+                                        characterId: characterId,
+                                        slots: slots,
+                                        prepLimit: prepLimit,
+                                        preparedCount: preparedCount,
+                                        spellAttackBonus: spellAttackBonus,
+                                        blockedByArmor: blockedByArmor,
+                                      ),
+                                    ),
                                   ],
                                 );
                               }).toList(),
@@ -300,8 +425,12 @@ class _MagicTab extends ConsumerWidget {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Sorts connus / préparés',
-                                        style: Theme.of(context).textTheme.titleMedium),
+                                    Text(
+                                      'Sorts connus / préparés',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium,
+                                    ),
                                     if (prepLimit != -1) ...[
                                       const SizedBox(height: 2),
                                       Row(
@@ -311,25 +440,38 @@ class _MagicTab extends ConsumerWidget {
                                             style: TextStyle(
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,
-                                              color: preparedCount > prepLimit ? AppTheme.neonRed : Colors.grey,
+                                              color: preparedCount > prepLimit
+                                                  ? AppTheme.neonRed
+                                                  : Colors.grey,
                                             ),
                                           ),
                                           if (preparedCount > prepLimit) ...[
                                             const SizedBox(width: 4),
-                                            const Icon(Icons.warning_amber_rounded, size: 14, color: AppTheme.neonRed),
-                                          ]
+                                            const Icon(
+                                              Icons.warning_amber_rounded,
+                                              size: 14,
+                                              color: AppTheme.neonRed,
+                                            ),
+                                          ],
                                         ],
                                       ),
                                     ],
                                   ],
                                 ),
                                 TextButton.icon(
-                                  icon: const Icon(Icons.library_books, size: 16),
-                                  label: const Text('Gérer', style: TextStyle(fontSize: 12)),
-                                  onPressed: () => Navigator.of(context).pushNamed(
-                                    '/spells',
-                                    arguments: characterId,
+                                  icon: const Icon(
+                                    Icons.library_books,
+                                    size: 16,
                                   ),
+                                  label: const Text(
+                                    'Gérer',
+                                    style: TextStyle(fontSize: 12),
+                                  ),
+                                  onPressed: () =>
+                                      Navigator.of(context).pushNamed(
+                                        '/spells',
+                                        arguments: characterId,
+                                      ),
                                 ),
                               ],
                             ),
@@ -337,15 +479,24 @@ class _MagicTab extends ConsumerWidget {
                             if (blockedByArmor)
                               Container(
                                 margin: const EdgeInsets.only(bottom: 10),
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.neonRed.withValues(alpha: 0.12),
+                                  color: AppTheme.neonRed.withValues(
+                                    alpha: 0.12,
+                                  ),
                                   border: Border.all(color: AppTheme.neonRed),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.block, color: AppTheme.neonRed, size: 18),
+                                    const Icon(
+                                      Icons.block,
+                                      color: AppTheme.neonRed,
+                                      size: 18,
+                                    ),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
@@ -361,8 +512,12 @@ class _MagicTab extends ConsumerWidget {
                                 ),
                               ),
                             if (spells.isEmpty)
-                              Text('Aucun sort. Utilisez "Gérer" pour en ajouter.',
-                                  style: TextStyle(color: colorScheme.onSurfaceVariant))
+                              Text(
+                                'Aucun sort. Utilisez "Gérer" pour en ajouter.',
+                                style: TextStyle(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              )
                             else
                               srdSpellsLoaded,
                           ],
@@ -407,9 +562,9 @@ class _MagicTab extends ConsumerWidget {
       ref.invalidate(characterSpellSlotsProvider(characterId));
       ref.invalidate(characterByIdProvider(characterId));
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.restSuccessMessage)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.restSuccessMessage)));
       }
     }
   }
@@ -440,8 +595,9 @@ class _SpellSlotRow extends ConsumerWidget {
               child: Text(
                 '${slot.slotLevel}',
                 style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onPrimaryContainer),
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onPrimaryContainer,
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -465,8 +621,10 @@ class _SpellSlotRow extends ConsumerWidget {
                 }),
               ),
             ),
-            Text('${slot.slotCurrent}/${slot.slotMax}',
-                style: const TextStyle(fontSize: 12)),
+            Text(
+              '${slot.slotCurrent}/${slot.slotMax}',
+              style: const TextStyle(fontSize: 12),
+            ),
           ],
         ),
       ),
@@ -518,9 +676,10 @@ class _SpellListTile extends ConsumerWidget {
     final canCast = (isCantrip || charSpell.prepared) && !blockedByArmor;
 
     final descriptionLower = srdSpell.description.toLowerCase();
-    final hasSpellAttack = descriptionLower.contains('spell attack') ||
-                           descriptionLower.contains('attaque de sort') ||
-                           descriptionLower.contains('jet d\'attaque de sort');
+    final hasSpellAttack =
+        descriptionLower.contains('spell attack') ||
+        descriptionLower.contains('attaque de sort') ||
+        descriptionLower.contains('jet d\'attaque de sort');
 
     final diceRegex = RegExp(r'(\d+d\d+)');
     final match = diceRegex.firstMatch(descriptionLower);
@@ -535,58 +694,99 @@ class _SpellListTile extends ConsumerWidget {
               )
             : IconButton(
                 icon: Icon(
-                  charSpell.prepared ? Icons.check_circle : Icons.radio_button_unchecked,
+                  charSpell.prepared
+                      ? Icons.check_circle
+                      : Icons.radio_button_unchecked,
                   color: charSpell.prepared ? AppTheme.neonPurple : Colors.grey,
                 ),
-                tooltip: charSpell.prepared ? 'Préparé (cliquer pour retirer)' : 'Non préparé (cliquer pour préparer)',
+                tooltip: charSpell.prepared
+                    ? l10n.spellPreparedTooltip
+                    : l10n.spellUnpreparedTooltip,
                 onPressed: () => _togglePreparation(context, ref),
               ),
         title: Row(
           children: [
             Expanded(
-              child: Text(srdSpell.name,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+              child: Text(
+                srdSpell.name,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
             if (srdSpell.concentration)
               Container(
                 margin: const EdgeInsets.only(left: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 5,
+                  vertical: 1.5,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.amber.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: Colors.amber.withValues(alpha: 0.5), width: 0.8),
+                  border: Border.all(
+                    color: Colors.amber.withValues(alpha: 0.5),
+                    width: 0.8,
+                  ),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.center_focus_strong, size: 10, color: Colors.amber),
+                    Icon(
+                      Icons.center_focus_strong,
+                      size: 10,
+                      color: Colors.amber,
+                    ),
                     SizedBox(width: 3),
-                    Text('Conc.', style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Colors.amber)),
+                    Text(
+                      'Conc.',
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.amber,
+                      ),
+                    ),
                   ],
                 ),
               ),
             if (srdSpell.ritual)
               Container(
                 margin: const EdgeInsets.only(left: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 5,
+                  vertical: 1.5,
+                ),
                 decoration: BoxDecoration(
                   color: AppTheme.neonPurple.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: AppTheme.neonPurple.withValues(alpha: 0.5), width: 0.8),
+                  border: Border.all(
+                    color: AppTheme.neonPurple.withValues(alpha: 0.5),
+                    width: 0.8,
+                  ),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.menu_book, size: 10, color: AppTheme.neonPurple),
                     SizedBox(width: 3),
-                    Text('Rituel', style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: AppTheme.neonPurple)),
+                    Text(
+                      'Rituel',
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.neonPurple,
+                      ),
+                    ),
                   ],
                 ),
               ),
           ],
         ),
         subtitle: Text(
-          srdSpell.level == 0 ? 'Tour de magie • ${srdSpell.school}' : 'Niveau ${srdSpell.level} • ${srdSpell.school}',
+          srdSpell.level == 0
+              ? 'Tour de magie • ${srdSpell.school}'
+              : 'Niveau ${srdSpell.level} • ${srdSpell.school}',
           style: const TextStyle(fontSize: 11, color: Colors.white70),
         ),
         trailing: Row(
@@ -594,39 +794,48 @@ class _SpellListTile extends ConsumerWidget {
           children: [
             if (blockedByArmor)
               const Tooltip(
-                message: 'Incantation impossible : armure/bouclier non maîtrisé',
+                message:
+                    'Incantation impossible : armure/bouclier non maîtrisé',
                 child: Icon(Icons.block, color: AppTheme.neonRed, size: 20),
               ),
             if (canCast) ...[
               IconButton(
                 icon: const Icon(Icons.bolt, color: AppTheme.neonCyan),
-                tooltip: 'Lancer le sort',
+                tooltip: l10n.spellCastTooltip,
                 onPressed: () => _castSpell(context, ref),
               ),
               if (hasSpellAttack)
                 IconButton(
-                  icon: const Icon(Icons.gps_fixed, color: AppTheme.neonCyan, size: 20),
-                  tooltip: 'Jet d\'attaque magique (d20 + $spellAttackBonus)',
+                  icon: const Icon(
+                    Icons.gps_fixed,
+                    color: AppTheme.neonCyan,
+                    size: 20,
+                  ),
+                  tooltip: l10n.spellAttackTooltip(spellAttackBonus),
                   onPressed: () {
                     RollResultDialog.show(
                       context,
                       characterId: characterId,
                       rollType: RollType.attack,
-                      title: 'Attaque magique : ${srdSpell.name}',
+                      title: l10n.spellAttackTitle(srdSpell.name),
                       bonus: spellAttackBonus,
                     );
                   },
                 ),
               if (damageFormula != null)
                 IconButton(
-                  icon: const Icon(Icons.local_fire_department, color: Colors.orange, size: 20),
-                  tooltip: 'Dégâts ($damageFormula)',
+                  icon: const Icon(
+                    Icons.local_fire_department,
+                    color: Colors.orange,
+                    size: 20,
+                  ),
+                  tooltip: l10n.spellDamageTooltip(damageFormula),
                   onPressed: () {
                     RollResultDialog.show(
                       context,
                       characterId: characterId,
                       rollType: RollType.damage,
-                      title: 'Dégâts : ${srdSpell.name}',
+                      title: l10n.spellDamageTitle(srdSpell.name),
                       bonus: 0,
                       isD20: false,
                       diceExpression: damageFormula,
@@ -636,10 +845,28 @@ class _SpellListTile extends ConsumerWidget {
             ],
             IconButton(
               icon: const Icon(Icons.close, size: 18, color: AppTheme.neonRed),
-              tooltip: 'Supprimer',
+              tooltip: l10n.actionDelete,
               onPressed: () async {
                 final db = ref.read(databaseProvider);
                 await db.characterDao.deleteCharacterSpell(charSpell.id);
+                if (context.mounted) {
+                  showUndoSnackBar(
+                    context,
+                    message: l10n.spellDeleted,
+                    undoLabel: l10n.actionCancel,
+                    onUndo: () async {
+                      await db.characterDao.insertCharacterSpell(
+                        CharacterSpellsCompanion.insert(
+                          characterId: charSpell.characterId,
+                          spellId: charSpell.spellId,
+                          ruleset: charSpell.ruleset,
+                          prepared: Value(charSpell.prepared),
+                          alwaysPrepared: Value(charSpell.alwaysPrepared),
+                        ),
+                      );
+                    },
+                  );
+                }
               },
             ),
           ],
@@ -648,14 +875,15 @@ class _SpellListTile extends ConsumerWidget {
           showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: Text(srdSpell.name, style: const TextStyle(fontFamily: 'Cinzel')),
-              content: SingleChildScrollView(
-                child: Text(srdSpell.description),
+              title: Text(
+                srdSpell.name,
+                style: const TextStyle(fontFamily: 'Cinzel'),
               ),
+              content: SingleChildScrollView(child: Text(srdSpell.description)),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(),
-                  child: const Text('Fermer'),
+                  child: Text(l10n.actionClose),
                 ),
               ],
             ),
@@ -666,23 +894,24 @@ class _SpellListTile extends ConsumerWidget {
   }
 
   Future<void> _togglePreparation(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
     // If not prepared and we are trying to prepare but reached the limit
     if (!charSpell.prepared && prepLimit != -1 && preparedCount >= prepLimit) {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Row(
+          title: Row(
             children: [
               Icon(Icons.warning_amber_rounded, color: Colors.amber),
               SizedBox(width: 8),
-              Text('Limite de préparation'),
+              Text(l10n.spellPreparationLimit),
             ],
           ),
-          content: Text('Vous avez déjà préparé le nombre maximum autorisé de sorts ($prepLimit). Retirez d\'abord un autre sort de votre préparation.'),
+          content: Text(l10n.spellPreparationLimitDescription(prepLimit)),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('OK'),
+              child: Text(l10n.actionOk),
             ),
           ],
         ),
@@ -726,9 +955,11 @@ class _SpellListTile extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(srdSpell.concentration
-                ? '✨ Lancement de ${srdSpell.name} ! (Concentration activée)'
-                : '✨ Lancement de ${srdSpell.name} ! (Sort mineur)'),
+            content: Text(
+              srdSpell.concentration
+                  ? '✨ Lancement de ${srdSpell.name} ! (Concentration activée)'
+                  : '✨ Lancement de ${srdSpell.name} ! (Sort mineur)',
+            ),
             backgroundColor: AppTheme.neonCyan,
           ),
         );
@@ -764,30 +995,32 @@ class _SpellListTile extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('🔥 Lancement de ${srdSpell.name} ! (Emplacement Niv. $level dépensé)'),
+            content: Text(l10n.spellSlotSpent(srdSpell.name, level)),
             backgroundColor: AppTheme.neonPurple,
           ),
         );
       }
     } else {
-      final higherSlots = slots.where((s) => s.slotLevel > level && s.slotCurrent > 0).toList();
+      final higherSlots = slots
+          .where((s) => s.slotLevel > level && s.slotCurrent > 0)
+          .toList();
 
       if (higherSlots.isEmpty) {
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Row(
+            title: Row(
               children: [
                 Icon(Icons.error_outline, color: AppTheme.neonRed),
                 SizedBox(width: 8),
-                Text('Pas d\'emplacements'),
+                Text(l10n.spellNoSlots),
               ],
             ),
-            content: Text('Vous n\'avez plus d\'emplacements de sort de niveau $level ou supérieur disponible pour lancer ${srdSpell.name}.'),
+            content: Text(l10n.spellNoSlotsDescription(level, srdSpell.name)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('OK'),
+                child: Text(l10n.actionOk),
               ),
             ],
           ),
@@ -796,39 +1029,45 @@ class _SpellListTile extends ConsumerWidget {
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text('Surclasser ${srdSpell.name} ?'),
+            title: Text(l10n.spellOvercastTitle(srdSpell.name)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Aucun emplacement de niveau $level disponible. Souhaitez-vous le lancer à un niveau supérieur ?'),
+                Text(l10n.spellOvercastDescription(level)),
                 const SizedBox(height: 12),
-                ...higherSlots.map((slot) => ListTile(
-                      title: Text('Niveau ${slot.slotLevel}'),
-                      subtitle: Text('${slot.slotCurrent}/${slot.slotMax} disponibles'),
-                      trailing: const Icon(Icons.bolt, color: AppTheme.neonCyan),
-                      onTap: () async {
-                        Navigator.of(ctx).pop();
-                        final db = ref.read(databaseProvider);
-                        await db.characterDao.updateSpellSlot(
-                          CharacterSpellSlotsCompanion(
-                            id: Value(slot.id),
-                            characterId: Value(characterId),
-                            slotLevel: Value(slot.slotLevel),
-                            slotMax: Value(slot.slotMax),
-                            slotCurrent: Value(slot.slotCurrent - 1),
+                ...higherSlots.map(
+                  (slot) => ListTile(
+                    title: Text(l10n.spellLevel(slot.slotLevel)),
+                    subtitle: Text(
+                      l10n.spellAvailableSlots(slot.slotCurrent, slot.slotMax),
+                    ),
+                    trailing: const Icon(Icons.bolt, color: AppTheme.neonCyan),
+                    onTap: () async {
+                      Navigator.of(ctx).pop();
+                      final db = ref.read(databaseProvider);
+                      await db.characterDao.updateSpellSlot(
+                        CharacterSpellSlotsCompanion(
+                          id: Value(slot.id),
+                          characterId: Value(characterId),
+                          slotLevel: Value(slot.slotLevel),
+                          slotMax: Value(slot.slotMax),
+                          slotCurrent: Value(slot.slotCurrent - 1),
+                        ),
+                      );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              '🔥 Lancement de ${srdSpell.name} ! (Emplacement Niv. ${slot.slotLevel} dépensé)',
+                            ),
+                            backgroundColor: AppTheme.neonPurple,
                           ),
                         );
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('🔥 Lancement de ${srdSpell.name} ! (Emplacement Niv. ${slot.slotLevel} dépensé)'),
-                              backgroundColor: AppTheme.neonPurple,
-                            ),
-                          );
-                        }
-                      },
-                    )),
+                      }
+                    },
+                  ),
+                ),
               ],
             ),
             actions: [

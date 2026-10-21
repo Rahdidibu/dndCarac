@@ -18,10 +18,7 @@ class SettingsScreen extends ConsumerWidget {
     final user = Supabase.instance.client.auth.currentUser;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.navSettings),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(l10n.navSettings), centerTitle: true),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -34,12 +31,12 @@ class SettingsScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Compte utilisateur',
+                      l10n.settingsAccountTitle,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Compte connecté',
+                      l10n.settingsAccountConnected,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 12),
@@ -52,7 +49,7 @@ class SettingsScreen extends ConsumerWidget {
                         await Supabase.instance.client.auth.signOut();
                       },
                       icon: const Icon(Icons.logout),
-                      label: const Text('Se déconnecter'),
+                      label: Text(l10n.settingsSignOut),
                     ),
                   ],
                 ),
@@ -74,15 +71,15 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   SegmentedButton<String>(
-                    segments: const [
+                    segments: [
                       ButtonSegment(
                         value: 'fr',
-                        label: Text('Français'),
+                        label: Text(l10n.settingsLanguageFr),
                         icon: Icon(Icons.language),
                       ),
                       ButtonSegment(
                         value: 'en',
-                        label: Text('English'),
+                        label: Text(l10n.settingsLanguageEn),
                         icon: Icon(Icons.language),
                       ),
                     ],
@@ -131,10 +128,12 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: 24),
           Center(
             child: Text(
-              'Version $appVersion ($appBuildDate)',
+              l10n.versionLabel(appVersion, appBuildDate),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                  ),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.5),
+              ),
             ),
           ),
           const SizedBox(height: 16),

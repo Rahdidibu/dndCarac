@@ -9,6 +9,60 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String get skillAthletics => 'Athlétisme';
+
+  @override
+  String get skillAcrobatics => 'Acrobaties';
+
+  @override
+  String get skillSleightOfHand => 'Escamotage';
+
+  @override
+  String get skillStealth => 'Discrétion';
+
+  @override
+  String get skillArcana => 'Arcanes';
+
+  @override
+  String get skillHistory => 'Histoire';
+
+  @override
+  String get skillInvestigation => 'Investigation';
+
+  @override
+  String get skillNature => 'Nature';
+
+  @override
+  String get skillReligion => 'Religion';
+
+  @override
+  String get skillAnimalHandling => 'Dressage';
+
+  @override
+  String get skillInsight => 'Perspicacité';
+
+  @override
+  String get skillMedicine => 'Médecine';
+
+  @override
+  String get skillPerception => 'Perception';
+
+  @override
+  String get skillSurvival => 'Survie';
+
+  @override
+  String get skillDeception => 'Tromperie';
+
+  @override
+  String get skillIntimidation => 'Intimidation';
+
+  @override
+  String get skillPerformance => 'Représentation';
+
+  @override
+  String get skillPersuasion => 'Persuasion';
+
+  @override
   String get appTitle => 'Le Codex de l\'Aventurier';
 
   @override
@@ -36,6 +90,24 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get characterCreate => 'Nouveau personnage';
+
+  @override
+  String get characterSearch => 'Rechercher un personnage';
+
+  @override
+  String get characterNoSearchResults => 'Aucun personnage correspondant';
+
+  @override
+  String get characterSort => 'Trier les personnages';
+
+  @override
+  String get characterSortName => 'Nom (A à Z)';
+
+  @override
+  String get characterSortLevel => 'Niveau (décroissant)';
+
+  @override
+  String get characterSortUpdated => 'Dernière modification';
 
   @override
   String get characterDelete => 'Supprimer le personnage';
@@ -121,7 +193,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get alignmentNG => 'Neutre Bon';
 
   @override
-  String get alignmentCG => 'Chaotic Bon';
+  String get alignmentCG => 'Chaotique Bon';
 
   @override
   String get alignmentLN => 'Loyal Neutre';
@@ -228,6 +300,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sheetTabProfile => 'Profil';
 
   @override
+  String get sheetTabJournalShort => 'Journal';
+
+  @override
+  String get sheetTabCompanionsShort => 'Alliés';
+
+  @override
   String get sheetHp => 'Points de vie';
 
   @override
@@ -301,6 +379,81 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get profilePhotoUploading => 'Téléchargement de la photo…';
+
+  @override
+  String get profilePhotoUpdated => 'Photo mise à jour avec succès !';
+
+  @override
+  String profilePhotoUploadError(String error) {
+    return 'Erreur lors du téléchargement : $error';
+  }
+
+  @override
+  String get profileAbilitySection => 'Caractéristiques et statistiques';
+
+  @override
+  String get profileEditAbilities =>
+      'Modifier les caractéristiques et statistiques';
+
+  @override
+  String get profileProficienciesLanguages => 'Maîtrises et langues';
+
+  @override
+  String get profileManageProficiencies => 'Gérer les maîtrises';
+
+  @override
+  String get proficiencyArmors => 'Armures';
+
+  @override
+  String get proficiencyWeapons => 'Armes';
+
+  @override
+  String get proficiencyWeaponMasteries => 'Maîtrises d’armes (2024)';
+
+  @override
+  String get proficiencyTools => 'Outils';
+
+  @override
+  String get profileFeatsSection => 'Dons du personnage';
+
+  @override
+  String get profileFeatEmpty => 'Aucun don enregistré';
+
+  @override
+  String get profileAddFeat => 'Ajouter un don';
+
+  @override
+  String get profileAddFeatTitle => 'Ajouter un don';
+
+  @override
+  String get profileSearchFeat => 'Rechercher un don';
+
+  @override
+  String get profileNoAvailableFeats => 'Aucun don disponible.';
+
+  @override
+  String get proficiencyNone => 'Non';
+
+  @override
+  String get proficiencyTrained => 'Maîtrisé';
+
+  @override
+  String get proficiencyExpertise => 'Expertise';
+
+  @override
+  String get proficiencyManageTitle => 'Gérer les maîtrises et l’expertise';
+
+  @override
+  String get proficiencySkillsTab => 'Compétences';
+
+  @override
+  String get proficiencyToolsTab => 'Outils';
+
+  @override
+  String get actionApply => 'Valider';
+
+  @override
   String get levelUpHpRoll => 'Lancer le dé de vie';
 
   @override
@@ -341,10 +494,335 @@ class AppLocalizationsFr extends AppLocalizations {
       'D&D Character Manager utilise les données SRD 5.1 et SRD 5.2, publiées sous licence Creative Commons Attribution 4.0 par Wizards of the Coast LLC.';
 
   @override
+  String get settingsAccountTitle => 'Compte utilisateur';
+
+  @override
+  String get settingsAccountConnected => 'Compte connecté';
+
+  @override
+  String get settingsSignOut => 'Se déconnecter';
+
+  @override
+  String versionLabel(String version, String buildDate) {
+    return 'Version $version ($buildDate)';
+  }
+
+  @override
+  String get authSignUpSuccess =>
+      'Inscription réussie ! Vérifiez vos e-mails si une validation est requise.';
+
+  @override
+  String get authLoginFailure =>
+      'Échec de l’authentification. Vérifiez vos identifiants et réessayez.';
+
+  @override
+  String get authUnexpectedFailure =>
+      'Une erreur inattendue est survenue. Veuillez réessayer plus tard.';
+
+  @override
+  String get authMissingConfig =>
+      'Erreur : les variables d’environnement Supabase sont manquantes.';
+
+  @override
+  String get authSignUpDescription => 'Créer un compte de jeu';
+
+  @override
+  String get authLoginDescription =>
+      'Connectez-vous pour synchroniser vos fiches';
+
+  @override
+  String get authEmailLabel => 'Adresse e-mail / nom d’utilisateur';
+
+  @override
+  String get authEmailRequired => 'Veuillez saisir une adresse e-mail';
+
+  @override
+  String get authEmailInvalid => 'Veuillez saisir une adresse e-mail valide';
+
+  @override
+  String get authPasswordLabel => 'Mot de passe';
+
+  @override
+  String get authPasswordRequired => 'Veuillez saisir un mot de passe';
+
+  @override
+  String get authPasswordMinLength =>
+      'Le mot de passe doit contenir au moins 6 caractères';
+
+  @override
+  String get authConfirmPasswordLabel => 'Confirmer le mot de passe';
+
+  @override
+  String get authPasswordMismatch => 'Les mots de passe ne correspondent pas';
+
+  @override
+  String get authCreateAccount => 'Créer mon compte';
+
+  @override
+  String get authSignIn => 'Se connecter';
+
+  @override
+  String get authHaveAccount => 'Déjà un compte ? Connectez-vous';
+
+  @override
+  String get authNoAccount => 'Pas encore de compte ? Inscrivez-vous';
+
+  @override
+  String get authDownloadAndroid => 'Télécharger l’application Android (APK)';
+
+  @override
   String get actionSave => 'Enregistrer';
 
   @override
   String get actionCancel => 'Annuler';
+
+  @override
+  String get actionClear => 'Effacer';
+
+  @override
+  String get noteDeleteTitle => 'Supprimer la note ?';
+
+  @override
+  String noteDeleteConfirm(String title) {
+    return 'Voulez-vous supprimer « $title » ?';
+  }
+
+  @override
+  String get noteUntitled => 'cette note';
+
+  @override
+  String get noteDeleted => 'Note supprimée';
+
+  @override
+  String get journalPin => 'Épingler';
+
+  @override
+  String get journalUnpin => 'Désépingler';
+
+  @override
+  String get journalCategoryAll => 'Toutes';
+
+  @override
+  String get journalCategoryJournal => 'Journal';
+
+  @override
+  String get journalCategoryQuest => 'Quêtes';
+
+  @override
+  String get journalCategoryNpc => 'PNJ';
+
+  @override
+  String get journalCategoryLocation => 'Lieux';
+
+  @override
+  String get journalCategoryTreasure => 'Trésors';
+
+  @override
+  String get journalNewNote => 'Nouvelle note';
+
+  @override
+  String get journalSearchHint => 'Rechercher une note, une quête, un PNJ…';
+
+  @override
+  String get journalNoMatches => 'Aucune note ne correspond à vos filtres.';
+
+  @override
+  String get journalEmpty => 'Votre journal d’aventure est vide.';
+
+  @override
+  String get journalEditTitle => 'Modifier la note';
+
+  @override
+  String get journalNewEntryTitle => 'Nouvelle entrée au journal';
+
+  @override
+  String get journalCategoryLabel => 'Catégorie';
+
+  @override
+  String get journalTitleHint => 'Titre (ex. : rencontre avec le bourgmestre)';
+
+  @override
+  String get journalContentHint => 'Détails et notes (Markdown pris en charge)';
+
+  @override
+  String get journalPinToTop => 'Épingler cette note en haut';
+
+  @override
+  String get spellDeleted => 'Sort supprimé';
+
+  @override
+  String get equipmentDeleted => 'Objet supprimé';
+
+  @override
+  String get currencyTitle => 'Monnaie';
+
+  @override
+  String get currencyManage => 'Gérer et convertir';
+
+  @override
+  String get currencyCopper => 'PC';
+
+  @override
+  String get currencySilver => 'PA';
+
+  @override
+  String get currencyElectrum => 'PE';
+
+  @override
+  String get currencyGold => 'PO';
+
+  @override
+  String get currencyPlatinum => 'PP';
+
+  @override
+  String get currencyCopperName => 'Cuivre';
+
+  @override
+  String get currencySilverName => 'Argent';
+
+  @override
+  String get currencyElectrumName => 'Électrum';
+
+  @override
+  String get currencyGoldName => 'Or';
+
+  @override
+  String get currencyPlatinumName => 'Platine';
+
+  @override
+  String currencyDecreaseTooltip(String coin) {
+    return 'Retirer une pièce de $coin';
+  }
+
+  @override
+  String currencyIncreaseTooltip(String coin) {
+    return 'Ajouter une pièce de $coin';
+  }
+
+  @override
+  String get currencyOptimized =>
+      'Bourse optimisée : les pièces convertibles ont été regroupées.';
+
+  @override
+  String get currencyInsufficientFunds => 'Fonds insuffisants dans la bourse.';
+
+  @override
+  String currencyAdded(int amount, String coin) {
+    return '+$amount $coin ajoutés à la bourse.';
+  }
+
+  @override
+  String currencySpent(int amount, String coin) {
+    return '-$amount $coin dépensés. La monnaie a été rendue automatiquement.';
+  }
+
+  @override
+  String get currencyEmptyTitle => 'Vider la bourse ?';
+
+  @override
+  String get currencyEmptyConfirm =>
+      'Voulez-vous vraiment remettre toutes les pièces à zéro ?';
+
+  @override
+  String get currencyEmptyButton => 'Vider';
+
+  @override
+  String get currencyEmptied =>
+      'Bourse vidée. Toutes les pièces ont été remises à zéro.';
+
+  @override
+  String get currencyDialogTitle => 'Bourse et monnaies';
+
+  @override
+  String get currencyTotalValue => 'Valeur totale';
+
+  @override
+  String get currencyPurseWeight => 'Poids de la bourse';
+
+  @override
+  String currencyWeightSummary(String weight, int count) {
+    return '$weight lb ($count pièces)';
+  }
+
+  @override
+  String get currencyDetailTab => 'Détail';
+
+  @override
+  String get currencyTransactionTab => 'Transaction';
+
+  @override
+  String get currencyOptimizeTab => 'Optimiser';
+
+  @override
+  String get currencyAmount => 'Montant';
+
+  @override
+  String get currencyReceiveLoot => 'Recevoir (butin)';
+
+  @override
+  String get currencySpendPurchase => 'Dépenser (achat)';
+
+  @override
+  String get currencyAddToPurse => 'Ajouter à la bourse';
+
+  @override
+  String get currencyMakePayment => 'Effectuer le paiement';
+
+  @override
+  String get currencyOptimizerTitle => 'Optimiseur de bourse';
+
+  @override
+  String get currencyOptimizerDescription =>
+      'Convertit automatiquement les pièces de cuivre et d’argent en coupures supérieures pour réduire le poids de la bourse.';
+
+  @override
+  String get currencyOptimizeButton => 'Convertir et alléger la bourse';
+
+  @override
+  String get equipmentInventory => 'Inventaire';
+
+  @override
+  String get equipmentEmpty => 'Aucun objet.';
+
+  @override
+  String equipmentWeightTotal(String weight) {
+    return 'Poids total : $weight kg';
+  }
+
+  @override
+  String get equipmentAddTitle => 'Ajouter un objet';
+
+  @override
+  String get equipmentNameLabel => 'Nom de l’objet';
+
+  @override
+  String get equipmentNameHint => 'Ex. : épée longue, rations…';
+
+  @override
+  String get equipmentQuantityLabel => 'Quantité';
+
+  @override
+  String get equipmentWeightLabel => 'Poids total (kg)';
+
+  @override
+  String get equipmentAttuned => 'Syntonie';
+
+  @override
+  String get equipmentEquipped => 'Équipé';
+
+  @override
+  String get equipmentStow => 'Ranger';
+
+  @override
+  String equipmentQuantityWeight(int quantity, String weight) {
+    return 'x$quantity • $weight kg';
+  }
+
+  @override
+  String get equipmentDecreaseQuantity => 'Retirer une unité';
+
+  @override
+  String get equipmentIncreaseQuantity => 'Ajouter une unité';
 
   @override
   String get actionDelete => 'Supprimer';
@@ -357,6 +835,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get actionConfirm => 'Confirmer';
+
+  @override
+  String get actionClose => 'Fermer';
+
+  @override
+  String get actionMore => 'Plus d’options';
 
   @override
   String get errorRequired => 'Ce champ est obligatoire';
@@ -425,6 +909,154 @@ class AppLocalizationsFr extends AppLocalizations {
   String get hpModifierError => 'Veuillez entrer un nombre positif';
 
   @override
+  String hpGaugeSemantics(int current, int max) {
+    return 'Points de vie : $current sur $max';
+  }
+
+  @override
+  String hpOutOfMax(int max) {
+    return 'sur $max';
+  }
+
+  @override
+  String get hpDamageAction => 'Dégâts (−1 PV)';
+
+  @override
+  String get hpHealAction => 'Soins (+1 PV)';
+
+  @override
+  String get hpTemporaryLabel => 'Points de vie temporaires';
+
+  @override
+  String get hpTemporaryDecrease => 'Retirer un point de vie temporaire';
+
+  @override
+  String get hpTemporaryIncrease => 'Ajouter un point de vie temporaire';
+
+  @override
+  String get combatWeaponsTitle => 'Armes et attaques';
+
+  @override
+  String get combatNoAttack => 'Aucune attaque configurée.';
+
+  @override
+  String get attackAdd => 'Ajouter une attaque';
+
+  @override
+  String get attackNameLabel => 'Nom';
+
+  @override
+  String get attackBonusLabel => 'Bonus (ex. : +5)';
+
+  @override
+  String get attackDamageLabel => 'Dégâts (ex. : 1d8+3)';
+
+  @override
+  String get attackTypeLabel => 'Type (ex. : perforant)';
+
+  @override
+  String get attackMasteryLabel => 'Maîtrise d’arme (2024)';
+
+  @override
+  String get attackMasteryNone => 'Aucune';
+
+  @override
+  String get rollAbilityDieTooltip => 'Lancer un dé de caractéristique';
+
+  @override
+  String get rollSaveTooltip => 'Lancer un jet de sauvegarde';
+
+  @override
+  String get resourceDecrease => 'Utiliser une ressource';
+
+  @override
+  String get resourceIncrease => 'Récupérer une ressource';
+
+  @override
+  String get spellPreparedTooltip => 'Préparé (cliquer pour retirer)';
+
+  @override
+  String get spellUnpreparedTooltip => 'Non préparé (cliquer pour préparer)';
+
+  @override
+  String get spellCastTooltip => 'Lancer le sort';
+
+  @override
+  String spellAttackTooltip(int bonus) {
+    return 'Jet d’attaque magique (d20 + $bonus)';
+  }
+
+  @override
+  String spellDamageTooltip(String formula) {
+    return 'Dégâts ($formula)';
+  }
+
+  @override
+  String spellAttackTitle(String name) {
+    return 'Attaque magique : $name';
+  }
+
+  @override
+  String spellDamageTitle(String name) {
+    return 'Dégâts : $name';
+  }
+
+  @override
+  String combatQuickTitle(String weapon) {
+    return 'Combat rapide : $weapon';
+  }
+
+  @override
+  String combatHitDamage(String attack, String damage) {
+    return 'Touche : $attack | Dégâts : $damage';
+  }
+
+  @override
+  String get combatAttackAndDamage => 'Attaquer et dégâts (1 clic)';
+
+  @override
+  String get combatMode => 'Mode :';
+
+  @override
+  String get combatHitOnly => 'Touche seule';
+
+  @override
+  String get combatCritical => 'Critique !';
+
+  @override
+  String get ammoChooseBeforeFire =>
+      'Choisissez des munitions avant de tirer !';
+
+  @override
+  String ammoOutOfStock(String item) {
+    return 'Vous n’avez plus de $item !';
+  }
+
+  @override
+  String get heroicInspirationTitle => 'Inspiration héroïque';
+
+  @override
+  String weaponMasteryDialogTitle(String name) {
+    return 'Maîtrise d’arme : $name';
+  }
+
+  @override
+  String get deathSaveSuccesses => 'Succès';
+
+  @override
+  String get deathSaveFailures => 'Échecs';
+
+  @override
+  String deathSaveSuccessMarker(int marker, int count) {
+    return 'Succès $marker, $count marqués';
+  }
+
+  @override
+  String deathSaveFailureMarker(int marker, int count) {
+    return 'Échec $marker, $count marqués';
+  }
+
+  @override
   String get restSectionTitle => 'Repos';
 
   @override
@@ -477,6 +1109,20 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get shortRestClose => 'Terminer le repos';
+
+  @override
+  String get restCharacterNotFound => 'Personnage introuvable';
+
+  @override
+  String get characterNotFound => 'Personnage introuvable';
+
+  @override
+  String hitPointsCurrent(int current, int max) {
+    return '$current / $max PV';
+  }
+
+  @override
+  String get shortRestHealingHistory => 'Historique des soins';
 
   @override
   String get conditionsSectionTitle => 'États & Conditions';
@@ -630,6 +1276,23 @@ class AppLocalizationsFr extends AppLocalizations {
   String get diceRollerRollBonus => 'Modificateur';
 
   @override
+  String diceRollerDieSemantics(int sides) {
+    return 'Dé à $sides faces';
+  }
+
+  @override
+  String get diceRollerDecreaseCount => 'Retirer un dé';
+
+  @override
+  String get diceRollerIncreaseCount => 'Ajouter un dé';
+
+  @override
+  String get diceRollerDecreaseBonus => 'Diminuer le modificateur';
+
+  @override
+  String get diceRollerIncreaseBonus => 'Augmenter le modificateur';
+
+  @override
   String get diceRollerHistory => 'Historique des lancers';
 
   @override
@@ -656,4 +1319,49 @@ class AppLocalizationsFr extends AppLocalizations {
   String rollDamageCheck(String name) {
     return 'Jet de dégâts : $name';
   }
+
+  @override
+  String get sheetScoresNotFound => 'Caractéristiques introuvables';
+
+  @override
+  String get sheetEditAbilitiesTitle => 'Caractéristiques et statistiques';
+
+  @override
+  String get spellPreparationLimit => 'Limite de préparation';
+
+  @override
+  String spellPreparationLimitDescription(int count) {
+    return 'Vous avez déjà préparé le nombre maximum autorisé de sorts ($count). Retirez-en un avant d’en préparer un autre.';
+  }
+
+  @override
+  String get spellNoSlots => 'Aucun emplacement disponible';
+
+  @override
+  String spellNoSlotsDescription(int level, String name) {
+    return 'Il ne vous reste aucun emplacement de niveau $level ou supérieur pour lancer $name.';
+  }
+
+  @override
+  String spellOvercastTitle(String name) {
+    return 'Surclasser $name ?';
+  }
+
+  @override
+  String spellOvercastDescription(int level) {
+    return 'Aucun emplacement de niveau $level disponible. Voulez-vous lancer le sort à un niveau supérieur ?';
+  }
+
+  @override
+  String spellAvailableSlots(int current, int max) {
+    return '$current/$max disponibles';
+  }
+
+  @override
+  String spellSlotSpent(String name, int level) {
+    return 'Lancement de $name ! (emplacement de niveau $level dépensé)';
+  }
+
+  @override
+  String get actionOk => 'OK';
 }

@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/utils/url_helper.dart';
 import '../../../../core/constants/app_version.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../core/utils/app_errors.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -32,6 +33,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    final l10n = AppLocalizations.of(context)!;
 
     setState(() {
       _isLoading = true;
@@ -44,14 +46,11 @@ class _AuthScreenState extends State<AuthScreen> {
     try {
       final client = Supabase.instance.client;
       if (_isSignUp) {
-        await client.auth.signUp(
-          email: email,
-          password: password,
-        );
+        await client.auth.signUp(email: email, password: password);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('✅ Inscription réussie ! Veuillez vérifier vos e-mails si la validation est requise.'),
+            SnackBar(
+              content: Text(l10n.authSignUpSuccess),
               backgroundColor: Colors.green,
             ),
           );
@@ -60,20 +59,17 @@ class _AuthScreenState extends State<AuthScreen> {
           });
         }
       } else {
-        await client.auth.signInWithPassword(
-          email: email,
-          password: password,
-        );
+        await client.auth.signInWithPassword(email: email, password: password);
       }
     } on AuthException catch (e, st) {
       AppErrors.log(e, st, context: 'Auth');
       setState(() {
-        _errorMessage = 'Échec de l’authentification. Vérifiez vos identifiants et réessayez.';
+        _errorMessage = l10n.authLoginFailure;
       });
     } catch (e, st) {
       AppErrors.log(e, st, context: 'Auth');
       setState(() {
-        _errorMessage = 'Une erreur inattendue est survenue. Veuillez réessayer plus tard.';
+        _errorMessage = l10n.authUnexpectedFailure;
       });
     } finally {
       if (mounted) {
@@ -86,10 +82,12 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final isConfigured = const String.fromEnvironment('SUPABASE_URL').isNotEmpty &&
+    final isConfigured =
+        const String.fromEnvironment('SUPABASE_URL').isNotEmpty &&
         const String.fromEnvironment('SUPABASE_ANON_KEY').isNotEmpty;
 
     return Scaffold(
@@ -120,7 +118,7 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
             ),
           ),
-          
+
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -162,7 +160,9 @@ class _AuthScreenState extends State<AuthScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          _isSignUp ? 'Créer un compte de jeu' : 'Connectez-vous pour synchroniser vos fiches',
+                          _isSignUp
+                              ? l10n.authSignUpDescription
+                              : l10n.authLoginDescription,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
@@ -178,14 +178,21 @@ class _AuthScreenState extends State<AuthScreen> {
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(color: Colors.red.shade700),
                             ),
-                            child: const Row(
+                            child: Row(
                               children: [
-                                Icon(Icons.warning_amber_rounded, color: Colors.red, size: 24),
+                                Icon(
+                                  Icons.warning_amber_rounded,
+                                  color: Colors.red,
+                                  size: 24,
+                                ),
                                 SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
-                                    'Erreur : Les variables d\'environnement SUPABASE_URL ou SUPABASE_ANON_KEY sont manquantes.',
-                                    style: TextStyle(color: Colors.redAccent, fontSize: 12),
+                                    l10n.authMissingConfig,
+                                    style: TextStyle(
+                                      color: Colors.redAccent,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -198,18 +205,28 @@ class _AuthScreenState extends State<AuthScreen> {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: colorScheme.errorContainer.withValues(alpha: 0.2),
+                              color: colorScheme.errorContainer.withValues(
+                                alpha: 0.2,
+                              ),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: colorScheme.error.withValues(alpha: 0.4)),
+                              border: Border.all(
+                                color: colorScheme.error.withValues(alpha: 0.4),
+                              ),
                             ),
                             child: Row(
                               children: [
-                                Icon(Icons.error_outline, color: colorScheme.error),
+                                Icon(
+                                  Icons.error_outline,
+                                  color: colorScheme.error,
+                                ),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
                                     _errorMessage!,
-                                    style: TextStyle(color: colorScheme.onErrorContainer, fontSize: 13),
+                                    style: TextStyle(
+                                      color: colorScheme.onErrorContainer,
+                                      fontSize: 13,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -222,17 +239,17 @@ class _AuthScreenState extends State<AuthScreen> {
                         TextFormField(
                           controller: _emailController,
                           textInputAction: TextInputAction.next,
-                          decoration: const InputDecoration(
-                            labelText: 'Adresse e-mail / Username',
+                          decoration: InputDecoration(
+                            labelText: l10n.authEmailLabel,
                             prefixIcon: Icon(Icons.email_outlined),
                           ),
                           keyboardType: TextInputType.emailAddress,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Veuillez saisir une adresse e-mail';
+                              return l10n.authEmailRequired;
                             }
                             if (!value.contains('@')) {
-                              return 'Veuillez saisir une adresse e-mail valide';
+                              return l10n.authEmailInvalid;
                             }
                             return null;
                           },
@@ -242,21 +259,23 @@ class _AuthScreenState extends State<AuthScreen> {
                         // Password input
                         TextFormField(
                           controller: _passwordController,
-                          textInputAction: _isSignUp ? TextInputAction.next : TextInputAction.done,
+                          textInputAction: _isSignUp
+                              ? TextInputAction.next
+                              : TextInputAction.done,
                           onFieldSubmitted: (_) {
                             if (!_isSignUp) _submit();
                           },
-                          decoration: const InputDecoration(
-                            labelText: 'Mot de passe',
+                          decoration: InputDecoration(
+                            labelText: l10n.authPasswordLabel,
                             prefixIcon: Icon(Icons.lock_outline),
                           ),
                           obscureText: true,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Veuillez saisir un mot de passe';
+                              return l10n.authPasswordRequired;
                             }
                             if (value.length < 6) {
-                              return 'Le mot de passe doit faire au moins 6 caractères';
+                              return l10n.authPasswordMinLength;
                             }
                             return null;
                           },
@@ -269,14 +288,14 @@ class _AuthScreenState extends State<AuthScreen> {
                             controller: _confirmPasswordController,
                             textInputAction: TextInputAction.done,
                             onFieldSubmitted: (_) => _submit(),
-                            decoration: const InputDecoration(
-                              labelText: 'Confirmer le mot de passe',
+                            decoration: InputDecoration(
+                              labelText: l10n.authConfirmPasswordLabel,
                               prefixIcon: Icon(Icons.lock_reset_outlined),
                             ),
                             obscureText: true,
                             validator: (value) {
                               if (value != _passwordController.text) {
-                                return 'Les mots de passe ne correspondent pas';
+                                return l10n.authPasswordMismatch;
                               }
                               return null;
                             },
@@ -297,16 +316,25 @@ class _AuthScreenState extends State<AuthScreen> {
                               ),
                               elevation: 4,
                             ),
-                            onPressed: _isLoading || !isConfigured ? null : _submit,
+                            onPressed: _isLoading || !isConfigured
+                                ? null
+                                : _submit,
                             child: _isLoading
                                 ? const SizedBox(
                                     width: 24,
                                     height: 24,
-                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.black,
+                                    ),
                                   )
                                 : Text(
-                                    _isSignUp ? 'Créer mon compte' : 'Se connecter',
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                    _isSignUp
+                                        ? l10n.authCreateAccount
+                                        : l10n.authSignIn,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                           ),
                         ),
@@ -324,8 +352,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                 },
                           child: Text(
                             _isSignUp
-                                ? 'Déjà un compte ? Connectez-vous'
-                                : 'Pas encore de compte ? Inscrivez-vous',
+                                ? l10n.authHaveAccount
+                                : l10n.authNoAccount,
                             style: const TextStyle(color: AppTheme.neonCyan),
                           ),
                         ),
@@ -337,18 +365,24 @@ class _AuthScreenState extends State<AuthScreen> {
                             onPressed: () {
                               openUrl('codex-aventurier.apk');
                             },
-                            icon: const Icon(Icons.android, color: Colors.greenAccent),
-                            label: const Text(
-                              'Télécharger l\'application Android (APK)',
+                            icon: const Icon(
+                              Icons.android,
+                              color: Colors.greenAccent,
+                            ),
+                            label: Text(
+                              l10n.authDownloadAndroid,
                               style: TextStyle(color: Colors.greenAccent),
                             ),
                           ),
                         ],
                         const SizedBox(height: 16),
                         Text(
-                          'Version $appVersion ($appBuildDate)',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                          l10n.versionLabel(appVersion, appBuildDate),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.4),
                               ),
                         ),
                       ],

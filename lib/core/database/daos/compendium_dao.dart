@@ -2,20 +2,23 @@ import 'package:drift/drift.dart';
 
 import '../app_database.dart';
 import '../tables/tables.dart';
+import '../../utils/string_utils.dart';
 
 part 'compendium_dao.g.dart';
 
-@DriftAccessor(tables: [
-  SrdSpells,
-  SrdClasses,
-  SrdSubclasses,
-  SrdRaces,
-  SrdSubraces,
-  SrdBackgrounds,
-  SrdFeatures,
-  SrdFeats,
-  SrdWeaponMasteries,
-])
+@DriftAccessor(
+  tables: [
+    SrdSpells,
+    SrdClasses,
+    SrdSubclasses,
+    SrdRaces,
+    SrdSubraces,
+    SrdBackgrounds,
+    SrdFeatures,
+    SrdFeats,
+    SrdWeaponMasteries,
+  ],
+)
 class CompendiumDao extends DatabaseAccessor<AppDatabase>
     with _$CompendiumDaoMixin {
   CompendiumDao(super.db);
@@ -26,7 +29,13 @@ class CompendiumDao extends DatabaseAccessor<AppDatabase>
       (select(srdSpells)
             ..where((s) => s.ruleset.equalsValue(ruleset))
             ..orderBy([(s) => OrderingTerm.asc(s.name)]))
-          .get();
+          .get()
+          .then(
+            (items) => items
+              ..sort(
+                (a, b) => StringUtils.compareAlphabetically(a.name, b.name),
+              ),
+          );
 
   Future<List<SrdSpell>> searchSpells(
     RulesetVersion ruleset, {
@@ -35,8 +44,7 @@ class CompendiumDao extends DatabaseAccessor<AppDatabase>
     String? school,
     String? classId,
   }) {
-    final q = select(srdSpells)
-      ..where((s) => s.ruleset.equalsValue(ruleset));
+    final q = select(srdSpells)..where((s) => s.ruleset.equalsValue(ruleset));
     if (query != null && query.isNotEmpty) {
       q.where((s) => s.name.like('%$query%'));
     }
@@ -47,7 +55,11 @@ class CompendiumDao extends DatabaseAccessor<AppDatabase>
       q.where((s) => s.school.equals(school));
     }
     // classId filtering is done in-memory (stored as JSON array)
-    return q.get();
+    return q.get().then(
+      (items) =>
+          items
+            ..sort((a, b) => StringUtils.compareAlphabetically(a.name, b.name)),
+    );
   }
 
   Future<SrdSpell?> getSpellById(String id, RulesetVersion ruleset) =>
@@ -80,10 +92,13 @@ class CompendiumDao extends DatabaseAccessor<AppDatabase>
   // ── Subclasses ───────────────────────────────────────────
 
   Future<List<SrdSubclassesData>> getSubclasses(
-          String classId, RulesetVersion ruleset) =>
+    String classId,
+    RulesetVersion ruleset,
+  ) =>
       (select(srdSubclasses)
-            ..where((s) =>
-                s.classId.equals(classId) & s.ruleset.equalsValue(ruleset))
+            ..where(
+              (s) => s.classId.equals(classId) & s.ruleset.equalsValue(ruleset),
+            )
             ..orderBy([(s) => OrderingTerm.asc(s.name)]))
           .get();
 
@@ -108,11 +123,11 @@ class CompendiumDao extends DatabaseAccessor<AppDatabase>
 
   // ── Subraces / Subspecies ────────────────────────────────
 
-  Future<List<SrdSubrace>> getSubraces(
-          String raceId, RulesetVersion ruleset) =>
+  Future<List<SrdSubrace>> getSubraces(String raceId, RulesetVersion ruleset) =>
       (select(srdSubraces)
-            ..where((s) =>
-                s.raceId.equals(raceId) & s.ruleset.equalsValue(ruleset))
+            ..where(
+              (s) => s.raceId.equals(raceId) & s.ruleset.equalsValue(ruleset),
+            )
             ..orderBy([(s) => OrderingTerm.asc(s.name)]))
           .get();
 
@@ -133,52 +148,59 @@ class CompendiumDao extends DatabaseAccessor<AppDatabase>
           .getSingleOrNull();
 
   Future<void> insertAllBackgrounds(
-          List<SrdBackgroundsCompanion> backgrounds) =>
-      batch((b) => b.insertAllOnConflictUpdate(srdBackgrounds, backgrounds));
-
+    List<SrdBackgroundsCompanion> backgrounds,
+  ) => batch((b) => b.insertAllOnConflictUpdate(srdBackgrounds, backgrounds));
 
   // ── Features ─────────────────────────────────────────────
 
   Future<List<SrdFeature>> getFeaturesForClass(
-          String classId, RulesetVersion ruleset, int level) =>
-      (select(srdFeatures)
-            ..where((f) =>
+    String classId,
+    RulesetVersion ruleset,
+    int level,
+  ) =>
+      (select(srdFeatures)..where(
+            (f) =>
                 f.classId.equals(classId) &
                 f.ruleset.equalsValue(ruleset) &
-                f.level.isSmallerOrEqualValue(level)))
+                f.level.isSmallerOrEqualValue(level),
+          ))
           .get();
 
   Future<List<SrdFeature>> getFeaturesUnlockedAtLevel(
-          String classId, RulesetVersion ruleset, int level) =>
-      (select(srdFeatures)
-            ..where((f) =>
+    String classId,
+    RulesetVersion ruleset,
+    int level,
+  ) =>
+      (select(srdFeatures)..where(
+            (f) =>
                 f.classId.equals(classId) &
                 f.ruleset.equalsValue(ruleset) &
-                f.level.equals(level)))
+                f.level.equals(level),
+          ))
           .get();
 
-  Future<void> insertAllFeatures(List<SrdFeaturesCompanion> features) =>
-      batch((b) => b.insertAll(srdFeatures, features,
-          mode: InsertMode.insertOrIgnore));
+  Future<void> insertAllFeatures(List<SrdFeaturesCompanion> features) => batch(
+    (b) => b.insertAll(srdFeatures, features, mode: InsertMode.insertOrIgnore),
+  );
 
   // ── Seed check ───────────────────────────────────────────
 
   Future<bool> isSeeded(RulesetVersion ruleset) async {
-    final countSpells = await (select(srdSpells)
-          ..where((s) => s.ruleset.equalsValue(ruleset)))
-        .get();
+    final countSpells = await (select(
+      srdSpells,
+    )..where((s) => s.ruleset.equalsValue(ruleset))).get();
     if (ruleset == RulesetVersion.dnd2024) {
       final countFeats = await select(srdFeats).get();
-      final countBgs = await (select(srdBackgrounds)
-            ..where((b) => b.ruleset.equalsValue(ruleset)))
-          .get();
-      final countRaces = await (select(srdRaces)
-            ..where((r) => r.ruleset.equalsValue(ruleset)))
-          .get();
+      final countBgs = await (select(
+        srdBackgrounds,
+      )..where((b) => b.ruleset.equalsValue(ruleset))).get();
+      final countRaces = await (select(
+        srdRaces,
+      )..where((r) => r.ruleset.equalsValue(ruleset))).get();
       return countSpells.isNotEmpty &&
-             countFeats.isNotEmpty &&
-             countBgs.length >= 16 &&
-             countRaces.length >= 10;
+          countFeats.isNotEmpty &&
+          countBgs.length >= 16 &&
+          countRaces.length >= 10;
     }
     return countSpells.isNotEmpty;
   }
@@ -189,7 +211,13 @@ class CompendiumDao extends DatabaseAccessor<AppDatabase>
       (select(srdFeats)
             ..where((f) => f.ruleset.equalsValue(ruleset))
             ..orderBy([(f) => OrderingTerm.asc(f.name)]))
-          .get();
+          .get()
+          .then(
+            (items) => items
+              ..sort(
+                (a, b) => StringUtils.compareAlphabetically(a.name, b.name),
+              ),
+          );
 
   Future<SrdFeat?> getFeatById(String id, RulesetVersion ruleset) =>
       (select(srdFeats)
@@ -202,11 +230,16 @@ class CompendiumDao extends DatabaseAccessor<AppDatabase>
   // ── Weapon Masteries ───────────────────────────────────
 
   Future<List<SrdWeaponMastery>> getAllWeaponMasteries() =>
-      select(srdWeaponMasteries).get();
+      select(srdWeaponMasteries).get().then(
+        (items) => items
+          ..sort((a, b) => StringUtils.compareAlphabetically(a.name, b.name)),
+      );
 
-  Future<SrdWeaponMastery?> getWeaponMasteryById(String id) =>
-      (select(srdWeaponMasteries)..where((w) => w.id.equals(id))).getSingleOrNull();
+  Future<SrdWeaponMastery?> getWeaponMasteryById(String id) => (select(
+    srdWeaponMasteries,
+  )..where((w) => w.id.equals(id))).getSingleOrNull();
 
-  Future<void> insertAllWeaponMasteries(List<SrdWeaponMasteriesCompanion> masteries) =>
-      batch((b) => b.insertAllOnConflictUpdate(srdWeaponMasteries, masteries));
+  Future<void> insertAllWeaponMasteries(
+    List<SrdWeaponMasteriesCompanion> masteries,
+  ) => batch((b) => b.insertAllOnConflictUpdate(srdWeaponMasteries, masteries));
 }

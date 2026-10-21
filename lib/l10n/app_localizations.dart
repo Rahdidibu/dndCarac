@@ -98,6 +98,114 @@ abstract class AppLocalizations {
     Locale('fr'),
   ];
 
+  /// No description provided for @skillAthletics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Athlétisme'**
+  String get skillAthletics;
+
+  /// No description provided for @skillAcrobatics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acrobaties'**
+  String get skillAcrobatics;
+
+  /// No description provided for @skillSleightOfHand.
+  ///
+  /// In fr, this message translates to:
+  /// **'Escamotage'**
+  String get skillSleightOfHand;
+
+  /// No description provided for @skillStealth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Discrétion'**
+  String get skillStealth;
+
+  /// No description provided for @skillArcana.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arcanes'**
+  String get skillArcana;
+
+  /// No description provided for @skillHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Histoire'**
+  String get skillHistory;
+
+  /// No description provided for @skillInvestigation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Investigation'**
+  String get skillInvestigation;
+
+  /// No description provided for @skillNature.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nature'**
+  String get skillNature;
+
+  /// No description provided for @skillReligion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Religion'**
+  String get skillReligion;
+
+  /// No description provided for @skillAnimalHandling.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dressage'**
+  String get skillAnimalHandling;
+
+  /// No description provided for @skillInsight.
+  ///
+  /// In fr, this message translates to:
+  /// **'Perspicacité'**
+  String get skillInsight;
+
+  /// No description provided for @skillMedicine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Médecine'**
+  String get skillMedicine;
+
+  /// No description provided for @skillPerception.
+  ///
+  /// In fr, this message translates to:
+  /// **'Perception'**
+  String get skillPerception;
+
+  /// No description provided for @skillSurvival.
+  ///
+  /// In fr, this message translates to:
+  /// **'Survie'**
+  String get skillSurvival;
+
+  /// No description provided for @skillDeception.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tromperie'**
+  String get skillDeception;
+
+  /// No description provided for @skillIntimidation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intimidation'**
+  String get skillIntimidation;
+
+  /// No description provided for @skillPerformance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Représentation'**
+  String get skillPerformance;
+
+  /// No description provided for @skillPersuasion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Persuasion'**
+  String get skillPersuasion;
+
   /// Titre de l'application
   ///
   /// In fr, this message translates to:
@@ -151,6 +259,42 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Nouveau personnage'**
   String get characterCreate;
+
+  /// No description provided for @characterSearch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher un personnage'**
+  String get characterSearch;
+
+  /// No description provided for @characterNoSearchResults.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun personnage correspondant'**
+  String get characterNoSearchResults;
+
+  /// No description provided for @characterSort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trier les personnages'**
+  String get characterSort;
+
+  /// No description provided for @characterSortName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom (A à Z)'**
+  String get characterSortName;
+
+  /// No description provided for @characterSortLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau (décroissant)'**
+  String get characterSortLevel;
+
+  /// No description provided for @characterSortUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière modification'**
+  String get characterSortUpdated;
 
   /// No description provided for @characterDelete.
   ///
@@ -317,7 +461,7 @@ abstract class AppLocalizations {
   /// No description provided for @alignmentCG.
   ///
   /// In fr, this message translates to:
-  /// **'Chaotic Bon'**
+  /// **'Chaotique Bon'**
   String get alignmentCG;
 
   /// No description provided for @alignmentLN.
@@ -524,6 +668,18 @@ abstract class AppLocalizations {
   /// **'Profil'**
   String get sheetTabProfile;
 
+  /// No description provided for @sheetTabJournalShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Journal'**
+  String get sheetTabJournalShort;
+
+  /// No description provided for @sheetTabCompanionsShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alliés'**
+  String get sheetTabCompanionsShort;
+
   /// No description provided for @sheetHp.
   ///
   /// In fr, this message translates to:
@@ -662,6 +818,150 @@ abstract class AppLocalizations {
   /// **'Niveau actuel : {level}'**
   String levelUpCurrentLevel(int level);
 
+  /// No description provided for @profilePhotoUploading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléchargement de la photo…'**
+  String get profilePhotoUploading;
+
+  /// No description provided for @profilePhotoUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo mise à jour avec succès !'**
+  String get profilePhotoUpdated;
+
+  /// No description provided for @profilePhotoUploadError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors du téléchargement : {error}'**
+  String profilePhotoUploadError(String error);
+
+  /// No description provided for @profileAbilitySection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caractéristiques et statistiques'**
+  String get profileAbilitySection;
+
+  /// No description provided for @profileEditAbilities.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier les caractéristiques et statistiques'**
+  String get profileEditAbilities;
+
+  /// No description provided for @profileProficienciesLanguages.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maîtrises et langues'**
+  String get profileProficienciesLanguages;
+
+  /// No description provided for @profileManageProficiencies.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer les maîtrises'**
+  String get profileManageProficiencies;
+
+  /// No description provided for @proficiencyArmors.
+  ///
+  /// In fr, this message translates to:
+  /// **'Armures'**
+  String get proficiencyArmors;
+
+  /// No description provided for @proficiencyWeapons.
+  ///
+  /// In fr, this message translates to:
+  /// **'Armes'**
+  String get proficiencyWeapons;
+
+  /// No description provided for @proficiencyWeaponMasteries.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maîtrises d’armes (2024)'**
+  String get proficiencyWeaponMasteries;
+
+  /// No description provided for @proficiencyTools.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outils'**
+  String get proficiencyTools;
+
+  /// No description provided for @profileFeatsSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dons du personnage'**
+  String get profileFeatsSection;
+
+  /// No description provided for @profileFeatEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun don enregistré'**
+  String get profileFeatEmpty;
+
+  /// No description provided for @profileAddFeat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un don'**
+  String get profileAddFeat;
+
+  /// No description provided for @profileAddFeatTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un don'**
+  String get profileAddFeatTitle;
+
+  /// No description provided for @profileSearchFeat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher un don'**
+  String get profileSearchFeat;
+
+  /// No description provided for @profileNoAvailableFeats.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun don disponible.'**
+  String get profileNoAvailableFeats;
+
+  /// No description provided for @proficiencyNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non'**
+  String get proficiencyNone;
+
+  /// No description provided for @proficiencyTrained.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maîtrisé'**
+  String get proficiencyTrained;
+
+  /// No description provided for @proficiencyExpertise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expertise'**
+  String get proficiencyExpertise;
+
+  /// No description provided for @proficiencyManageTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer les maîtrises et l’expertise'**
+  String get proficiencyManageTitle;
+
+  /// No description provided for @proficiencySkillsTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compétences'**
+  String get proficiencySkillsTab;
+
+  /// No description provided for @proficiencyToolsTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outils'**
+  String get proficiencyToolsTab;
+
+  /// No description provided for @actionApply.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valider'**
+  String get actionApply;
+
   /// No description provided for @levelUpHpRoll.
   ///
   /// In fr, this message translates to:
@@ -740,6 +1040,144 @@ abstract class AppLocalizations {
   /// **'D&D Character Manager utilise les données SRD 5.1 et SRD 5.2, publiées sous licence Creative Commons Attribution 4.0 par Wizards of the Coast LLC.'**
   String get settingsAboutText;
 
+  /// No description provided for @settingsAccountTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte utilisateur'**
+  String get settingsAccountTitle;
+
+  /// No description provided for @settingsAccountConnected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte connecté'**
+  String get settingsAccountConnected;
+
+  /// No description provided for @settingsSignOut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se déconnecter'**
+  String get settingsSignOut;
+
+  /// No description provided for @versionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version {version} ({buildDate})'**
+  String versionLabel(String version, String buildDate);
+
+  /// No description provided for @authSignUpSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscription réussie ! Vérifiez vos e-mails si une validation est requise.'**
+  String get authSignUpSuccess;
+
+  /// No description provided for @authLoginFailure.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échec de l’authentification. Vérifiez vos identifiants et réessayez.'**
+  String get authLoginFailure;
+
+  /// No description provided for @authUnexpectedFailure.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur inattendue est survenue. Veuillez réessayer plus tard.'**
+  String get authUnexpectedFailure;
+
+  /// No description provided for @authMissingConfig.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur : les variables d’environnement Supabase sont manquantes.'**
+  String get authMissingConfig;
+
+  /// No description provided for @authSignUpDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un compte de jeu'**
+  String get authSignUpDescription;
+
+  /// No description provided for @authLoginDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connectez-vous pour synchroniser vos fiches'**
+  String get authLoginDescription;
+
+  /// No description provided for @authEmailLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse e-mail / nom d’utilisateur'**
+  String get authEmailLabel;
+
+  /// No description provided for @authEmailRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez saisir une adresse e-mail'**
+  String get authEmailRequired;
+
+  /// No description provided for @authEmailInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez saisir une adresse e-mail valide'**
+  String get authEmailInvalid;
+
+  /// No description provided for @authPasswordLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe'**
+  String get authPasswordLabel;
+
+  /// No description provided for @authPasswordRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez saisir un mot de passe'**
+  String get authPasswordRequired;
+
+  /// No description provided for @authPasswordMinLength.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le mot de passe doit contenir au moins 6 caractères'**
+  String get authPasswordMinLength;
+
+  /// No description provided for @authConfirmPasswordLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le mot de passe'**
+  String get authConfirmPasswordLabel;
+
+  /// No description provided for @authPasswordMismatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les mots de passe ne correspondent pas'**
+  String get authPasswordMismatch;
+
+  /// No description provided for @authCreateAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer mon compte'**
+  String get authCreateAccount;
+
+  /// No description provided for @authSignIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter'**
+  String get authSignIn;
+
+  /// No description provided for @authHaveAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déjà un compte ? Connectez-vous'**
+  String get authHaveAccount;
+
+  /// No description provided for @authNoAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de compte ? Inscrivez-vous'**
+  String get authNoAccount;
+
+  /// No description provided for @authDownloadAndroid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécharger l’application Android (APK)'**
+  String get authDownloadAndroid;
+
   /// No description provided for @actionSave.
   ///
   /// In fr, this message translates to:
@@ -751,6 +1189,462 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Annuler'**
   String get actionCancel;
+
+  /// No description provided for @actionClear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer'**
+  String get actionClear;
+
+  /// No description provided for @noteDeleteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer la note ?'**
+  String get noteDeleteTitle;
+
+  /// No description provided for @noteDeleteConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous supprimer « {title} » ?'**
+  String noteDeleteConfirm(String title);
+
+  /// No description provided for @noteUntitled.
+  ///
+  /// In fr, this message translates to:
+  /// **'cette note'**
+  String get noteUntitled;
+
+  /// No description provided for @noteDeleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Note supprimée'**
+  String get noteDeleted;
+
+  /// No description provided for @journalPin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épingler'**
+  String get journalPin;
+
+  /// No description provided for @journalUnpin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désépingler'**
+  String get journalUnpin;
+
+  /// No description provided for @journalCategoryAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toutes'**
+  String get journalCategoryAll;
+
+  /// No description provided for @journalCategoryJournal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Journal'**
+  String get journalCategoryJournal;
+
+  /// No description provided for @journalCategoryQuest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quêtes'**
+  String get journalCategoryQuest;
+
+  /// No description provided for @journalCategoryNpc.
+  ///
+  /// In fr, this message translates to:
+  /// **'PNJ'**
+  String get journalCategoryNpc;
+
+  /// No description provided for @journalCategoryLocation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lieux'**
+  String get journalCategoryLocation;
+
+  /// No description provided for @journalCategoryTreasure.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trésors'**
+  String get journalCategoryTreasure;
+
+  /// No description provided for @journalNewNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle note'**
+  String get journalNewNote;
+
+  /// No description provided for @journalSearchHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher une note, une quête, un PNJ…'**
+  String get journalSearchHint;
+
+  /// No description provided for @journalNoMatches.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune note ne correspond à vos filtres.'**
+  String get journalNoMatches;
+
+  /// No description provided for @journalEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre journal d’aventure est vide.'**
+  String get journalEmpty;
+
+  /// No description provided for @journalEditTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier la note'**
+  String get journalEditTitle;
+
+  /// No description provided for @journalNewEntryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle entrée au journal'**
+  String get journalNewEntryTitle;
+
+  /// No description provided for @journalCategoryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Catégorie'**
+  String get journalCategoryLabel;
+
+  /// No description provided for @journalTitleHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titre (ex. : rencontre avec le bourgmestre)'**
+  String get journalTitleHint;
+
+  /// No description provided for @journalContentHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détails et notes (Markdown pris en charge)'**
+  String get journalContentHint;
+
+  /// No description provided for @journalPinToTop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épingler cette note en haut'**
+  String get journalPinToTop;
+
+  /// No description provided for @spellDeleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sort supprimé'**
+  String get spellDeleted;
+
+  /// No description provided for @equipmentDeleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objet supprimé'**
+  String get equipmentDeleted;
+
+  /// No description provided for @currencyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Monnaie'**
+  String get currencyTitle;
+
+  /// No description provided for @currencyManage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer et convertir'**
+  String get currencyManage;
+
+  /// No description provided for @currencyCopper.
+  ///
+  /// In fr, this message translates to:
+  /// **'PC'**
+  String get currencyCopper;
+
+  /// No description provided for @currencySilver.
+  ///
+  /// In fr, this message translates to:
+  /// **'PA'**
+  String get currencySilver;
+
+  /// No description provided for @currencyElectrum.
+  ///
+  /// In fr, this message translates to:
+  /// **'PE'**
+  String get currencyElectrum;
+
+  /// No description provided for @currencyGold.
+  ///
+  /// In fr, this message translates to:
+  /// **'PO'**
+  String get currencyGold;
+
+  /// No description provided for @currencyPlatinum.
+  ///
+  /// In fr, this message translates to:
+  /// **'PP'**
+  String get currencyPlatinum;
+
+  /// No description provided for @currencyCopperName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cuivre'**
+  String get currencyCopperName;
+
+  /// No description provided for @currencySilverName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Argent'**
+  String get currencySilverName;
+
+  /// No description provided for @currencyElectrumName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Électrum'**
+  String get currencyElectrumName;
+
+  /// No description provided for @currencyGoldName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Or'**
+  String get currencyGoldName;
+
+  /// No description provided for @currencyPlatinumName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Platine'**
+  String get currencyPlatinumName;
+
+  /// No description provided for @currencyDecreaseTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer une pièce de {coin}'**
+  String currencyDecreaseTooltip(String coin);
+
+  /// No description provided for @currencyIncreaseTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une pièce de {coin}'**
+  String currencyIncreaseTooltip(String coin);
+
+  /// No description provided for @currencyOptimized.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bourse optimisée : les pièces convertibles ont été regroupées.'**
+  String get currencyOptimized;
+
+  /// No description provided for @currencyInsufficientFunds.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonds insuffisants dans la bourse.'**
+  String get currencyInsufficientFunds;
+
+  /// No description provided for @currencyAdded.
+  ///
+  /// In fr, this message translates to:
+  /// **'+{amount} {coin} ajoutés à la bourse.'**
+  String currencyAdded(int amount, String coin);
+
+  /// No description provided for @currencySpent.
+  ///
+  /// In fr, this message translates to:
+  /// **'-{amount} {coin} dépensés. La monnaie a été rendue automatiquement.'**
+  String currencySpent(int amount, String coin);
+
+  /// No description provided for @currencyEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vider la bourse ?'**
+  String get currencyEmptyTitle;
+
+  /// No description provided for @currencyEmptyConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voulez-vous vraiment remettre toutes les pièces à zéro ?'**
+  String get currencyEmptyConfirm;
+
+  /// No description provided for @currencyEmptyButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vider'**
+  String get currencyEmptyButton;
+
+  /// No description provided for @currencyEmptied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bourse vidée. Toutes les pièces ont été remises à zéro.'**
+  String get currencyEmptied;
+
+  /// No description provided for @currencyDialogTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bourse et monnaies'**
+  String get currencyDialogTitle;
+
+  /// No description provided for @currencyTotalValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur totale'**
+  String get currencyTotalValue;
+
+  /// No description provided for @currencyPurseWeight.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids de la bourse'**
+  String get currencyPurseWeight;
+
+  /// No description provided for @currencyWeightSummary.
+  ///
+  /// In fr, this message translates to:
+  /// **'{weight} lb ({count} pièces)'**
+  String currencyWeightSummary(String weight, int count);
+
+  /// No description provided for @currencyDetailTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détail'**
+  String get currencyDetailTab;
+
+  /// No description provided for @currencyTransactionTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transaction'**
+  String get currencyTransactionTab;
+
+  /// No description provided for @currencyOptimizeTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimiser'**
+  String get currencyOptimizeTab;
+
+  /// No description provided for @currencyAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant'**
+  String get currencyAmount;
+
+  /// No description provided for @currencyReceiveLoot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recevoir (butin)'**
+  String get currencyReceiveLoot;
+
+  /// No description provided for @currencySpendPurchase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépenser (achat)'**
+  String get currencySpendPurchase;
+
+  /// No description provided for @currencyAddToPurse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter à la bourse'**
+  String get currencyAddToPurse;
+
+  /// No description provided for @currencyMakePayment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effectuer le paiement'**
+  String get currencyMakePayment;
+
+  /// No description provided for @currencyOptimizerTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimiseur de bourse'**
+  String get currencyOptimizerTitle;
+
+  /// No description provided for @currencyOptimizerDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Convertit automatiquement les pièces de cuivre et d’argent en coupures supérieures pour réduire le poids de la bourse.'**
+  String get currencyOptimizerDescription;
+
+  /// No description provided for @currencyOptimizeButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Convertir et alléger la bourse'**
+  String get currencyOptimizeButton;
+
+  /// No description provided for @equipmentInventory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inventaire'**
+  String get equipmentInventory;
+
+  /// No description provided for @equipmentEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun objet.'**
+  String get equipmentEmpty;
+
+  /// No description provided for @equipmentWeightTotal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids total : {weight} kg'**
+  String equipmentWeightTotal(String weight);
+
+  /// No description provided for @equipmentAddTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un objet'**
+  String get equipmentAddTitle;
+
+  /// No description provided for @equipmentNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de l’objet'**
+  String get equipmentNameLabel;
+
+  /// No description provided for @equipmentNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex. : épée longue, rations…'**
+  String get equipmentNameHint;
+
+  /// No description provided for @equipmentQuantityLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quantité'**
+  String get equipmentQuantityLabel;
+
+  /// No description provided for @equipmentWeightLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids total (kg)'**
+  String get equipmentWeightLabel;
+
+  /// No description provided for @equipmentAttuned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Syntonie'**
+  String get equipmentAttuned;
+
+  /// No description provided for @equipmentEquipped.
+  ///
+  /// In fr, this message translates to:
+  /// **'Équipé'**
+  String get equipmentEquipped;
+
+  /// No description provided for @equipmentStow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ranger'**
+  String get equipmentStow;
+
+  /// No description provided for @equipmentQuantityWeight.
+  ///
+  /// In fr, this message translates to:
+  /// **'x{quantity} • {weight} kg'**
+  String equipmentQuantityWeight(int quantity, String weight);
+
+  /// No description provided for @equipmentDecreaseQuantity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer une unité'**
+  String get equipmentDecreaseQuantity;
+
+  /// No description provided for @equipmentIncreaseQuantity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une unité'**
+  String get equipmentIncreaseQuantity;
 
   /// No description provided for @actionDelete.
   ///
@@ -775,6 +1669,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Confirmer'**
   String get actionConfirm;
+
+  /// No description provided for @actionClose.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer'**
+  String get actionClose;
+
+  /// No description provided for @actionMore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus d’options'**
+  String get actionMore;
 
   /// No description provided for @errorRequired.
   ///
@@ -896,6 +1802,252 @@ abstract class AppLocalizations {
   /// **'Veuillez entrer un nombre positif'**
   String get hpModifierError;
 
+  /// No description provided for @hpGaugeSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Points de vie : {current} sur {max}'**
+  String hpGaugeSemantics(int current, int max);
+
+  /// No description provided for @hpOutOfMax.
+  ///
+  /// In fr, this message translates to:
+  /// **'sur {max}'**
+  String hpOutOfMax(int max);
+
+  /// No description provided for @hpDamageAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dégâts (−1 PV)'**
+  String get hpDamageAction;
+
+  /// No description provided for @hpHealAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Soins (+1 PV)'**
+  String get hpHealAction;
+
+  /// No description provided for @hpTemporaryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Points de vie temporaires'**
+  String get hpTemporaryLabel;
+
+  /// No description provided for @hpTemporaryDecrease.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer un point de vie temporaire'**
+  String get hpTemporaryDecrease;
+
+  /// No description provided for @hpTemporaryIncrease.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un point de vie temporaire'**
+  String get hpTemporaryIncrease;
+
+  /// No description provided for @combatWeaponsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Armes et attaques'**
+  String get combatWeaponsTitle;
+
+  /// No description provided for @combatNoAttack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune attaque configurée.'**
+  String get combatNoAttack;
+
+  /// No description provided for @attackAdd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une attaque'**
+  String get attackAdd;
+
+  /// No description provided for @attackNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom'**
+  String get attackNameLabel;
+
+  /// No description provided for @attackBonusLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonus (ex. : +5)'**
+  String get attackBonusLabel;
+
+  /// No description provided for @attackDamageLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dégâts (ex. : 1d8+3)'**
+  String get attackDamageLabel;
+
+  /// No description provided for @attackTypeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type (ex. : perforant)'**
+  String get attackTypeLabel;
+
+  /// No description provided for @attackMasteryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maîtrise d’arme (2024)'**
+  String get attackMasteryLabel;
+
+  /// No description provided for @attackMasteryNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune'**
+  String get attackMasteryNone;
+
+  /// No description provided for @rollAbilityDieTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lancer un dé de caractéristique'**
+  String get rollAbilityDieTooltip;
+
+  /// No description provided for @rollSaveTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lancer un jet de sauvegarde'**
+  String get rollSaveTooltip;
+
+  /// No description provided for @resourceDecrease.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser une ressource'**
+  String get resourceDecrease;
+
+  /// No description provided for @resourceIncrease.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récupérer une ressource'**
+  String get resourceIncrease;
+
+  /// No description provided for @spellPreparedTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparé (cliquer pour retirer)'**
+  String get spellPreparedTooltip;
+
+  /// No description provided for @spellUnpreparedTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non préparé (cliquer pour préparer)'**
+  String get spellUnpreparedTooltip;
+
+  /// No description provided for @spellCastTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lancer le sort'**
+  String get spellCastTooltip;
+
+  /// No description provided for @spellAttackTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jet d’attaque magique (d20 + {bonus})'**
+  String spellAttackTooltip(int bonus);
+
+  /// No description provided for @spellDamageTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dégâts ({formula})'**
+  String spellDamageTooltip(String formula);
+
+  /// No description provided for @spellAttackTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attaque magique : {name}'**
+  String spellAttackTitle(String name);
+
+  /// No description provided for @spellDamageTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dégâts : {name}'**
+  String spellDamageTitle(String name);
+
+  /// No description provided for @combatQuickTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combat rapide : {weapon}'**
+  String combatQuickTitle(String weapon);
+
+  /// No description provided for @combatHitDamage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touche : {attack} | Dégâts : {damage}'**
+  String combatHitDamage(String attack, String damage);
+
+  /// No description provided for @combatAttackAndDamage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attaquer et dégâts (1 clic)'**
+  String get combatAttackAndDamage;
+
+  /// No description provided for @combatMode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode :'**
+  String get combatMode;
+
+  /// No description provided for @combatHitOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touche seule'**
+  String get combatHitOnly;
+
+  /// No description provided for @combatCritical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Critique !'**
+  String get combatCritical;
+
+  /// No description provided for @ammoChooseBeforeFire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez des munitions avant de tirer !'**
+  String get ammoChooseBeforeFire;
+
+  /// No description provided for @ammoOutOfStock.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous n’avez plus de {item} !'**
+  String ammoOutOfStock(String item);
+
+  /// No description provided for @heroicInspirationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inspiration héroïque'**
+  String get heroicInspirationTitle;
+
+  /// No description provided for @weaponMasteryDialogTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maîtrise d’arme : {name}'**
+  String weaponMasteryDialogTitle(String name);
+
+  /// No description provided for @deathSaveSuccesses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Succès'**
+  String get deathSaveSuccesses;
+
+  /// No description provided for @deathSaveFailures.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échecs'**
+  String get deathSaveFailures;
+
+  /// No description provided for @deathSaveSuccessMarker.
+  ///
+  /// In fr, this message translates to:
+  /// **'Succès {marker}, {count} marqués'**
+  String deathSaveSuccessMarker(int marker, int count);
+
+  /// No description provided for @deathSaveFailureMarker.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échec {marker}, {count} marqués'**
+  String deathSaveFailureMarker(int marker, int count);
+
   /// No description provided for @restSectionTitle.
   ///
   /// In fr, this message translates to:
@@ -991,6 +2143,30 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Terminer le repos'**
   String get shortRestClose;
+
+  /// No description provided for @restCharacterNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personnage introuvable'**
+  String get restCharacterNotFound;
+
+  /// No description provided for @characterNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personnage introuvable'**
+  String get characterNotFound;
+
+  /// No description provided for @hitPointsCurrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'{current} / {max} PV'**
+  String hitPointsCurrent(int current, int max);
+
+  /// No description provided for @shortRestHealingHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique des soins'**
+  String get shortRestHealingHistory;
 
   /// No description provided for @conditionsSectionTitle.
   ///
@@ -1256,6 +2432,36 @@ abstract class AppLocalizations {
   /// **'Modificateur'**
   String get diceRollerRollBonus;
 
+  /// No description provided for @diceRollerDieSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dé à {sides} faces'**
+  String diceRollerDieSemantics(int sides);
+
+  /// No description provided for @diceRollerDecreaseCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer un dé'**
+  String get diceRollerDecreaseCount;
+
+  /// No description provided for @diceRollerIncreaseCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un dé'**
+  String get diceRollerIncreaseCount;
+
+  /// No description provided for @diceRollerDecreaseBonus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Diminuer le modificateur'**
+  String get diceRollerDecreaseBonus;
+
+  /// No description provided for @diceRollerIncreaseBonus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Augmenter le modificateur'**
+  String get diceRollerIncreaseBonus;
+
   /// No description provided for @diceRollerHistory.
   ///
   /// In fr, this message translates to:
@@ -1291,6 +2497,72 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Jet de dégâts : {name}'**
   String rollDamageCheck(String name);
+
+  /// No description provided for @sheetScoresNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caractéristiques introuvables'**
+  String get sheetScoresNotFound;
+
+  /// No description provided for @sheetEditAbilitiesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caractéristiques et statistiques'**
+  String get sheetEditAbilitiesTitle;
+
+  /// No description provided for @spellPreparationLimit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Limite de préparation'**
+  String get spellPreparationLimit;
+
+  /// No description provided for @spellPreparationLimitDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez déjà préparé le nombre maximum autorisé de sorts ({count}). Retirez-en un avant d’en préparer un autre.'**
+  String spellPreparationLimitDescription(int count);
+
+  /// No description provided for @spellNoSlots.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun emplacement disponible'**
+  String get spellNoSlots;
+
+  /// No description provided for @spellNoSlotsDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il ne vous reste aucun emplacement de niveau {level} ou supérieur pour lancer {name}.'**
+  String spellNoSlotsDescription(int level, String name);
+
+  /// No description provided for @spellOvercastTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Surclasser {name} ?'**
+  String spellOvercastTitle(String name);
+
+  /// No description provided for @spellOvercastDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun emplacement de niveau {level} disponible. Voulez-vous lancer le sort à un niveau supérieur ?'**
+  String spellOvercastDescription(int level);
+
+  /// No description provided for @spellAvailableSlots.
+  ///
+  /// In fr, this message translates to:
+  /// **'{current}/{max} disponibles'**
+  String spellAvailableSlots(int current, int max);
+
+  /// No description provided for @spellSlotSpent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lancement de {name} ! (emplacement de niveau {level} dépensé)'**
+  String spellSlotSpent(String name, int level);
+
+  /// No description provided for @actionOk.
+  ///
+  /// In fr, this message translates to:
+  /// **'OK'**
+  String get actionOk;
 }
 
 class _AppLocalizationsDelegate

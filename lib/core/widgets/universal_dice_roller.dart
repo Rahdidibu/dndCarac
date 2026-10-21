@@ -79,25 +79,34 @@ class _UniversalDiceRollerState extends State<UniversalDiceRoller> {
             runSpacing: 8,
             children: _diceTypes.map((die) {
               final isSelected = _selectedDie == die;
-              return ChoiceChip(
-                label: Text('d$die'),
+              return Semantics(
+                button: true,
                 selected: isSelected,
-                selectedColor: AppTheme.neonCyan.withValues(alpha: 0.2),
-                checkmarkColor: AppTheme.neonCyan,
-                labelStyle: TextStyle(
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected ? AppTheme.neonCyan : Colors.grey,
+                label: l10n.diceRollerDieSemantics(die),
+                child: ChoiceChip(
+                  label: Text('d$die'),
+                  selected: isSelected,
+                  selectedColor: AppTheme.neonCyan.withValues(alpha: 0.2),
+                  checkmarkColor: AppTheme.neonCyan,
+                  labelStyle: TextStyle(
+                    fontWeight: isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                    color: isSelected ? AppTheme.neonCyan : Colors.grey,
+                  ),
+                  side: BorderSide(
+                    color: isSelected
+                        ? AppTheme.neonCyan
+                        : Colors.grey.shade800,
+                  ),
+                  onSelected: (selected) {
+                    if (selected) {
+                      setState(() {
+                        _selectedDie = die;
+                      });
+                    }
+                  },
                 ),
-                side: BorderSide(
-                  color: isSelected ? AppTheme.neonCyan : Colors.grey.shade800,
-                ),
-                onSelected: (selected) {
-                  if (selected) {
-                    setState(() {
-                      _selectedDie = die;
-                    });
-                  }
-                },
               );
             }).toList(),
           ),
@@ -116,18 +125,23 @@ class _UniversalDiceRollerState extends State<UniversalDiceRoller> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.remove_circle_outline),
-                        onPressed: _numDice > 1 
-                            ? () => setState(() => _numDice--) 
+                        tooltip: l10n.diceRollerDecreaseCount,
+                        onPressed: _numDice > 1
+                            ? () => setState(() => _numDice--)
                             : null,
                       ),
                       Text(
                         '$_numDice',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       IconButton(
                         icon: const Icon(Icons.add_circle_outline),
-                        onPressed: _numDice < 20 
-                            ? () => setState(() => _numDice++) 
+                        tooltip: l10n.diceRollerIncreaseCount,
+                        onPressed: _numDice < 20
+                            ? () => setState(() => _numDice++)
                             : null,
                       ),
                     ],
@@ -145,18 +159,23 @@ class _UniversalDiceRollerState extends State<UniversalDiceRoller> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.remove_circle_outline),
-                        onPressed: _bonus > -20 
-                            ? () => setState(() => _bonus--) 
+                        tooltip: l10n.diceRollerDecreaseBonus,
+                        onPressed: _bonus > -20
+                            ? () => setState(() => _bonus--)
                             : null,
                       ),
                       Text(
                         _bonus >= 0 ? '+$_bonus' : '$_bonus',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       IconButton(
                         icon: const Icon(Icons.add_circle_outline),
-                        onPressed: _bonus < 20 
-                            ? () => setState(() => _bonus++) 
+                        tooltip: l10n.diceRollerIncreaseBonus,
+                        onPressed: _bonus < 20
+                            ? () => setState(() => _bonus++)
                             : null,
                       ),
                     ],
@@ -178,7 +197,7 @@ class _UniversalDiceRollerState extends State<UniversalDiceRoller> {
               Navigator.of(context).pop();
               RollResultDialog.show(
                 context,
-                title: 'Lancer libre',
+                title: l10n.diceRollerRoll,
                 bonus: _bonus,
                 isD20: _selectedDie == 20 && _numDice == 1,
                 diceExpression: '${_numDice}d$_selectedDie',

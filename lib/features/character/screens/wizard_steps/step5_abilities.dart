@@ -27,21 +27,24 @@ class Step5Abilities extends ConsumerWidget {
 
         // Method selector
         SegmentedButton<AbilityScoreMethod>(
+          showSelectedIcon: false,
+          style: SegmentedButton.styleFrom(
+            minimumSize: const Size(44, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            textStyle: Theme.of(context).textTheme.labelMedium,
+          ),
           segments: [
             ButtonSegment(
               value: AbilityScoreMethod.pointBuy,
               label: Text(l10n.abilityMethodPointBuy),
-              icon: const Icon(Icons.calculate_outlined),
             ),
             ButtonSegment(
               value: AbilityScoreMethod.roll,
               label: Text(l10n.abilityMethodRoll),
-              icon: const Icon(Icons.casino_outlined),
             ),
             ButtonSegment(
               value: AbilityScoreMethod.manual,
               label: Text(l10n.abilityMethodManual),
-              icon: const Icon(Icons.edit_outlined),
             ),
           ],
           selected: {wizard.abilityMethod},
@@ -71,8 +74,11 @@ class _PointBuySection extends StatelessWidget {
   final WizardNotifier notifier;
   final AppLocalizations l10n;
 
-  const _PointBuySection(
-      {required this.wizard, required this.notifier, required this.l10n});
+  const _PointBuySection({
+    required this.wizard,
+    required this.notifier,
+    required this.l10n,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -84,15 +90,15 @@ class _PointBuySection extends StatelessWidget {
           color: remaining == 0
               ? Theme.of(context).colorScheme.primaryContainer
               : remaining < 0
-                  ? Theme.of(context).colorScheme.errorContainer
-                  : null,
+              ? Theme.of(context).colorScheme.errorContainer
+              : null,
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Text(
               l10n.abilityPointsRemaining(remaining),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
           ),
@@ -109,7 +115,8 @@ class _PointBuySection extends StatelessWidget {
             onDecrement: score > DndRules.pointBuyMin
                 ? () => notifier.setAbilityScore(key, score - 1)
                 : null,
-            onIncrement: score < DndRules.pointBuyMax &&
+            onIncrement:
+                score < DndRules.pointBuyMax &&
                     wizard.pointBuyRemaining >=
                         (DndRules.pointBuyCost[score + 1]! -
                             DndRules.pointBuyCost[score]!)
@@ -223,7 +230,9 @@ class _RollSectionState extends ConsumerState<_RollSection> {
                             'Dés: $rollsText',
                             style: TextStyle(
                               fontSize: 11,
-                              color: colorScheme.onSurface.withValues(alpha: 0.6),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.6,
+                              ),
                             ),
                           ),
                       ],
@@ -241,8 +250,12 @@ class _RollSectionState extends ConsumerState<_RollSection> {
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-                      border: Border.all(color: colorScheme.outline.withValues(alpha: 0.15)),
+                      color: colorScheme.surfaceContainerHighest.withValues(
+                        alpha: 0.4,
+                      ),
+                      border: Border.all(
+                        color: colorScheme.outline.withValues(alpha: 0.15),
+                      ),
                     ),
                     child: Text(
                       '$score',
@@ -373,122 +386,155 @@ class _AbilityRow extends ConsumerWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: modifierVal > 0 ? colorScheme.primary.withValues(alpha: 0.4) : colorScheme.outline.withValues(alpha: 0.1),
+          color: modifierVal > 0
+              ? colorScheme.primary.withValues(alpha: 0.4)
+              : colorScheme.outline.withValues(alpha: 0.1),
           width: 1,
         ),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Row(
-          children: [
-            // Ability details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        child: SizedBox(
+          width: double.infinity,
+          child: Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 8,
+            children: [
+              // Ability details
+              SizedBox(
+                width: 156,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(
+                          _abilityLabel(abilityKey, l10n),
+                          style: const TextStyle(
+                            fontFamily: 'Cinzel',
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (modifierVal > 0) ...[
+                          const SizedBox(width: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 1,
+                            ),
+                            decoration: BoxDecoration(
+                              color: colorScheme.primary.withValues(
+                                alpha: 0.15,
+                              ),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: colorScheme.primary.withValues(
+                                  alpha: 0.4,
+                                ),
+                                width: 0.8,
+                              ),
+                            ),
+                            child: Text(
+                              '+$modifierVal',
+                              style: TextStyle(
+                                fontFamily: 'Cinzel',
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Mod : ${mod >= 0 ? '+' : ''}$mod${modifierVal > 0 ? ' (Base: $score)' : ''}',
+                      style: TextStyle(
+                        fontFamily: 'Lora',
+                        fontSize: 11.5,
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Controls
+              Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Text(
-                        _abilityLabel(abilityKey, l10n),
-                        style: const TextStyle(
-                          fontFamily: 'Cinzel',
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      if (modifierVal > 0) ...[
-                        const SizedBox(width: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                              color: colorScheme.primary.withValues(alpha: 0.4),
-                              width: 0.8,
-                            ),
-                          ),
-                          child: Text(
-                            '+$modifierVal',
-                            style: TextStyle(
-                              fontFamily: 'Cinzel',
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Mod : ${mod >= 0 ? '+' : ''}$mod${modifierVal > 0 ? ' (Base: $score)' : ''}',
-                    style: TextStyle(
-                      fontFamily: 'Lora',
-                      fontSize: 11.5,
-                      color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  IconButton(
+                    icon: Icon(
+                      Icons.remove_circle_outline,
+                      color: onDecrement != null
+                          ? colorScheme.primary
+                          : colorScheme.onSurface.withValues(alpha: 0.2),
+                      size: 22,
                     ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 44,
+                      minHeight: 44,
+                    ),
+                    onPressed: onDecrement,
+                  ),
+                  const SizedBox(width: 2),
+                  Container(
+                    width: 38,
+                    height: 38,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: modifierVal > 0
+                          ? colorScheme.primary.withValues(alpha: 0.15)
+                          : colorScheme.surfaceContainerHighest.withValues(
+                              alpha: 0.4,
+                            ),
+                      border: Border.all(
+                        color: modifierVal > 0
+                            ? colorScheme.primary
+                            : colorScheme.outline.withValues(alpha: 0.15),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      '$finalScore',
+                      style: TextStyle(
+                        fontFamily: 'Cinzel',
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: modifierVal > 0
+                            ? colorScheme.primary
+                            : colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  IconButton(
+                    icon: Icon(
+                      Icons.add_circle_outline,
+                      color: onIncrement != null
+                          ? colorScheme.primary
+                          : colorScheme.onSurface.withValues(alpha: 0.2),
+                      size: 22,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 44,
+                      minHeight: 44,
+                    ),
+                    onPressed: onIncrement,
                   ),
                 ],
               ),
-            ),
-
-            // Controls
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.remove_circle_outline,
-                    color: onDecrement != null ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.2),
-                    size: 22,
-                  ),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                  onPressed: onDecrement,
-                ),
-                const SizedBox(width: 2),
-                Container(
-                  width: 38,
-                  height: 38,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: modifierVal > 0 
-                        ? colorScheme.primary.withValues(alpha: 0.15)
-                        : colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-                    border: Border.all(
-                      color: modifierVal > 0 ? colorScheme.primary : colorScheme.outline.withValues(alpha: 0.15),
-                      width: 1,
-                    ),
-                  ),
-                  child: Text(
-                    '$finalScore',
-                    style: TextStyle(
-                      fontFamily: 'Cinzel',
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: modifierVal > 0 ? colorScheme.primary : colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 2),
-                IconButton(
-                  icon: Icon(
-                    Icons.add_circle_outline,
-                    color: onIncrement != null ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.2),
-                    size: 22,
-                  ),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                  onPressed: onIncrement,
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -10,12 +10,15 @@ class _EquipmentTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final equipAsync = ref.watch(characterEquipmentProvider(characterId));
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     Map<String, int> currency = {'cp': 0, 'sp': 0, 'ep': 0, 'gp': 0, 'pp': 0};
     try {
       final decoded = jsonDecode(character.currency) as Map<String, dynamic>;
       currency = decoded.map((k, v) => MapEntry(k, (v as num).toInt()));
-    } catch (e, st) { AppErrors.log(e, st, context: 'Equipment.currency'); }
+    } catch (e, st) {
+      AppErrors.log(e, st, context: 'Equipment.currency');
+    }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
@@ -26,11 +29,22 @@ class _EquipmentTab extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Monnaie', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                l10n.currencyTitle,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               TextButton.icon(
-                icon: const Icon(Icons.account_balance_wallet, size: 18, color: Colors.amber),
-                label: const Text('Gérer & Convertir', style: TextStyle(color: Colors.amber)),
-                onPressed: () => _showEditCurrencyDialog(context, ref, currency),
+                icon: const Icon(
+                  Icons.account_balance_wallet,
+                  size: 18,
+                  color: Colors.amber,
+                ),
+                label: Text(
+                  l10n.currencyManage,
+                  style: const TextStyle(color: Colors.amber),
+                ),
+                onPressed: () =>
+                    _showEditCurrencyDialog(context, ref, currency),
               ),
             ],
           ),
@@ -44,11 +58,31 @@ class _EquipmentTab extends ConsumerWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _CoinBadge(label: 'PC', value: currency['cp'] ?? 0, color: Colors.brown),
-                    _CoinBadge(label: 'PA', value: currency['sp'] ?? 0, color: Colors.grey),
-                    _CoinBadge(label: 'PE', value: currency['ep'] ?? 0, color: Colors.blueGrey),
-                    _CoinBadge(label: 'PO', value: currency['gp'] ?? 0, color: Colors.amber),
-                    _CoinBadge(label: 'PP', value: currency['pp'] ?? 0, color: Colors.white70),
+                    _CoinBadge(
+                      label: l10n.currencyCopper,
+                      value: currency['cp'] ?? 0,
+                      color: Colors.brown,
+                    ),
+                    _CoinBadge(
+                      label: l10n.currencySilver,
+                      value: currency['sp'] ?? 0,
+                      color: Colors.grey,
+                    ),
+                    _CoinBadge(
+                      label: l10n.currencyElectrum,
+                      value: currency['ep'] ?? 0,
+                      color: Colors.blueGrey,
+                    ),
+                    _CoinBadge(
+                      label: l10n.currencyGold,
+                      value: currency['gp'] ?? 0,
+                      color: Colors.amber,
+                    ),
+                    _CoinBadge(
+                      label: l10n.currencyPlatinum,
+                      value: currency['pp'] ?? 0,
+                      color: Colors.white70,
+                    ),
                   ],
                 ),
               ),
@@ -60,9 +94,13 @@ class _EquipmentTab extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Inventaire', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                l10n.equipmentInventory,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               IconButton(
                 icon: const Icon(Icons.add),
+                tooltip: l10n.equipmentAddTitle,
                 onPressed: () => _showAddItemDialog(context, ref),
               ),
             ],
@@ -70,25 +108,34 @@ class _EquipmentTab extends ConsumerWidget {
           const SizedBox(height: 8),
           equipAsync.when(
             loading: () => const CircularProgressIndicator(),
-            error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
+            error: (e, st) =>
+                AsyncErrorView(error: e, stackTrace: st, compact: true),
             data: (items) {
               if (items.isEmpty) {
-                return Text('Aucun objet.',
-                    style: TextStyle(color: colorScheme.onSurfaceVariant));
+                return Text(
+                  l10n.equipmentEmpty,
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                );
               }
               final totalWeight = items.fold<double>(
-                  0, (sum, i) => sum + i.weight * i.quantity);
+                0,
+                (sum, i) => sum + i.weight * i.quantity,
+              );
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ...items.map((item) => _EquipmentTile(
-                        item: item,
-                        characterId: characterId,
-                      )),
+                  ...items.map(
+                    (item) =>
+                        _EquipmentTile(item: item, characterId: characterId),
+                  ),
                   const SizedBox(height: 8),
-                  Text('Poids total : ${totalWeight.toStringAsFixed(1)} kg',
-                      style: TextStyle(
-                          fontSize: 12, color: colorScheme.onSurfaceVariant)),
+                  Text(
+                    l10n.equipmentWeightTotal(totalWeight.toStringAsFixed(1)),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
                 ],
               );
             },
@@ -99,6 +146,7 @@ class _EquipmentTab extends ConsumerWidget {
   }
 
   void _showAddItemDialog(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final nameCtrl = TextEditingController();
     final qtyCtrl = TextEditingController(text: '1');
     final weightCtrl = TextEditingController(text: '0.0');
@@ -106,7 +154,7 @@ class _EquipmentTab extends ConsumerWidget {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Ajouter un objet'),
+        title: Text(l10n.equipmentAddTitle),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -118,9 +166,9 @@ class _EquipmentTab extends ConsumerWidget {
                     return const Iterable<DndItemPreset>.empty();
                   }
                   return _dndItemPresets.where((DndItemPreset option) {
-                    return option.name
-                        .toLowerCase()
-                        .contains(textEditingValue.text.toLowerCase());
+                    return option.name.toLowerCase().contains(
+                      textEditingValue.text.toLowerCase(),
+                    );
                   });
                 },
                 onSelected: (DndItemPreset selection) {
@@ -128,69 +176,89 @@ class _EquipmentTab extends ConsumerWidget {
                   weightCtrl.text = selection.weight.toString();
                   qtyCtrl.text = selection.defaultQuantity.toString();
                 },
-                fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
-                  // Synchronize autocomplete input with nameCtrl
-                  if (nameCtrl.text.isNotEmpty && textEditingController.text.isEmpty) {
-                    textEditingController.text = nameCtrl.text;
-                  }
-                  textEditingController.addListener(() {
-                    nameCtrl.text = textEditingController.text;
-                  });
-                  return TextField(
-                    controller: textEditingController,
-                    focusNode: focusNode,
-                    decoration: const InputDecoration(
-                      labelText: 'Nom de l\'objet',
-                      hintText: 'Ex: Épée longue, Rations...',
-                      prefixIcon: Icon(Icons.search),
-                    ),
-                  );
-                },
+                fieldViewBuilder:
+                    (
+                      context,
+                      textEditingController,
+                      focusNode,
+                      onFieldSubmitted,
+                    ) {
+                      // Synchronize autocomplete input with nameCtrl
+                      if (nameCtrl.text.isNotEmpty &&
+                          textEditingController.text.isEmpty) {
+                        textEditingController.text = nameCtrl.text;
+                      }
+                      textEditingController.addListener(() {
+                        nameCtrl.text = textEditingController.text;
+                      });
+                      return TextField(
+                        controller: textEditingController,
+                        focusNode: focusNode,
+                        decoration: InputDecoration(
+                          labelText: l10n.equipmentNameLabel,
+                          hintText: l10n.equipmentNameHint,
+                          prefixIcon: Icon(Icons.search),
+                        ),
+                      );
+                    },
               ),
               const SizedBox(height: 12),
               TextField(
-                  controller: qtyCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Quantité',
-                    prefixIcon: Icon(Icons.unfold_more),
-                  ),
-                  keyboardType: TextInputType.number),
+                controller: qtyCtrl,
+                decoration: InputDecoration(
+                  labelText: l10n.equipmentQuantityLabel,
+                  prefixIcon: Icon(Icons.unfold_more),
+                ),
+                keyboardType: TextInputType.number,
+              ),
               const SizedBox(height: 12),
               TextField(
-                  controller: weightCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Poids total (kg)',
-                    prefixIcon: Icon(Icons.monitor_weight_outlined),
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                controller: weightCtrl,
+                decoration: InputDecoration(
+                  labelText: l10n.equipmentWeightLabel,
+                  prefixIcon: Icon(Icons.monitor_weight_outlined),
+                ),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+              ),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Annuler')),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.actionCancel),
+          ),
           FilledButton(
             onPressed: () async {
               if (nameCtrl.text.trim().isEmpty) return;
               final db = ref.read(databaseProvider);
-              await db.characterDao.insertEquipment(CharacterEquipmentCompanion.insert(
-                characterId: characterId,
-                itemName: nameCtrl.text.trim(),
-                quantity: Value(int.tryParse(qtyCtrl.text) ?? 1),
-                weight: Value(double.tryParse(weightCtrl.text) ?? 0.0),
-              ));
+              await db.characterDao.insertEquipment(
+                CharacterEquipmentCompanion.insert(
+                  characterId: characterId,
+                  itemName: nameCtrl.text.trim(),
+                  quantity: Value(int.tryParse(qtyCtrl.text) ?? 1),
+                  weight: Value(double.tryParse(weightCtrl.text) ?? 0.0),
+                ),
+              );
               await CharacterService(db).recalculateCharacterAc(characterId);
               ref.invalidate(characterByIdProvider(characterId));
               ref.invalidate(characterEquipmentProvider(characterId));
               if (ctx.mounted) Navigator.of(ctx).pop();
             },
-            child: const Text('Ajouter'),
+            child: Text(l10n.actionAdd),
           ),
         ],
       ),
     );
   }
 
-  void _showEditCurrencyDialog(BuildContext context, WidgetRef ref, Map<String, int> currentCurrency) {
+  void _showEditCurrencyDialog(
+    BuildContext context,
+    WidgetRef ref,
+    Map<String, int> currentCurrency,
+  ) {
     CurrencyManagerDialog.show(context, ref, characterId, currentCurrency);
   }
 }
@@ -200,7 +268,11 @@ class _CoinBadge extends StatelessWidget {
   final int value;
   final Color color;
 
-  const _CoinBadge({required this.label, required this.value, required this.color});
+  const _CoinBadge({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -250,6 +322,7 @@ class _EquipmentTile extends ConsumerWidget {
   }
 
   Widget _buildAmmoTile(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final outOfStock = item.quantity <= 0;
     return Card(
       margin: const EdgeInsets.only(bottom: 6),
@@ -306,8 +379,11 @@ class _EquipmentTile extends ConsumerWidget {
               children: [
                 _StepperButton(
                   icon: Icons.remove,
+                  label: l10n.equipmentDecreaseQuantity,
                   color: item.quantity > 0 ? Colors.red.shade300 : Colors.grey,
-                  onTap: item.quantity > 0 ? () => _adjustQuantity(ref, -1) : null,
+                  onTap: item.quantity > 0
+                      ? () => _adjustQuantity(ref, -1)
+                      : null,
                 ),
                 Container(
                   constraints: const BoxConstraints(minWidth: 36),
@@ -325,6 +401,7 @@ class _EquipmentTile extends ConsumerWidget {
                 ),
                 _StepperButton(
                   icon: Icons.add,
+                  label: l10n.equipmentIncreaseQuantity,
                   color: Colors.green.shade300,
                   onTap: () => _adjustQuantity(ref, 1),
                 ),
@@ -332,16 +409,13 @@ class _EquipmentTile extends ConsumerWidget {
             ),
             const SizedBox(width: 6),
             IconButton(
-              icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              onPressed: () async {
-                final db = ref.read(databaseProvider);
-                await db.characterDao.deleteEquipment(item.id);
-                await CharacterService(db).recalculateCharacterAc(characterId);
-                ref.invalidate(characterByIdProvider(characterId));
-                ref.invalidate(characterEquipmentProvider(characterId));
-              },
+              icon: const Icon(
+                Icons.delete_outline,
+                size: 18,
+                color: Colors.red,
+              ),
+              tooltip: AppLocalizations.of(context)!.actionDelete,
+              onPressed: () => _deleteItem(context, ref),
             ),
           ],
         ),
@@ -351,12 +425,15 @@ class _EquipmentTile extends ConsumerWidget {
 
   Widget _buildGearTile(BuildContext context, WidgetRef ref) {
     final equipped = item.equipped;
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       margin: const EdgeInsets.only(bottom: 6),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
         side: BorderSide(
-          color: equipped ? AppTheme.neonCyan.withValues(alpha: 0.5) : Colors.transparent,
+          color: equipped
+              ? AppTheme.neonCyan.withValues(alpha: 0.5)
+              : Colors.transparent,
           width: equipped ? 1.5 : 0,
         ),
       ),
@@ -397,13 +474,25 @@ class _EquipmentTile extends ConsumerWidget {
                   Row(
                     children: [
                       Text(
-                        'x${item.quantity}  •  ${item.weight.toStringAsFixed(1)} kg',
-                        style: const TextStyle(fontSize: 11, color: Colors.white54),
+                        l10n.equipmentQuantityWeight(
+                          item.quantity,
+                          item.weight.toStringAsFixed(1),
+                        ),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.white54,
+                        ),
                       ),
-                      if (item.attuned) ...const [
+                      if (item.attuned) ...[
                         SizedBox(width: 6),
                         Icon(Icons.auto_awesome, size: 12, color: Colors.amber),
-                        Text(' Syntonie', style: TextStyle(fontSize: 10, color: Colors.amber)),
+                        Text(
+                          ' ${l10n.equipmentAttuned}',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.amber,
+                          ),
+                        ),
                       ],
                     ],
                   ),
@@ -414,7 +503,10 @@ class _EquipmentTile extends ConsumerWidget {
               onTap: () => _toggleEquipped(ref),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: equipped
                       ? AppTheme.neonCyan.withValues(alpha: 0.2)
@@ -426,7 +518,7 @@ class _EquipmentTile extends ConsumerWidget {
                   ),
                 ),
                 child: Text(
-                  equipped ? '✓ Équipé' : 'Ranger',
+                  equipped ? '✓ ${l10n.equipmentEquipped}' : l10n.equipmentStow,
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
@@ -437,21 +529,50 @@ class _EquipmentTile extends ConsumerWidget {
             ),
             const SizedBox(width: 6),
             IconButton(
-              icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              onPressed: () async {
-                final db = ref.read(databaseProvider);
-                await db.characterDao.deleteEquipment(item.id);
-                await CharacterService(db).recalculateCharacterAc(characterId);
-                ref.invalidate(characterByIdProvider(characterId));
-                ref.invalidate(characterEquipmentProvider(characterId));
-              },
+              icon: const Icon(
+                Icons.delete_outline,
+                size: 18,
+                color: Colors.red,
+              ),
+              tooltip: AppLocalizations.of(context)!.actionDelete,
+              onPressed: () => _deleteItem(context, ref),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _deleteItem(BuildContext context, WidgetRef ref) async {
+    final db = ref.read(databaseProvider);
+    final l10n = AppLocalizations.of(context)!;
+    await db.characterDao.deleteEquipment(item.id);
+    await CharacterService(db).recalculateCharacterAc(characterId);
+    ref.invalidate(characterByIdProvider(characterId));
+    ref.invalidate(characterEquipmentProvider(characterId));
+    if (context.mounted) {
+      showUndoSnackBar(
+        context,
+        message: l10n.equipmentDeleted,
+        undoLabel: l10n.actionCancel,
+        onUndo: () async {
+          await db.characterDao.insertEquipment(
+            CharacterEquipmentCompanion.insert(
+              characterId: characterId,
+              itemName: item.itemName,
+              quantity: Value(item.quantity),
+              weight: Value(item.weight),
+              equipped: Value(item.equipped),
+              attuned: Value(item.attuned),
+              notes: Value(item.notes),
+            ),
+          );
+          await CharacterService(db).recalculateCharacterAc(characterId);
+          ref.invalidate(characterByIdProvider(characterId));
+          ref.invalidate(characterEquipmentProvider(characterId));
+        },
+      );
+    }
   }
 
   Future<void> _adjustQuantity(WidgetRef ref, int delta) async {
@@ -496,29 +617,46 @@ class _EquipmentTile extends ConsumerWidget {
 
 class _StepperButton extends StatelessWidget {
   final IconData icon;
+  final String label;
   final Color color;
   final VoidCallback? onTap;
 
-  const _StepperButton({required this.icon, required this.color, this.onTap});
+  const _StepperButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        width: 28,
-        height: 28,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: onTap != null
-              ? color.withValues(alpha: 0.15)
-              : Colors.grey.withValues(alpha: 0.05),
-          border: Border.all(
-            color: onTap != null ? color.withValues(alpha: 0.5) : Colors.grey.withValues(alpha: 0.2),
+    return Semantics(
+      button: true,
+      enabled: onTap != null,
+      label: label,
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: onTap != null
+                ? color.withValues(alpha: 0.15)
+                : Colors.grey.withValues(alpha: 0.05),
+            border: Border.all(
+              color: onTap != null
+                  ? color.withValues(alpha: 0.5)
+                  : Colors.grey.withValues(alpha: 0.2),
+            ),
+          ),
+          child: Icon(
+            icon,
+            size: 18,
+            color: onTap != null ? color : Colors.grey,
           ),
         ),
-        child: Icon(icon, size: 16, color: onTap != null ? color : Colors.grey),
       ),
     );
   }
@@ -528,7 +666,7 @@ class DndItemPreset {
   final String name;
   final double weight; // in kg
   final int defaultQuantity;
-  
+
   const DndItemPreset(this.name, this.weight, [this.defaultQuantity = 1]);
 }
 
@@ -539,7 +677,7 @@ const List<DndItemPreset> _dndItemPresets = [
   DndItemPreset('Billes de fronde (20)', 1.5, 20),
   DndItemPreset('Fléchettes (10)', 1.0, 10),
   DndItemPreset('Aiguilles de sarbacane (50)', 0.5, 50),
-  
+
   // Munitions Magiques & Spéciales
   DndItemPreset('Flèche +1', 0.05, 1),
   DndItemPreset('Flèche +2', 0.05, 1),
@@ -575,7 +713,7 @@ const List<DndItemPreset> _dndItemPresets = [
   DndItemPreset('Arbalète légère', 2.5),
   DndItemPreset('Arbalète lourde', 8.0),
   DndItemPreset('Fronde', 0.0),
-  
+
   // Armures & Boucliers
   DndItemPreset('Armure de rembourrage', 4.0),
   DndItemPreset('Armure de cuir', 5.0),
@@ -586,7 +724,7 @@ const List<DndItemPreset> _dndItemPresets = [
   DndItemPreset('Demi-harnois', 20.0),
   DndItemPreset('Harnois', 30.0),
   DndItemPreset('Bouclier', 3.0),
-  
+
   // Équipement d'aventure
   DndItemPreset('Sac à dos', 2.5),
   DndItemPreset('Sac de couchage', 3.5),

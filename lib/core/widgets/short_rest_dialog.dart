@@ -21,14 +21,16 @@ class ShortRestDialog extends ConsumerStatefulWidget {
     required this.conMod,
   });
 
-  static Future<void> show(BuildContext context, {required int characterId, required int conMod}) async {
+  static Future<void> show(
+    BuildContext context, {
+    required int characterId,
+    required int conMod,
+  }) async {
     await showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => ShortRestDialog(
-        characterId: characterId,
-        conMod: conMod,
-      ),
+      builder: (context) =>
+          ShortRestDialog(characterId: characterId, conMod: conMod),
     );
   }
 
@@ -44,7 +46,9 @@ class _ShortRestDialogState extends ConsumerState<ShortRestDialog> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final charAsync = ref.watch(characterByIdProvider(widget.characterId));
-    final resourcesAsync = ref.watch(characterResourcesProvider(widget.characterId));
+    final resourcesAsync = ref.watch(
+      characterResourcesProvider(widget.characterId),
+    );
 
     return AlertDialog(
       title: Text(l10n.shortRestTitle),
@@ -53,16 +57,18 @@ class _ShortRestDialogState extends ConsumerState<ShortRestDialog> {
           height: 100,
           child: Center(child: CircularProgressIndicator()),
         ),
-        error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
+        error: (e, st) =>
+            AsyncErrorView(error: e, stackTrace: st, compact: true),
         data: (char) {
-          if (char == null) return const Text('Personnage introuvable');
+          if (char == null) return Text(l10n.restCharacterNotFound);
 
           return resourcesAsync.when(
             loading: () => const SizedBox(
               height: 100,
               child: Center(child: CircularProgressIndicator()),
             ),
-            error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
+            error: (e, st) =>
+                AsyncErrorView(error: e, stackTrace: st, compact: true),
             data: (resources) {
               final hitDice = resources
                   .where((r) => r.resourceName.startsWith('hitDice_d'))
@@ -87,7 +93,7 @@ class _ShortRestDialogState extends ConsumerState<ShortRestDialog> {
                       child: Column(
                         children: [
                           Text(
-                            '${char.hpCurrent} / ${char.hpMax} PV',
+                            l10n.hitPointsCurrent(char.hpCurrent, char.hpMax),
                             style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -98,7 +104,9 @@ class _ShortRestDialogState extends ConsumerState<ShortRestDialog> {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(4),
                             child: LinearProgressIndicator(
-                              value: char.hpMax > 0 ? (char.hpCurrent / char.hpMax) : 0,
+                              value: char.hpMax > 0
+                                  ? (char.hpCurrent / char.hpMax)
+                                  : 0,
                               backgroundColor: Colors.grey.shade800,
                               color: Colors.green,
                               minHeight: 8,
@@ -111,9 +119,13 @@ class _ShortRestDialogState extends ConsumerState<ShortRestDialog> {
 
                     // Log of rolls
                     if (_rollLogs.isNotEmpty) ...[
-                      const Text(
-                        'Historique des soins',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.grey),
+                      Text(
+                        l10n.shortRestHealingHistory,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Container(
@@ -126,10 +138,16 @@ class _ShortRestDialogState extends ConsumerState<ShortRestDialog> {
                           shrinkWrap: true,
                           itemCount: _rollLogs.length,
                           itemBuilder: (ctx, idx) => Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             child: Text(
                               _rollLogs[idx],
-                              style: const TextStyle(fontSize: 13, color: Colors.greenAccent),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.greenAccent,
+                              ),
                             ),
                           ),
                         ),
@@ -142,7 +160,10 @@ class _ShortRestDialogState extends ConsumerState<ShortRestDialog> {
                       Text(l10n.shortRestNoDice, textAlign: TextAlign.center)
                     else ...[
                       ...hitDice.map((d) {
-                        final dieSizeStr = d.resourceName.replaceAll('hitDice_d', '');
+                        final dieSizeStr = d.resourceName.replaceAll(
+                          'hitDice_d',
+                          '',
+                        );
                         final dieSize = int.tryParse(dieSizeStr) ?? 8;
                         final canRoll = d.current > 0 && !isHpFull;
 
@@ -154,10 +175,14 @@ class _ShortRestDialogState extends ConsumerState<ShortRestDialog> {
                               l10n.shortRestRollButton(dieSizeStr, d.current),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.neonCyan.withValues(alpha: 0.12),
+                              backgroundColor: AppTheme.neonCyan.withValues(
+                                alpha: 0.12,
+                              ),
                               foregroundColor: AppTheme.neonCyan,
                               side: BorderSide(
-                                color: AppTheme.neonCyan.withValues(alpha: canRoll ? 0.4 : 0.1),
+                                color: AppTheme.neonCyan.withValues(
+                                  alpha: canRoll ? 0.4 : 0.1,
+                                ),
                               ),
                             ),
                             onPressed: canRoll
@@ -173,7 +198,10 @@ class _ShortRestDialogState extends ConsumerState<ShortRestDialog> {
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Text(
                           l10n.shortRestHpFull,
-                          style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -193,7 +221,11 @@ class _ShortRestDialogState extends ConsumerState<ShortRestDialog> {
     );
   }
 
-  Future<void> _rollHitDie(Character char, CharacterResource resource, int dieSize) async {
+  Future<void> _rollHitDie(
+    Character char,
+    CharacterResource resource,
+    int dieSize,
+  ) async {
     final roll = _random.nextInt(dieSize) + 1;
     final totalHeal = max(1, roll + widget.conMod);
     final newHp = min(char.hpMax, char.hpCurrent + totalHeal);
@@ -218,8 +250,9 @@ class _ShortRestDialogState extends ConsumerState<ShortRestDialog> {
       ),
     );
 
-    final logText = AppLocalizations.of(context)!
-        .shortRestRollResult(roll, widget.conMod, totalHeal);
+    final logText = AppLocalizations.of(
+      context,
+    )!.shortRestRollResult(roll, widget.conMod, totalHeal);
     setState(() {
       _rollLogs.insert(0, logText);
     });

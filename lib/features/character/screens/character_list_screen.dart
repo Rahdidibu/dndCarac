@@ -10,20 +10,34 @@ import '../../../core/utils/character_service.dart';
 import '../providers/character_providers.dart';
 import '../../../core/widgets/async_error_view.dart';
 
-
-class CharacterListScreen extends ConsumerWidget {
+class CharacterListScreen extends ConsumerStatefulWidget {
   const CharacterListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CharacterListScreen> createState() =>
+      _CharacterListScreenState();
+}
+
+enum _CharacterSort { name, level, updated }
+
+class _CharacterListScreenState extends ConsumerState<CharacterListScreen> {
+  final _searchController = TextEditingController();
+  _CharacterSort _sort = _CharacterSort.updated;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ref = this.ref;
     final l10n = AppLocalizations.of(context)!;
     final charactersAsync = ref.watch(charactersProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.appTitle),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(l10n.appTitle), centerTitle: true),
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -73,16 +87,111 @@ class CharacterListScreen extends ConsumerWidget {
           ),
           charactersAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, st) => AsyncErrorView(error: e, stackTrace: st, onRetry: () => ref.invalidate(charactersProvider)),
+            error: (e, st) => AsyncErrorView(
+              error: e,
+              stackTrace: st,
+              onRetry: () => ref.invalidate(charactersProvider),
+            ),
             data: (characters) {
               if (characters.isEmpty) {
                 return _EmptyState(l10n: l10n);
               }
+              final query = _searchController.text.trim().toLowerCase();
+              final filteredCharacters = characters
+                  .where(
+                    (character) => character.name.toLowerCase().contains(query),
+                  )
+                  .toList();
+              final levels = _sort == _CharacterSort.level
+                  ? {
+                      for (final character in filteredCharacters)
+                        character.id:
+                            ref
+                                .watch(
+                                  characterTotalLevelProvider(character.id),
+                                )
+                                .valueOrNull ??
+                            0,
+                    }
+                  : const <int, int>{};
+              filteredCharacters.sort(
+                (a, b) => switch (_sort) {
+                  _CharacterSort.name => a.name.toLowerCase().compareTo(
+                    b.name.toLowerCase(),
+                  ),
+                  _CharacterSort.level => (levels[b.id] ?? 0).compareTo(
+                    levels[a.id] ?? 0,
+                  ),
+                  _CharacterSort.updated => b.updatedAt.compareTo(a.updatedAt),
+                },
+              );
               return ListView.builder(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 88),
-                itemCount: characters.length,
+                itemCount: filteredCharacters.isEmpty
+                    ? 2
+                    : filteredCharacters.length + 1,
                 itemBuilder: (context, index) {
-                  return _CharacterCard(character: characters[index]);
+                  if (index == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              onChanged: (_) => setState(() {}),
+                              decoration: InputDecoration(
+                                hintText: l10n.characterSearch,
+                                prefixIcon: const Icon(Icons.search),
+                                suffixIcon: _searchController.text.isEmpty
+                                    ? null
+                                    : IconButton(
+                                        tooltip: l10n.actionClear,
+                                        onPressed: () {
+                                          _searchController.clear();
+                                          setState(() {});
+                                        },
+                                        icon: const Icon(Icons.clear),
+                                      ),
+                              ),
+                            ),
+                          ),
+                          PopupMenuButton<_CharacterSort>(
+                            tooltip: l10n.characterSort,
+                            initialValue: _sort,
+                            onSelected: (sort) => setState(() => _sort = sort),
+                            itemBuilder: (context) => [
+                              PopupMenuItem(
+                                value: _CharacterSort.name,
+                                child: Text(l10n.characterSortName),
+                              ),
+                              PopupMenuItem(
+                                value: _CharacterSort.level,
+                                child: Text(l10n.characterSortLevel),
+                              ),
+                              PopupMenuItem(
+                                value: _CharacterSort.updated,
+                                child: Text(l10n.characterSortUpdated),
+                              ),
+                            ],
+                            child: const Padding(
+                              padding: EdgeInsets.all(12),
+                              child: Icon(Icons.sort),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  if (filteredCharacters.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 32),
+                      child: Center(child: Text(l10n.characterNoSearchResults)),
+                    );
+                  }
+                  return _CharacterCard(
+                    character: filteredCharacters[index - 1],
+                  );
                 },
               );
             },
@@ -112,7 +221,9 @@ class _EmptyState extends StatelessWidget {
             Icon(
               Icons.shield_outlined,
               size: 72,
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 24),
             Text(
@@ -124,11 +235,10 @@ class _EmptyState extends StatelessWidget {
             Text(
               l10n.charactersEmptySubtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.6),
-                  ),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -187,11 +297,17 @@ class _CharacterCard extends ConsumerWidget {
                   ),
                   child: CircleAvatar(
                     radius: 28,
-                    backgroundColor: isBatman ? Colors.black : colorScheme.primaryContainer,
-                    backgroundImage: (character.imageUrl != null && character.imageUrl!.isNotEmpty)
+                    backgroundColor: isBatman
+                        ? Colors.black
+                        : colorScheme.primaryContainer,
+                    backgroundImage:
+                        (character.imageUrl != null &&
+                            character.imageUrl!.isNotEmpty)
                         ? NetworkImage(character.imageUrl!)
                         : null,
-                    child: (character.imageUrl != null && character.imageUrl!.isNotEmpty)
+                    child:
+                        (character.imageUrl != null &&
+                            character.imageUrl!.isNotEmpty)
                         ? null
                         : classesAsync.when(
                             loading: () => const SizedBox(
@@ -207,15 +323,21 @@ class _CharacterCard extends ConsumerWidget {
                                       ? character.name[0].toUpperCase()
                                       : '?',
                                   style: TextStyle(
-                                    color: isBatman ? Colors.amber : colorScheme.onPrimaryContainer,
+                                    color: isBatman
+                                        ? Colors.amber
+                                        : colorScheme.onPrimaryContainer,
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 );
                               }
                               return Icon(
-                                CharacterService.getClassIcon(classes.first.classId),
-                                color: isBatman ? Colors.amber : colorScheme.onPrimaryContainer,
+                                CharacterService.getClassIcon(
+                                  classes.first.classId,
+                                ),
+                                color: isBatman
+                                    ? Colors.amber
+                                    : colorScheme.onPrimaryContainer,
                                 size: 28,
                               );
                             },
@@ -229,7 +351,8 @@ class _CharacterCard extends ConsumerWidget {
                     children: [
                       Text(
                         character.name,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
                               fontWeight: FontWeight.bold,
                               letterSpacing: 0.5,
                             ),
@@ -237,14 +360,18 @@ class _CharacterCard extends ConsumerWidget {
                       const SizedBox(height: 4),
                       classesAsync.when(
                         loading: () => const SizedBox(
-                            height: 16,
-                            width: 80,
-                            child: LinearProgressIndicator()),
+                          height: 16,
+                          width: 80,
+                          child: LinearProgressIndicator(),
+                        ),
                         error: (e, stack) => const SizedBox.shrink(),
                         data: (classes) => Text(
                           _buildClassLine(classes, l10n),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurface.withValues(alpha: 0.7),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.7,
+                                ),
                               ),
                         ),
                       ),
@@ -254,7 +381,10 @@ class _CharacterCard extends ConsumerWidget {
                   ),
                 ),
                 PopupMenuButton<String>(
-                  icon: Icon(Icons.more_vert, color: colorScheme.onSurface.withValues(alpha: 0.6)),
+                  icon: Icon(
+                    Icons.more_vert,
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
                   onSelected: (value) {
                     if (value == 'delete') {
                       _confirmDelete(context, ref);
@@ -265,9 +395,16 @@ class _CharacterCard extends ConsumerWidget {
                       value: 'delete',
                       child: Row(
                         children: [
-                          Icon(Icons.delete_outline, color: colorScheme.error, size: 20),
+                          Icon(
+                            Icons.delete_outline,
+                            color: colorScheme.error,
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
-                          Text(l10n.actionDelete, style: TextStyle(color: colorScheme.error)),
+                          Text(
+                            l10n.actionDelete,
+                            style: TextStyle(color: colorScheme.error),
+                          ),
                         ],
                       ),
                     ),
@@ -282,13 +419,18 @@ class _CharacterCard extends ConsumerWidget {
     );
   }
 
-  String _buildClassLine(List<CharacterClassesData> classes, AppLocalizations l10n) {
+  String _buildClassLine(
+    List<CharacterClassesData> classes,
+    AppLocalizations l10n,
+  ) {
     if (classes.isEmpty) return '—';
     return classes
-        .map((c) => '${CharacterService.classDisplayName(c.classId, l10n)} ${c.level}')
+        .map(
+          (c) =>
+              '${CharacterService.classDisplayName(c.classId, l10n)} ${c.level}',
+        )
         .join(' / ');
   }
-
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context)!;
@@ -321,7 +463,6 @@ class _CharacterCard extends ConsumerWidget {
   }
 }
 
-
 class _RulesetChip extends StatelessWidget {
   final RulesetVersion ruleset;
   const _RulesetChip({required this.ruleset});
@@ -347,9 +488,7 @@ class _RulesetChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: fgColor,
-            ),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(color: fgColor),
       ),
     );
   }

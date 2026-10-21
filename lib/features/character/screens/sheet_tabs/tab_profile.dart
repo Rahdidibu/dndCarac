@@ -85,6 +85,7 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
   }
 
   Future<void> _pickAndUploadImage() async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final picker = ImagePicker();
       final XFile? image = await picker.pickImage(
@@ -101,28 +102,33 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
       if (croppedBytes == null) return;
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Téléchargement de la photo...')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.profilePhotoUploading)));
 
       final client = Supabase.instance.client;
       final userId = client.auth.currentUser?.id;
       if (userId == null) throw Exception('Utilisateur non connecté');
 
-      final fileName = '$userId/${widget.characterId}_${DateTime.now().millisecondsSinceEpoch}.png';
+      final fileName =
+          '$userId/${widget.characterId}_${DateTime.now().millisecondsSinceEpoch}.png';
 
       // Upload to Supabase Storage
-      await client.storage.from('character-avatars').uploadBinary(
-        fileName,
-        croppedBytes,
-        fileOptions: const FileOptions(
-          contentType: 'image/png',
-          upsert: true,
-        ),
-      );
+      await client.storage
+          .from('character-avatars')
+          .uploadBinary(
+            fileName,
+            croppedBytes,
+            fileOptions: const FileOptions(
+              contentType: 'image/png',
+              upsert: true,
+            ),
+          );
 
       // Get public URL
-      final imageUrl = client.storage.from('character-avatars').getPublicUrl(fileName);
+      final imageUrl = client.storage
+          .from('character-avatars')
+          .getPublicUrl(fileName);
 
       // Update character in DB
       final db = ref.read(databaseProvider);
@@ -138,14 +144,14 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
       ref.invalidate(characterByIdProvider(widget.characterId));
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Photo mise à jour avec succès !')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.profilePhotoUpdated)));
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur lors du téléchargement: $e')),
+          SnackBar(content: Text(l10n.profilePhotoUploadError(e.toString()))),
         );
       }
     }
@@ -170,7 +176,10 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
   }
 
   void _showManageProficienciesDialog(
-      BuildContext context, WidgetRef ref, List<CharacterProficiency> profs) {
+    BuildContext context,
+    WidgetRef ref,
+    List<CharacterProficiency> profs,
+  ) {
     showDialog(
       context: context,
       builder: (context) {
@@ -185,7 +194,9 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final featsAsync = ref.watch(characterFeatDetailsProvider(widget.characterId));
+    final featsAsync = ref.watch(
+      characterFeatDetailsProvider(widget.characterId),
+    );
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(12),
@@ -198,12 +209,12 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
           ),
           const SizedBox(height: 16),
           _ProfileField(
-            label: 'Nom du personnage',
+            label: l10n.fieldName,
             controller: _nameCtrl,
             minLines: 1,
           ),
           _ProfileField(
-            label: 'Nom du joueur',
+            label: l10n.fieldPlayerName,
             controller: _playerNameCtrl,
             minLines: 1,
           ),
@@ -219,13 +230,16 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.balance, color: Theme.of(context).colorScheme.primary, size: 20),
+                      Icon(
+                        Icons.balance,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 20,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         'Alignement',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -237,27 +251,28 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
                     mainAxisSpacing: 8,
                     crossAxisSpacing: 8,
                     childAspectRatio: 2.3,
-                    children: [
-                      (key: 'alignmentLG', label: l10n.alignmentLG),
-                      (key: 'alignmentNG', label: l10n.alignmentNG),
-                      (key: 'alignmentCG', label: l10n.alignmentCG),
-                      (key: 'alignmentLN', label: l10n.alignmentLN),
-                      (key: 'alignmentTN', label: l10n.alignmentTN),
-                      (key: 'alignmentCN', label: l10n.alignmentCN),
-                      (key: 'alignmentLE', label: l10n.alignmentLE),
-                      (key: 'alignmentNE', label: l10n.alignmentNE),
-                      (key: 'alignmentCE', label: l10n.alignmentCE),
-                    ].map((a) {
-                      final isSelected = _alignment == a.label;
-                      return _AlignmentChip(
-                        label: a.label,
-                        selected: isSelected,
-                        onTap: () => setState(() {
-                          _alignment = isSelected ? '' : a.label;
-                          _dirty = true;
-                        }),
-                      );
-                    }).toList(),
+                    children:
+                        [
+                          (key: 'alignmentLG', label: l10n.alignmentLG),
+                          (key: 'alignmentNG', label: l10n.alignmentNG),
+                          (key: 'alignmentCG', label: l10n.alignmentCG),
+                          (key: 'alignmentLN', label: l10n.alignmentLN),
+                          (key: 'alignmentTN', label: l10n.alignmentTN),
+                          (key: 'alignmentCN', label: l10n.alignmentCN),
+                          (key: 'alignmentLE', label: l10n.alignmentLE),
+                          (key: 'alignmentNE', label: l10n.alignmentNE),
+                          (key: 'alignmentCE', label: l10n.alignmentCE),
+                        ].map((a) {
+                          final isSelected = _alignment == a.label;
+                          return _AlignmentChip(
+                            label: a.label,
+                            selected: isSelected,
+                            onTap: () => setState(() {
+                              _alignment = isSelected ? '' : a.label;
+                              _dirty = true;
+                            }),
+                          );
+                        }).toList(),
                   ),
                   const SizedBox(height: 8),
                   Center(
@@ -267,7 +282,9 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
                         label: l10n.alignmentU,
                         selected: _alignment == l10n.alignmentU,
                         onTap: () => setState(() {
-                          _alignment = _alignment == l10n.alignmentU ? '' : l10n.alignmentU;
+                          _alignment = _alignment == l10n.alignmentU
+                              ? ''
+                              : l10n.alignmentU;
                           _dirty = true;
                         }),
                       ),
@@ -291,157 +308,265 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.bar_chart, color: AppTheme.neonPurple, size: 20),
+                          const Icon(
+                            Icons.bar_chart,
+                            color: AppTheme.neonPurple,
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Text(
-                            'Caractéristiques & Stats',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            l10n.profileAbilitySection,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
                       IconButton(
                         icon: const Icon(Icons.edit_outlined, size: 20),
-                        tooltip: 'Modifier les caractéristiques et stats',
+                        tooltip: l10n.profileEditAbilities,
                         onPressed: () {
-                          final scoresAsync = ref.read(characterAbilityScoresProvider(widget.characterId));
+                          final scoresAsync = ref.read(
+                            characterAbilityScoresProvider(widget.characterId),
+                          );
                           final scores = scoresAsync.value;
                           if (scores != null) {
-                            _showEditAbilitiesDialog(context, ref, scores, widget.character);
+                            _showEditAbilitiesDialog(
+                              context,
+                              ref,
+                              scores,
+                              widget.character,
+                            );
                           }
                         },
                       ),
                     ],
                   ),
                   const Divider(),
-                  ref.watch(characterAbilityScoresProvider(widget.characterId)).when(
-                    loading: () => const SizedBox.shrink(),
-                    error: (_, __) => const SizedBox.shrink(),
-                    data: (scores) {
-                      if (scores == null) return const SizedBox.shrink();
-                      return Wrap(
-                        spacing: 8,
-                        runSpacing: 6,
-                        children: [
-                          _ProfileStatChip(label: 'PV Max', value: '${widget.character.hpMax}'),
-                          _ProfileStatChip(label: 'Vitesse', value: '${widget.character.speed} m'),
-                          _ProfileStatChip(label: 'FOR', value: '${scores.strength}'),
-                          _ProfileStatChip(label: 'DEX', value: '${scores.dexterity}'),
-                          _ProfileStatChip(label: 'CON', value: '${scores.constitution}'),
-                          _ProfileStatChip(label: 'INT', value: '${scores.intelligence}'),
-                          _ProfileStatChip(label: 'SAG', value: '${scores.wisdom}'),
-                          _ProfileStatChip(label: 'CHA', value: '${scores.charisma}'),
-                        ],
-                      );
-                    },
-                  ),
+                  ref
+                      .watch(characterAbilityScoresProvider(widget.characterId))
+                      .when(
+                        loading: () => const SizedBox.shrink(),
+                        error: (_, __) => const SizedBox.shrink(),
+                        data: (scores) {
+                          if (scores == null) return const SizedBox.shrink();
+                          return Wrap(
+                            spacing: 8,
+                            runSpacing: 6,
+                            children: [
+                              _ProfileStatChip(
+                                label: l10n.sheetHpMax,
+                                value: '${widget.character.hpMax}',
+                              ),
+                              _ProfileStatChip(
+                                label: l10n.sheetSpeed,
+                                value: '${widget.character.speed} m',
+                              ),
+                              _ProfileStatChip(
+                                label: 'FOR',
+                                value: '${scores.strength}',
+                              ),
+                              _ProfileStatChip(
+                                label: 'DEX',
+                                value: '${scores.dexterity}',
+                              ),
+                              _ProfileStatChip(
+                                label: 'CON',
+                                value: '${scores.constitution}',
+                              ),
+                              _ProfileStatChip(
+                                label: 'INT',
+                                value: '${scores.intelligence}',
+                              ),
+                              _ProfileStatChip(
+                                label: 'SAG',
+                                value: '${scores.wisdom}',
+                              ),
+                              _ProfileStatChip(
+                                label: 'CHA',
+                                value: '${scores.charisma}',
+                              ),
+                            ],
+                          );
+                        },
+                      ),
                 ],
               ),
             ),
           ),
-          ref.watch(characterProficienciesProvider(widget.characterId)).when(
-            loading: () => const LinearProgressIndicator(),
-            error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
-            data: (profs) {
-              return ref.watch(srdWeaponMasteriesProvider).when(
-                loading: () => const SizedBox.shrink(),
-                error: (_, _) => const SizedBox.shrink(),
-                data: (masteries) {
-                  final racesAsync = ref.watch(srdRacesProvider(widget.character.ruleset));
-                  final backgroundsAsync = ref.watch(srdBackgroundsProvider(widget.character.ruleset));
+          ref
+              .watch(characterProficienciesProvider(widget.characterId))
+              .when(
+                loading: () => const LinearProgressIndicator(),
+                error: (e, st) =>
+                    AsyncErrorView(error: e, stackTrace: st, compact: true),
+                data: (profs) {
+                  return ref
+                      .watch(srdWeaponMasteriesProvider)
+                      .when(
+                        loading: () => const SizedBox.shrink(),
+                        error: (_, _) => const SizedBox.shrink(),
+                        data: (masteries) {
+                          final racesAsync = ref.watch(
+                            srdRacesProvider(widget.character.ruleset),
+                          );
+                          final backgroundsAsync = ref.watch(
+                            srdBackgroundsProvider(widget.character.ruleset),
+                          );
 
-                  final species = racesAsync.whenOrNull(data: (list) => list.where((r) => r.id == widget.character.speciesId).firstOrNull);
-                  final background = backgroundsAsync.whenOrNull(data: (list) => list.where((b) => b.id == widget.character.backgroundId).firstOrNull);
+                          final species = racesAsync.whenOrNull(
+                            data: (list) => list
+                                .where(
+                                  (r) => r.id == widget.character.speciesId,
+                                )
+                                .firstOrNull,
+                          );
+                          final background = backgroundsAsync.whenOrNull(
+                            data: (list) => list
+                                .where(
+                                  (b) => b.id == widget.character.backgroundId,
+                                )
+                                .firstOrNull,
+                          );
 
-                  final armors = <String>[];
-                  final weapons = <String>[];
-                  final tools = <String>[];
-                  final activeMasteries = <String>[];
-                  
-                  for (final p in profs) {
-                    final key = p.proficiencyKey;
-                    if (key.startsWith('armor_')) {
-                      armors.add(_translateProficiency(key, masteries));
-                    } else if (key.startsWith('weapon_')) {
-                      weapons.add(_translateProficiency(key, masteries));
-                    } else if (key.startsWith('tool_')) {
-                      tools.add(_translateProficiency(key, masteries));
-                    } else if (key.startsWith('mastery_')) {
-                      activeMasteries.add(_translateProficiency(key, masteries));
-                    }
-                  }
+                          final armors = <String>[];
+                          final weapons = <String>[];
+                          final tools = <String>[];
+                          final activeMasteries = <String>[];
 
-                  final List<dynamic> speciesLangs = (species != null && species.languages.isNotEmpty) ? json.decode(species.languages) : [];
-                  final List<dynamic> bgLangs = (background != null && background.languages.isNotEmpty) ? json.decode(background.languages) : [];
-                  final languagesSet = <String>{};
-                  for (final l in speciesLangs) {
-                    languagesSet.add(_translateLanguage(l.toString()));
-                  }
-                  for (final l in bgLangs) {
-                    languagesSet.add(_translateLanguage(l.toString()));
-                  }
+                          for (final p in profs) {
+                            final key = p.proficiencyKey;
+                            if (key.startsWith('armor_')) {
+                              armors.add(_translateProficiency(key, masteries));
+                            } else if (key.startsWith('weapon_')) {
+                              weapons.add(
+                                _translateProficiency(key, masteries),
+                              );
+                            } else if (key.startsWith('tool_')) {
+                              tools.add(_translateProficiency(key, masteries));
+                            } else if (key.startsWith('mastery_')) {
+                              activeMasteries.add(
+                                _translateProficiency(key, masteries),
+                              );
+                            }
+                          }
 
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
+                          weapons.sort(StringUtils.compareAlphabetically);
+                          tools.sort(StringUtils.compareAlphabetically);
+                          activeMasteries.sort(
+                            StringUtils.compareAlphabetically,
+                          );
+
+                          final List<dynamic> speciesLangs =
+                              (species != null && species.languages.isNotEmpty)
+                              ? json.decode(species.languages)
+                              : [];
+                          final List<dynamic> bgLangs =
+                              (background != null &&
+                                  background.languages.isNotEmpty)
+                              ? json.decode(background.languages)
+                              : [];
+                          final languagesSet = <String>{};
+                          for (final l in speciesLangs) {
+                            languagesSet.add(_translateLanguage(l.toString()));
+                          }
+                          for (final l in bgLangs) {
+                            languagesSet.add(_translateLanguage(l.toString()));
+                          }
+
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(Icons.shield_outlined, color: Theme.of(context).colorScheme.primary),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Maîtrises et Langues',
-                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                          fontWeight: FontWeight.bold,
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.shield_outlined,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            l10n.profileProficienciesLanguages,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.edit_outlined,
+                                          size: 20,
                                         ),
+                                        tooltip:
+                                            l10n.profileManageProficiencies,
+                                        onPressed: () =>
+                                            _showManageProficienciesDialog(
+                                              context,
+                                              ref,
+                                              profs,
+                                            ),
+                                      ),
+                                    ],
                                   ),
+                                  const Divider(),
+                                  if (armors.isNotEmpty) ...[
+                                    _ProfGroup(
+                                      title: l10n.proficiencyArmors,
+                                      items: armors,
+                                    ),
+                                    const SizedBox(height: 8),
+                                  ],
+                                  if (weapons.isNotEmpty) ...[
+                                    _ProfGroup(
+                                      title: l10n.proficiencyWeapons,
+                                      items: weapons,
+                                    ),
+                                    const SizedBox(height: 8),
+                                  ],
+                                  if (activeMasteries.isNotEmpty) ...[
+                                    _ProfGroup(
+                                      title: l10n.proficiencyWeaponMasteries,
+                                      items: activeMasteries,
+                                    ),
+                                    const SizedBox(height: 8),
+                                  ],
+                                  if (tools.isNotEmpty) ...[
+                                    _ProfGroup(
+                                      title: l10n.proficiencyTools,
+                                      items: tools,
+                                    ),
+                                    const SizedBox(height: 8),
+                                  ],
+                                  if (languagesSet.isNotEmpty) ...[
+                                    _ProfGroup(
+                                      title: 'Langues',
+                                      items: languagesSet.toList(),
+                                    ),
+                                  ],
                                 ],
                               ),
-                              IconButton(
-                                icon: const Icon(Icons.edit_outlined, size: 20),
-                                tooltip: 'Gérer les maîtrises',
-                                onPressed: () => _showManageProficienciesDialog(context, ref, profs),
-                              ),
-                            ],
-                          ),
-                          const Divider(),
-                          if (armors.isNotEmpty) ...[
-                            _ProfGroup(title: 'Armures', items: armors),
-                            const SizedBox(height: 8),
-                          ],
-                          if (weapons.isNotEmpty) ...[
-                            _ProfGroup(title: 'Armes', items: weapons),
-                            const SizedBox(height: 8),
-                          ],
-                          if (activeMasteries.isNotEmpty) ...[
-                            _ProfGroup(title: 'Maîtrises d\'armes (2024)', items: activeMasteries),
-                            const SizedBox(height: 8),
-                          ],
-                          if (tools.isNotEmpty) ...[
-                            _ProfGroup(title: 'Outils', items: tools),
-                            const SizedBox(height: 8),
-                          ],
-                          if (languagesSet.isNotEmpty) ...[
-                            _ProfGroup(title: 'Langues', items: languagesSet.toList()),
-                          ],
-                        ],
-                      ),
-                    ),
-                  );
+                            ),
+                          );
+                        },
+                      );
                 },
-              );
-            },
-          ),
+              ),
           featsAsync.when(
             loading: () => const LinearProgressIndicator(),
-            error: (e, st) => AsyncErrorView(error: e, stackTrace: st, compact: true),
+            error: (e, st) =>
+                AsyncErrorView(error: e, stackTrace: st, compact: true),
             data: (feats) {
               return Card(
                 margin: const EdgeInsets.only(bottom: 16),
@@ -458,62 +583,71 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
                               Icon(Icons.star, color: Colors.amber[700]),
                               const SizedBox(width: 8),
                               Text(
-                                'Dons du personnage',
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                l10n.profileFeatsSection,
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
                           IconButton(
                             icon: const Icon(Icons.add, size: 20),
-                            tooltip: 'Ajouter un don',
+                            tooltip: l10n.profileAddFeat,
                             onPressed: () => _showAddFeatDialog(context, ref),
                           ),
                         ],
                       ),
                       const Divider(),
                       if (feats.isEmpty)
-                        const Padding(
+                        Padding(
                           padding: EdgeInsets.symmetric(vertical: 8),
                           child: Text(
-                            'Aucun don enregistré',
-                            style: TextStyle(fontStyle: FontStyle.italic, fontSize: 12),
+                            l10n.profileFeatEmpty,
+                            style: const TextStyle(
+                              fontStyle: FontStyle.italic,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
-                      ...feats.map((feat) => Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        feat.name,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                        ),
+                      ...feats.map(
+                        (feat) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      feat.name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
                                       ),
                                     ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete_outline, color: Colors.red, size: 18),
-                                      padding: EdgeInsets.zero,
-                                      constraints: const BoxConstraints(),
-                                      onPressed: () => _deleteFeat(feat.id),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.red,
+                                      size: 18,
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                MarkdownText(
-                                  text: feat.description,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ],
-                            ),
-                          )),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    onPressed: () => _deleteFeat(feat.id),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              MarkdownText(
+                                text: feat.description,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -525,21 +659,9 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
             controller: _traitsCtrl,
             minLines: 2,
           ),
-          _ProfileField(
-            label: 'Idéaux',
-            controller: _idealsCtrl,
-            minLines: 2,
-          ),
-          _ProfileField(
-            label: 'Liens',
-            controller: _bondsCtrl,
-            minLines: 2,
-          ),
-          _ProfileField(
-            label: 'Défauts',
-            controller: _flawsCtrl,
-            minLines: 2,
-          ),
+          _ProfileField(label: 'Idéaux', controller: _idealsCtrl, minLines: 2),
+          _ProfileField(label: 'Liens', controller: _bondsCtrl, minLines: 2),
+          _ProfileField(label: 'Défauts', controller: _flawsCtrl, minLines: 2),
           _ProfileField(
             label: 'Apparence',
             controller: _appearanceCtrl,
@@ -608,9 +730,9 @@ class _ProfGroup extends StatelessWidget {
         Text(
           title,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.secondary,
-              ),
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
         ),
         const SizedBox(height: 4),
         Wrap(
@@ -630,18 +752,21 @@ class _ProfGroup extends StatelessWidget {
   }
 }
 
-String _translateProficiency(String key, List<SrdWeaponMastery> weaponMasteries) {
+String _translateProficiency(
+  String key,
+  List<SrdWeaponMastery> weaponMasteries,
+) {
   if (key == 'armor_all') return 'Toutes les armures';
   if (key == 'armor_light') return 'Armures légères';
   if (key == 'armor_medium') return 'Armures moyennes';
   if (key == 'armor_heavy') return 'Armures lourdes';
   if (key == 'armor_shield') return 'Boucliers';
-  
+
   if (key.startsWith('weapon_')) {
     final weapon = key.substring(7);
     if (weapon == 'simple') return 'Armes simples';
     if (weapon == 'martial') return 'Armes de guerre';
-    
+
     const weaponMap = {
       'longsword': 'Épée longue',
       'shortsword': 'Épée courte',
@@ -679,9 +804,10 @@ String _translateProficiency(String key, List<SrdWeaponMastery> weaponMasteries)
       'dart': 'Fléchette',
       'sling': 'Fronde',
     };
-    return weaponMap[weapon.toLowerCase()] ?? 'Arme : ${weapon[0].toUpperCase()}${weapon.substring(1).replaceAll('_', ' ')}';
+    return weaponMap[weapon.toLowerCase()] ??
+        'Arme : ${weapon[0].toUpperCase()}${weapon.substring(1).replaceAll('_', ' ')}';
   }
-  
+
   if (key.startsWith('save_')) {
     final stat = key.substring(5);
     const map = {
@@ -694,7 +820,7 @@ String _translateProficiency(String key, List<SrdWeaponMastery> weaponMasteries)
     };
     return 'Sauvegarde : ${map[stat] ?? stat.toUpperCase()}';
   }
-  
+
   if (key.startsWith('tool_')) {
     final tool = key.substring(5);
     const toolMap = {
@@ -738,15 +864,18 @@ String _translateProficiency(String key, List<SrdWeaponMastery> weaponMasteries)
       'chess_set': 'Jeu d\'échecs',
       'navigators_tools': 'Outils de navigateur',
     };
-    return toolMap[tool.toLowerCase()] ?? 'Outils : ${tool[0].toUpperCase()}${tool.substring(1).replaceAll('_', ' ')}';
+    return toolMap[tool.toLowerCase()] ??
+        'Outils : ${tool[0].toUpperCase()}${tool.substring(1).replaceAll('_', ' ')}';
   }
-  
+
   if (key.startsWith('mastery_')) {
     final masteryId = key.substring(8);
-    final m = weaponMasteries.where((element) => element.id == masteryId).firstOrNull;
+    final m = weaponMasteries
+        .where((element) => element.id == masteryId)
+        .firstOrNull;
     return 'Maîtrise d\'arme : ${m?.name ?? masteryId.toUpperCase()}';
   }
-  
+
   return key;
 }
 
@@ -766,7 +895,8 @@ String _translateLanguage(String lang) {
     'infernal': 'Infernal',
     'sylvan': 'Sylvestre',
   };
-  return map[lang.toLowerCase()] ?? (lang.isEmpty ? '' : '${lang[0].toUpperCase()}${lang.substring(1)}');
+  return map[lang.toLowerCase()] ??
+      (lang.isEmpty ? '' : '${lang[0].toUpperCase()}${lang.substring(1)}');
 }
 
 class _AddFeatDialog extends ConsumerStatefulWidget {
@@ -797,11 +927,14 @@ class _AddFeatDialogState extends ConsumerState<_AddFeatDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final allFeatsAsync = ref.watch(srdFeatsProvider(widget.ruleset));
-    final currentFeatsAsync = ref.watch(characterFeatDetailsProvider(widget.characterId));
+    final currentFeatsAsync = ref.watch(
+      characterFeatDetailsProvider(widget.characterId),
+    );
 
     return AlertDialog(
-      title: const Text('Ajouter un don'),
+      title: Text(l10n.profileAddFeatTitle),
       content: SizedBox(
         width: double.maxFinite,
         height: 400,
@@ -809,12 +942,13 @@ class _AddFeatDialogState extends ConsumerState<_AddFeatDialog> {
           children: [
             TextField(
               controller: _searchCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Rechercher un don',
+              decoration: InputDecoration(
+                labelText: l10n.profileSearchFeat,
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
               ),
-              onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
+              onChanged: (val) =>
+                  setState(() => _searchQuery = val.toLowerCase()),
             ),
             const SizedBox(height: 12),
             Expanded(
@@ -823,17 +957,26 @@ class _AddFeatDialogState extends ConsumerState<_AddFeatDialog> {
                 error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
                 data: (allFeats) {
                   return currentFeatsAsync.when(
-                    loading: () => const Center(child: CircularProgressIndicator()),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
                     error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
                     data: (currentFeats) {
                       final currentIds = currentFeats.map((f) => f.id).toSet();
                       final availableFeats = allFeats
                           .where((f) => !currentIds.contains(f.id))
-                          .where((f) => f.name.toLowerCase().contains(_searchQuery) || f.description.toLowerCase().contains(_searchQuery))
+                          .where(
+                            (f) =>
+                                f.name.toLowerCase().contains(_searchQuery) ||
+                                f.description.toLowerCase().contains(
+                                  _searchQuery,
+                                ),
+                          )
                           .toList();
 
                       if (availableFeats.isEmpty) {
-                        return const Center(child: Text('Aucun don disponible.'));
+                        return Center(
+                          child: Text(l10n.profileNoAvailableFeats),
+                        );
                       }
 
                       return ListView.builder(
@@ -843,11 +986,14 @@ class _AddFeatDialogState extends ConsumerState<_AddFeatDialog> {
                           return ListTile(
                             title: Text(feat.name),
                             subtitle: MarkdownText(
-                               text: feat.description,
-                               maxLines: 2,
-                               overflow: TextOverflow.ellipsis,
-                               style: const TextStyle(fontSize: 11, color: Colors.white70),
-                             ),
+                              text: feat.description,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.white70,
+                              ),
+                            ),
                             onTap: () => _addFeat(feat.id),
                           );
                         },
@@ -863,7 +1009,7 @@ class _AddFeatDialogState extends ConsumerState<_AddFeatDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Fermer'),
+          child: Text(l10n.actionClose),
         ),
       ],
     );
@@ -881,7 +1027,9 @@ class _AddFeatDialogState extends ConsumerState<_AddFeatDialog> {
     ref.invalidate(characterFeatDetailsProvider(widget.characterId));
 
     if (featId == 'lucky') {
-      final classes = await db.characterDao.getCharacterClasses(widget.characterId);
+      final classes = await db.characterDao.getCharacterClasses(
+        widget.characterId,
+      );
       final totalLevel = classes.fold(0, (sum, c) => sum + c.level);
       final profBonus = max(2, DndRules.proficiencyBonus(totalLevel));
       await db.characterDao.upsertResource(
@@ -918,25 +1066,92 @@ Future<void> _showFeatProficienciesDialog(
 
   if (featId == 'skilled') {
     title = 'Don "Qualifié" — Choisissez 3 maîtrises';
-    eligible.addAll(_allSkillsList
-      .where((s) => !existingKeys.contains('skill_${s.key}'))
-      .map((s) => (key: 'skill_${s.key}', name: s.name, subtitle: 'Compétence')));
-    eligible.addAll(_allToolsList
-      .where((t) => !existingKeys.contains('tool_${t.key}'))
-      .map((t) => (key: 'tool_${t.key}', name: t.name, subtitle: 'Outil / Instrument')));
+    eligible.addAll(
+      SkillsCatalog.sorted(AppLocalizations.of(context)!)
+          .where((s) => !existingKeys.contains('skill_${s.key}'))
+          .map(
+            (s) => (
+              key: 'skill_${s.key}',
+              name: s.name(AppLocalizations.of(context)!),
+              subtitle: 'Compétence',
+            ),
+          ),
+    );
+    eligible.addAll(
+      _allToolsList
+          .where((t) => !existingKeys.contains('tool_${t.key}'))
+          .map(
+            (t) => (
+              key: 'tool_${t.key}',
+              name: t.name,
+              subtitle: 'Outil / Instrument',
+            ),
+          ),
+    );
   } else if (featId == 'crafter') {
     title = 'Don "Artisan" — Choisissez 3 outils';
-    eligible.addAll(_allToolsList
-      .where((t) => !existingKeys.contains('tool_${t.key}') && t.key.contains('supplies') || t.key.contains('tools') || t.key.contains('utensils'))
-      .map((t) => (key: 'tool_${t.key}', name: t.name, subtitle: 'Outil d\'artisan')));
+    eligible.addAll(
+      _allToolsList
+          .where(
+            (t) =>
+                !existingKeys.contains('tool_${t.key}') &&
+                    t.key.contains('supplies') ||
+                t.key.contains('tools') ||
+                t.key.contains('utensils'),
+          )
+          .map(
+            (t) => (
+              key: 'tool_${t.key}',
+              name: t.name,
+              subtitle: 'Outil d\'artisan',
+            ),
+          ),
+    );
   } else if (featId == 'musician') {
     title = 'Don "Musicien" — Choisissez 3 instruments';
-    eligible.addAll(_allToolsList
-      .where((t) => !existingKeys.contains('tool_${t.key}') && ['bagpipes', 'drum', 'flute', 'lute', 'lyre', 'horn', 'pan_flute', 'dulcimer', 'viol', 'shawm'].contains(t.key))
-      .map((t) => (key: 'tool_${t.key}', name: t.name, subtitle: 'Instrument de musique')));
+    eligible.addAll(
+      _allToolsList
+          .where(
+            (t) =>
+                !existingKeys.contains('tool_${t.key}') &&
+                [
+                  'bagpipes',
+                  'drum',
+                  'flute',
+                  'lute',
+                  'lyre',
+                  'horn',
+                  'pan_flute',
+                  'dulcimer',
+                  'viol',
+                  'shawm',
+                ].contains(t.key),
+          )
+          .map(
+            (t) => (
+              key: 'tool_${t.key}',
+              name: t.name,
+              subtitle: 'Instrument de musique',
+            ),
+          ),
+    );
   }
 
-  eligible.sort((a, b) => StringUtils.compareAlphabetically(a.name, b.name));
+  final orderedSkills = SkillsCatalog.sorted(AppLocalizations.of(context)!);
+  final skillOrder = {
+    for (var i = 0; i < orderedSkills.length; i++)
+      'skill_${orderedSkills[i].key}': i,
+  };
+  eligible.sort((a, b) {
+    final aOrder = skillOrder[a.key];
+    final bOrder = skillOrder[b.key];
+    if (aOrder != null || bOrder != null) {
+      return (aOrder ?? orderedSkills.length).compareTo(
+        bOrder ?? orderedSkills.length,
+      );
+    }
+    return StringUtils.compareAlphabetically(a.name, b.name);
+  });
 
   if (!context.mounted) return;
 
@@ -947,7 +1162,14 @@ Future<void> _showFeatProficienciesDialog(
     builder: (ctx) => StatefulBuilder(
       builder: (context, setDialogState) {
         return AlertDialog(
-          title: Text(title, style: const TextStyle(fontFamily: 'Cinzel', fontSize: 15, fontWeight: FontWeight.bold)),
+          title: Text(
+            title,
+            style: const TextStyle(
+              fontFamily: 'Cinzel',
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           content: SizedBox(
             width: double.maxFinite,
             height: 380,
@@ -956,7 +1178,11 @@ Future<void> _showFeatProficienciesDialog(
               children: [
                 Text(
                   '${selectedKeys.length}/3 maîtrises sélectionnées',
-                  style: const TextStyle(fontFamily: 'Lora', fontSize: 12, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontFamily: 'Lora',
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Expanded(
@@ -966,10 +1192,17 @@ Future<void> _showFeatProficienciesDialog(
                       final item = eligible[index];
                       final isSelected = selectedKeys.contains(item.key);
                       return CheckboxListTile(
-                        title: Text(item.name, style: const TextStyle(fontSize: 13.5)),
-                        subtitle: Text(item.subtitle, style: const TextStyle(fontSize: 11)),
+                        title: Text(
+                          item.name,
+                          style: const TextStyle(fontSize: 13.5),
+                        ),
+                        subtitle: Text(
+                          item.subtitle,
+                          style: const TextStyle(fontSize: 11),
+                        ),
                         value: isSelected,
-                        onChanged: (isSelected != true && selectedKeys.length >= 3)
+                        onChanged:
+                            (isSelected != true && selectedKeys.length >= 3)
                             ? null
                             : (val) {
                                 setDialogState(() {
@@ -990,7 +1223,7 @@ Future<void> _showFeatProficienciesDialog(
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Annuler'),
+              child: Text(AppLocalizations.of(context)!.actionCancel),
             ),
             FilledButton(
               onPressed: selectedKeys.isEmpty
@@ -1004,10 +1237,12 @@ Future<void> _showFeatProficienciesDialog(
                           ),
                         );
                       }
-                      ref.invalidate(characterProficienciesProvider(characterId));
+                      ref.invalidate(
+                        characterProficienciesProvider(characterId),
+                      );
                       if (context.mounted) Navigator.of(ctx).pop();
                     },
-              child: const Text('Valider'),
+              child: Text(AppLocalizations.of(context)!.actionApply),
             ),
           ],
         );
@@ -1015,27 +1250,6 @@ Future<void> _showFeatProficienciesDialog(
     ),
   );
 }
-
-const List<({String key, String name})> _allSkillsList = [
-  (key: 'athletics', name: 'Athlétisme'),
-  (key: 'acrobatics', name: 'Acrobaties'),
-  (key: 'sleight_of_hand', name: 'Escamotage'),
-  (key: 'stealth', name: 'Discrétion'),
-  (key: 'arcana', name: 'Arcanes'),
-  (key: 'history', name: 'Histoire'),
-  (key: 'investigation', name: 'Investigation'),
-  (key: 'nature', name: 'Nature'),
-  (key: 'religion', name: 'Religion'),
-  (key: 'animal_handling', name: 'Dressage'),
-  (key: 'insight', name: 'Perspicacité'),
-  (key: 'medicine', name: 'Médecine'),
-  (key: 'perception', name: 'Perception'),
-  (key: 'survival', name: 'Survie'),
-  (key: 'deception', name: 'Tromperie'),
-  (key: 'intimidation', name: 'Intimidation'),
-  (key: 'performance', name: 'Représentation'),
-  (key: 'persuasion', name: 'Persuasion'),
-];
 
 const List<({String key, String name})> _allToolsList = [
   (key: 'alchemists_supplies', name: "Matériel d'alchimiste"),
@@ -1085,10 +1299,12 @@ class _ManageProficienciesDialog extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<_ManageProficienciesDialog> createState() => _ManageProficienciesDialogState();
+  ConsumerState<_ManageProficienciesDialog> createState() =>
+      _ManageProficienciesDialogState();
 }
 
-class _ManageProficienciesDialogState extends ConsumerState<_ManageProficienciesDialog> {
+class _ManageProficienciesDialogState
+    extends ConsumerState<_ManageProficienciesDialog> {
   late Map<String, ({bool isProficient, bool hasExpertise})> _profMap;
   bool _saving = false;
 
@@ -1097,12 +1313,16 @@ class _ManageProficienciesDialogState extends ConsumerState<_ManageProficiencies
     super.initState();
     _profMap = {};
     for (final p in widget.initialProfs) {
-      _profMap[p.proficiencyKey] = (isProficient: true, hasExpertise: p.hasExpertise);
+      _profMap[p.proficiencyKey] = (
+        isProficient: true,
+        hasExpertise: p.hasExpertise,
+      );
     }
   }
 
   Widget _buildProficiencyTile(String key, String name) {
     final state = _profMap[key] ?? (isProficient: false, hasExpertise: false);
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
@@ -1119,15 +1339,37 @@ class _ManageProficienciesDialogState extends ConsumerState<_ManageProficiencies
             style: ButtonStyle(
               visualDensity: VisualDensity.compact,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 4)),
+              padding: WidgetStateProperty.all(
+                const EdgeInsets.symmetric(horizontal: 4),
+              ),
             ),
-            segments: const [
-              ButtonSegment<int>(value: 0, label: Text('Non', style: TextStyle(fontSize: 9.5))),
-              ButtonSegment<int>(value: 1, icon: Icon(Icons.circle, size: 10), label: Text('Maîtrisé', style: TextStyle(fontSize: 9.5))),
-              ButtonSegment<int>(value: 2, icon: Icon(Icons.star, size: 11), label: Text('Expertise', style: TextStyle(fontSize: 9.5))),
+            segments: [
+              ButtonSegment<int>(
+                value: 0,
+                label: Text(
+                  l10n.proficiencyNone,
+                  style: const TextStyle(fontSize: 9.5),
+                ),
+              ),
+              ButtonSegment<int>(
+                value: 1,
+                icon: const Icon(Icons.circle, size: 10),
+                label: Text(
+                  l10n.proficiencyTrained,
+                  style: const TextStyle(fontSize: 9.5),
+                ),
+              ),
+              ButtonSegment<int>(
+                value: 2,
+                icon: const Icon(Icons.star, size: 11),
+                label: Text(
+                  l10n.proficiencyExpertise,
+                  style: const TextStyle(fontSize: 9.5),
+                ),
+              ),
             ],
             selected: {
-              if (state.hasExpertise) 2 else if (state.isProficient) 1 else 0
+              if (state.hasExpertise) 2 else if (state.isProficient) 1 else 0,
             },
             onSelectionChanged: (selection) {
               final val = selection.first;
@@ -1149,19 +1391,23 @@ class _ManageProficienciesDialogState extends ConsumerState<_ManageProficiencies
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return DefaultTabController(
       length: 2,
       child: AlertDialog(
-        title: const Text('Gérer Maîtrises & Expertise', style: TextStyle(fontFamily: 'Cinzel', fontSize: 16)),
+        title: Text(
+          l10n.proficiencyManageTitle,
+          style: const TextStyle(fontFamily: 'Cinzel', fontSize: 16),
+        ),
         content: SizedBox(
           width: double.maxFinite,
           height: 480,
           child: Column(
             children: [
-              const TabBar(
+              TabBar(
                 tabs: [
-                  Tab(text: 'Compétences'),
-                  Tab(text: 'Outils'),
+                  Tab(text: l10n.proficiencySkillsTab),
+                  Tab(text: l10n.proficiencyToolsTab),
                 ],
               ),
               const SizedBox(height: 12),
@@ -1169,16 +1415,44 @@ class _ManageProficienciesDialogState extends ConsumerState<_ManageProficiencies
                 child: TabBarView(
                   children: [
                     ListView(
-                      children: _allSkillsList.map((s) {
-                        final key = 'skill_${s.key}';
-                        return _buildProficiencyTile(key, s.name);
-                      }).toList(),
+                      children: [
+                        for (final ability in DndRules.abilityKeys)
+                          if (Skill.values.any(
+                            (s) => s.ability == ability,
+                          )) ...[
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              child: Text(
+                                SkillsCatalog.abilityName(
+                                  ability,
+                                  AppLocalizations.of(context)!,
+                                ),
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
+                            ),
+                            for (final s in SkillsCatalog.sorted(
+                              AppLocalizations.of(context)!,
+                            ).where((s) => s.ability == ability))
+                              _buildProficiencyTile(
+                                'skill_${s.key}',
+                                s.name(AppLocalizations.of(context)!),
+                              ),
+                          ],
+                      ],
                     ),
                     ListView(
-                      children: _allToolsList.map((t) {
-                        final key = 'tool_${t.key}';
-                        return _buildProficiencyTile(key, t.name);
-                      }).toList(),
+                      children:
+                          ([..._allToolsList]..sort(
+                                (a, b) => StringUtils.compareAlphabetically(
+                                  a.name,
+                                  b.name,
+                                ),
+                              ))
+                              .map((t) {
+                                final key = 'tool_${t.key}';
+                                return _buildProficiencyTile(key, t.name);
+                              })
+                              .toList(),
                     ),
                   ],
                 ),
@@ -1189,11 +1463,11 @@ class _ManageProficienciesDialogState extends ConsumerState<_ManageProficiencies
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Annuler'),
+            child: Text(l10n.actionCancel),
           ),
           FilledButton(
             onPressed: _saving ? null : _save,
-            child: const Text('Enregistrer'),
+            child: Text(l10n.actionSave),
           ),
         ],
       ),
@@ -1205,25 +1479,37 @@ class _ManageProficienciesDialogState extends ConsumerState<_ManageProficiencies
     setState(() => _saving = true);
     final db = ref.read(databaseProvider);
 
-    final existingOtherProfs = widget.initialProfs.where((p) => 
-      !p.proficiencyKey.startsWith('skill_') && !p.proficiencyKey.startsWith('tool_')
-    ).map((p) => CharacterProficienciesCompanion.insert(
-      characterId: widget.characterId,
-      proficiencyKey: p.proficiencyKey,
-      hasExpertise: Value(p.hasExpertise),
-    )).toList();
+    final existingOtherProfs = widget.initialProfs
+        .where(
+          (p) =>
+              !p.proficiencyKey.startsWith('skill_') &&
+              !p.proficiencyKey.startsWith('tool_'),
+        )
+        .map(
+          (p) => CharacterProficienciesCompanion.insert(
+            characterId: widget.characterId,
+            proficiencyKey: p.proficiencyKey,
+            hasExpertise: Value(p.hasExpertise),
+          ),
+        )
+        .toList();
 
-    final newSkillToolCompanions = _profMap.entries.map((e) =>
-      CharacterProficienciesCompanion.insert(
-        characterId: widget.characterId,
-        proficiencyKey: e.key,
-        hasExpertise: Value(e.value.hasExpertise),
-      )
-    ).toList();
+    final newSkillToolCompanions = _profMap.entries
+        .map(
+          (e) => CharacterProficienciesCompanion.insert(
+            characterId: widget.characterId,
+            proficiencyKey: e.key,
+            hasExpertise: Value(e.value.hasExpertise),
+          ),
+        )
+        .toList();
 
     final allCompanions = [...existingOtherProfs, ...newSkillToolCompanions];
 
-    await db.characterDao.replaceAllProficiencies(widget.characterId, allCompanions);
+    await db.characterDao.replaceAllProficiencies(
+      widget.characterId,
+      allCompanions,
+    );
     ref.invalidate(characterProficienciesProvider(widget.characterId));
 
     if (mounted) Navigator.of(context).pop();
@@ -1267,7 +1553,9 @@ class _AvatarPicker extends ConsumerWidget {
               child: hasImage
                   ? null
                   : Text(
-                      characterName.isNotEmpty ? characterName[0].toUpperCase() : '?',
+                      characterName.isNotEmpty
+                          ? characterName[0].toUpperCase()
+                          : '?',
                       style: const TextStyle(
                         fontSize: 48,
                         fontWeight: FontWeight.bold,
@@ -1284,7 +1572,11 @@ class _AvatarPicker extends ConsumerWidget {
               shape: const CircleBorder(),
               elevation: 4,
               child: IconButton(
-                icon: const Icon(Icons.camera_alt, color: Colors.black, size: 20),
+                icon: const Icon(
+                  Icons.camera_alt,
+                  color: Colors.black,
+                  size: 20,
+                ),
                 onPressed: onPick,
               ),
             ),
@@ -1362,4 +1654,3 @@ class _ProfileStatChip extends StatelessWidget {
     );
   }
 }
-

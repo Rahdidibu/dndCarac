@@ -133,7 +133,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Fermer'),
+            child: Text(AppLocalizations.of(context)!.actionClose),
           ),
         ],
       ),
@@ -313,6 +313,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
 
   Future<void> _rollCombinedAttack() async {
     if (_activeWeapon == null) return;
+    final l10n = AppLocalizations.of(context)!;
     final weaponStats = StartingEquipmentHelper.getWeaponStats(
       _activeWeapon!.name,
     );
@@ -321,8 +322,8 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
     if (requiresAmmo) {
       if (_selectedAmmo == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('⚠️ Choisissez des munitions avant de tirer !'),
+          SnackBar(
+            content: Text(l10n.ammoChooseBeforeFire),
             backgroundColor: Colors.orange,
             duration: Duration(seconds: 2),
           ),
@@ -332,7 +333,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
       if (_selectedAmmo!.quantity <= 0) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('❌ Plus de ${_selectedAmmo!.itemName} !'),
+            content: Text(l10n.ammoOutOfStock(_selectedAmmo!.itemName)),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 2),
           ),
@@ -407,6 +408,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
 
   void _rollAttack() {
     if (_activeWeapon == null) return;
+    final l10n = AppLocalizations.of(context)!;
     final weaponStats = StartingEquipmentHelper.getWeaponStats(
       _activeWeapon!.name,
     );
@@ -416,8 +418,8 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
     if (requiresAmmo) {
       if (_selectedAmmo == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('⚠️ Choisissez des munitions avant de tirer !'),
+          SnackBar(
+            content: Text(l10n.ammoChooseBeforeFire),
             backgroundColor: Colors.orange,
             duration: Duration(seconds: 2),
           ),
@@ -427,7 +429,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
       if (_selectedAmmo!.quantity <= 0) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('❌ Plus de ${_selectedAmmo!.itemName} !'),
+            content: Text(l10n.ammoOutOfStock(_selectedAmmo!.itemName)),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 2),
           ),
@@ -446,7 +448,6 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
     final bonusStr = _activeWeapon!.attackBonus;
     final bonusNum = int.tryParse(bonusStr.replaceAll('+', '')) ?? 0;
     final totalAttackBonus = bonusNum + ammoBonus;
-    final l10n = AppLocalizations.of(context)!;
     final ammoName = _selectedAmmo?.itemName;
 
     RollResultDialog.show(
@@ -771,7 +772,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
           // Inspiration
           Card(
             child: SwitchListTile(
-              title: const Text('Inspiration héroïque'),
+              title: Text(l10n.heroicInspirationTitle),
               value: char.heroicInspiration,
               onChanged: _toggleInspiration,
             ),
@@ -1084,10 +1085,10 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _SectionTitle('Armes & Attaques'),
+                      _SectionTitle(l10n.combatWeaponsTitle),
                       IconButton(
                         icon: const Icon(Icons.add),
-                        tooltip: 'Ajouter une attaque',
+                        tooltip: l10n.attackAdd,
                         onPressed: () => _showAddAttackDialog(context),
                       ),
                     ],
@@ -1097,7 +1098,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Text(
-                        'Aucune attaque configurée.',
+                        l10n.combatNoAttack,
                         style: TextStyle(color: colorScheme.onSurfaceVariant),
                       ),
                     )
@@ -1242,6 +1243,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
   }
 
   void _showAddAttackDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final nameCtrl = TextEditingController();
     final bonusCtrl = TextEditingController();
     final diceCtrl = TextEditingController();
@@ -1251,7 +1253,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Ajouter une attaque'),
+        title: Text(l10n.attackAdd),
         content: Consumer(
           builder: (context, ref, child) {
             final masteriesAsync = ref.watch(srdWeaponMasteriesProvider);
@@ -1261,24 +1263,26 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                 children: [
                   TextField(
                     controller: nameCtrl,
-                    decoration: const InputDecoration(labelText: 'Nom'),
+                    decoration: InputDecoration(
+                      labelText: l10n.attackNameLabel,
+                    ),
                   ),
                   TextField(
                     controller: bonusCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Bonus (ex: +5)',
+                    decoration: InputDecoration(
+                      labelText: l10n.attackBonusLabel,
                     ),
                   ),
                   TextField(
                     controller: diceCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Dégâts (ex: 1d8+3)',
+                    decoration: InputDecoration(
+                      labelText: l10n.attackDamageLabel,
                     ),
                   ),
                   TextField(
                     controller: typeCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Type (ex: perforants)',
+                    decoration: InputDecoration(
+                      labelText: l10n.attackTypeLabel,
                     ),
                   ),
                   if (widget.character.ruleset == RulesetVersion.dnd2024) ...[
@@ -1294,15 +1298,15 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
                         compact: true,
                       ),
                       data: (list) => DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(
-                          labelText: 'Maîtrise d\'arme (2024)',
+                        decoration: InputDecoration(
+                          labelText: l10n.attackMasteryLabel,
                           border: OutlineInputBorder(),
                         ),
                         initialValue: selectedMastery,
                         items: [
-                          const DropdownMenuItem(
+                          DropdownMenuItem(
                             value: null,
-                            child: Text('Aucune'),
+                            child: Text(l10n.attackMasteryNone),
                           ),
                           ...list.map(
                             (m) => DropdownMenuItem(
@@ -1325,7 +1329,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Annuler'),
+            child: Text(l10n.actionCancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -1349,7 +1353,7 @@ class _CombatTabState extends ConsumerState<_CombatTab> {
               );
               if (ctx.mounted) Navigator.of(ctx).pop();
             },
-            child: const Text('Ajouter'),
+            child: Text(l10n.actionAdd),
           ),
         ],
       ),
@@ -1541,6 +1545,7 @@ class _WeaponCard extends ConsumerWidget {
                     size: 18,
                     color: Colors.red,
                   ),
+                  tooltip: AppLocalizations.of(context)!.actionDelete,
                   onPressed: onDelete,
                 )
               else
@@ -1581,6 +1586,7 @@ class _QuickCombatPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     return Card(
       color: colorScheme.primaryContainer.withValues(alpha: 0.2),
@@ -1597,7 +1603,7 @@ class _QuickCombatPanel extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Combat rapide — ${activeWeapon.name}',
+                  l10n.combatQuickTitle(activeWeapon.name),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: colorScheme.primary,
@@ -1605,7 +1611,10 @@ class _QuickCombatPanel extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Touche: ${activeWeapon.attackBonus} | Dégâts: ${activeWeapon.damageDice}',
+                  l10n.combatHitDamage(
+                    activeWeapon.attackBonus,
+                    activeWeapon.damageDice,
+                  ),
                   style: const TextStyle(fontSize: 11, color: Colors.white70),
                 ),
               ],
@@ -1623,8 +1632,8 @@ class _QuickCombatPanel extends StatelessWidget {
                   elevation: 3,
                 ),
                 icon: const Icon(Icons.bolt, size: 20),
-                label: const Text(
-                  '⚡ Attaquer & Dégâts (1-Clic)',
+                label: Text(
+                  l10n.combatAttackAndDamage,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                 ),
               ),
@@ -1633,25 +1642,31 @@ class _QuickCombatPanel extends StatelessWidget {
             // Roll mode selector
             Row(
               children: [
-                const Text('Mode:', style: TextStyle(fontSize: 12)),
+                Text(l10n.combatMode, style: const TextStyle(fontSize: 12)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: SegmentedButton<int>(
-                    segments: const [
+                    segments: [
                       ButtonSegment(
                         value: -1,
                         label: Text(
-                          'Désavantage',
-                          style: TextStyle(fontSize: 10),
+                          l10n.diceRollerDisadvantage,
+                          style: const TextStyle(fontSize: 10),
                         ),
                       ),
                       ButtonSegment(
                         value: 0,
-                        label: Text('Normal', style: TextStyle(fontSize: 10)),
+                        label: Text(
+                          l10n.diceRollerNormal,
+                          style: const TextStyle(fontSize: 10),
+                        ),
                       ),
                       ButtonSegment(
                         value: 1,
-                        label: Text('Avantage', style: TextStyle(fontSize: 10)),
+                        label: Text(
+                          l10n.diceRollerAdvantage,
+                          style: const TextStyle(fontSize: 10),
+                        ),
                       ),
                     ],
                     selected: {rollMode},
@@ -1675,8 +1690,8 @@ class _QuickCombatPanel extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: onRollAttack,
                     icon: const Text('🎲', style: TextStyle(fontSize: 14)),
-                    label: const Text(
-                      'Touche seule',
+                    label: Text(
+                      l10n.combatHitOnly,
                       style: TextStyle(fontSize: 10),
                     ),
                     style: OutlinedButton.styleFrom(
@@ -1703,8 +1718,8 @@ class _QuickCombatPanel extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: onRollCrit,
                     icon: const Text('🎯', style: TextStyle(fontSize: 12)),
-                    label: const Text(
-                      'Critique!',
+                    label: Text(
+                      l10n.combatCritical,
                       style: TextStyle(fontSize: 10),
                     ),
                     style: ElevatedButton.styleFrom(
@@ -1742,12 +1757,16 @@ class _WeaponMasteryBadge extends ConsumerWidget {
             showDialog<void>(
               context: context,
               builder: (ctx) => AlertDialog(
-                title: Text('Maîtrise d\'arme : ${mastery.name}'),
+                title: Text(
+                  AppLocalizations.of(
+                    context,
+                  )!.weaponMasteryDialogTitle(mastery.name),
+                ),
                 content: Text(mastery.description),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(ctx).pop(),
-                    child: const Text('Fermer'),
+                    child: Text(AppLocalizations.of(context)!.actionClose),
                   ),
                 ],
               ),
@@ -1814,6 +1833,7 @@ class _HpTracker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final hpPct = hpMax > 0 ? (hpCurrent / hpMax).clamp(0.0, 1.0) : 0.0;
     final hpColor = hpPct > 0.5
         ? Colors.green
@@ -1845,13 +1865,16 @@ class _HpTracker extends StatelessWidget {
                         size: 28,
                       ),
                       onPressed: () => onCurrentChanged(hpCurrent - 1),
-                      tooltip: 'Dégâts (-1 PV)',
+                      tooltip: l10n.hpDamageAction,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Dégâts',
-                    style: TextStyle(fontSize: 11, color: AppTheme.neonRed),
+                  Text(
+                    l10n.hpModifierDamage,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppTheme.neonRed,
+                    ),
                   ),
                 ],
               ),
@@ -1860,14 +1883,17 @@ class _HpTracker extends StatelessWidget {
               Stack(
                 alignment: Alignment.center,
                 children: [
-                  SizedBox(
-                    width: 130,
-                    height: 130,
-                    child: CircularProgressIndicator(
-                      value: hpPct,
-                      strokeWidth: 8,
-                      color: hpColor,
-                      backgroundColor: Colors.white.withValues(alpha: 0.04),
+                  Semantics(
+                    label: l10n.hpGaugeSemantics(hpCurrent, hpMax),
+                    child: SizedBox(
+                      width: 130,
+                      height: 130,
+                      child: CircularProgressIndicator(
+                        value: hpPct,
+                        strokeWidth: 8,
+                        color: hpColor,
+                        backgroundColor: Colors.white.withValues(alpha: 0.04),
+                      ),
                     ),
                   ),
                   InkWell(
@@ -1896,7 +1922,7 @@ class _HpTracker extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            'sur $hpMax',
+                            l10n.hpOutOfMax(hpMax),
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.white.withValues(alpha: 0.5),
@@ -1922,7 +1948,7 @@ class _HpTracker extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                '+$hpTemp Temp',
+                                l10n.hpModifierTemp(hpTemp),
                                 style: const TextStyle(
                                   fontSize: 10,
                                   color: AppTheme.neonCyan,
@@ -1951,13 +1977,16 @@ class _HpTracker extends StatelessWidget {
                         size: 28,
                       ),
                       onPressed: () => onCurrentChanged(hpCurrent + 1),
-                      tooltip: 'Soins (+1 PV)',
+                      tooltip: l10n.hpHealAction,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Soins',
-                    style: TextStyle(fontSize: 11, color: AppTheme.neonCyan),
+                  Text(
+                    l10n.hpModifierHeal,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppTheme.neonCyan,
+                    ),
                   ),
                 ],
               ),
@@ -1972,7 +2001,7 @@ class _HpTracker extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Points de vie temporaires : ',
+                '${l10n.hpTemporaryLabel} : ',
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.white.withValues(alpha: 0.7),
@@ -1994,10 +2023,12 @@ class _HpTracker extends StatelessWidget {
                   size: 18,
                   color: AppTheme.neonRed,
                 ),
+                tooltip: l10n.hpTemporaryDecrease,
                 onPressed: () => onTempChanged((hpTemp - 1).clamp(0, 99)),
               ),
               IconButton(
                 icon: const Icon(Icons.add, size: 18, color: AppTheme.neonCyan),
+                tooltip: l10n.hpTemporaryIncrease,
                 onPressed: () => onTempChanged(hpTemp + 1),
               ),
             ],
@@ -2021,49 +2052,81 @@ class _DeathSaveRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Row(
+        child: Column(
           children: [
-            const Text('Succès', style: TextStyle(fontSize: 12)),
-            const SizedBox(width: 8),
-            ...List.generate(
-              3,
-              (i) => GestureDetector(
-                onTap: () {
-                  final newVal = i < successes ? i : i + 1;
-                  onChanged(newVal.clamp(0, 3), failures);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Icon(
-                    i < successes ? Icons.favorite : Icons.favorite_border,
-                    color: Colors.green,
-                    size: 22,
+            Row(
+              children: [
+                Text(
+                  l10n.deathSaveSuccesses,
+                  style: const TextStyle(fontSize: 12),
+                ),
+                const Spacer(),
+                ...List.generate(
+                  3,
+                  (i) => Semantics(
+                    button: true,
+                    selected: i < successes,
+                    label: l10n.deathSaveSuccessMarker(i + 1, successes),
+                    child: InkWell(
+                      onTap: () {
+                        final newVal = i < successes ? i : i + 1;
+                        onChanged(newVal.clamp(0, 3), failures);
+                      },
+                      child: SizedBox(
+                        width: 44,
+                        height: 44,
+                        child: Center(
+                          child: Icon(
+                            i < successes
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color: Colors.green,
+                            size: 22,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-            const Spacer(),
-            const Text('Échecs', style: TextStyle(fontSize: 12)),
-            const SizedBox(width: 8),
-            ...List.generate(
-              3,
-              (i) => GestureDetector(
-                onTap: () {
-                  final newVal = i < failures ? i : i + 1;
-                  onChanged(successes, newVal.clamp(0, 3));
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Icon(
-                    i < failures ? Icons.close : Icons.circle_outlined,
-                    color: Colors.red,
-                    size: 22,
+            Row(
+              children: [
+                Text(
+                  l10n.deathSaveFailures,
+                  style: const TextStyle(fontSize: 12),
+                ),
+                const Spacer(),
+                ...List.generate(
+                  3,
+                  (i) => Semantics(
+                    button: true,
+                    selected: i < failures,
+                    label: l10n.deathSaveFailureMarker(i + 1, failures),
+                    child: InkWell(
+                      onTap: () {
+                        final newVal = i < failures ? i : i + 1;
+                        onChanged(successes, newVal.clamp(0, 3));
+                      },
+                      child: SizedBox(
+                        width: 44,
+                        height: 44,
+                        child: Center(
+                          child: Icon(
+                            i < failures ? Icons.close : Icons.circle_outlined,
+                            color: Colors.red,
+                            size: 22,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
           ],
         ),
@@ -2110,6 +2173,7 @@ class _ResourceRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -2132,6 +2196,7 @@ class _ResourceRow extends ConsumerWidget {
             ),
             IconButton(
               icon: const Icon(Icons.remove, size: 18),
+              tooltip: l10n.resourceDecrease,
               onPressed: resource.current <= 0
                   ? null
                   : () async {
@@ -2149,6 +2214,7 @@ class _ResourceRow extends ConsumerWidget {
             ),
             IconButton(
               icon: const Icon(Icons.add, size: 18),
+              tooltip: l10n.resourceIncrease,
               onPressed: resource.current >= resource.maximum
                   ? null
                   : () async {
