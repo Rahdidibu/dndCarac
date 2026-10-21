@@ -51,8 +51,10 @@
 ## Developpement et verification
 
 - Voir le [README](../README.md) pour le parcours devcontainer avec Supabase
-  heberge. Le conteneur cible Web et les tests, pas un environnement Android
-  complet. Les versions Flutter/Supabase CLI sont fixees dans son Dockerfile;
+  heberge. Le conteneur cible Web, les tests et Android sur telephone via ADB
+  sans fil; il fournit Java 21, le SDK Android API 36 et le NDK du projet,
+  mais pas d'emulateur. Voir le README pour l'association et les deux ports ADB.
+  Les versions Flutter/Supabase CLI sont fixees dans son Dockerfile;
   le SDK doit aussi satisfaire les contraintes de [pubspec.lock](../pubspec.lock).
 - Installation : `flutter pub get --enforce-lockfile`.
 - Localisation : `flutter gen-l10n`.

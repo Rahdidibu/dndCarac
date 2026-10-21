@@ -87,9 +87,11 @@
 ### Développement Web dans VS Code avec Dev Containers
 
 Ce parcours lance l'interface en local et utilise un **projet Supabase hébergé**.
-Le conteneur fournit Flutter `3.44.4`, Supabase CLI et l'accès au Docker de
-l'hôte. Il ne contient ni Chrome, ni SDK/émulateur Android : le navigateur
-s'exécute sur l'hôte.
+Le conteneur fournit Flutter `3.44.4`, Supabase CLI, Java 21, le SDK Android
+(API 36, outils ADB et NDK du projet) et l'accès au Docker de l'hôte.
+Il ne contient ni Chrome ni émulateur Android : le navigateur s'exécute sur
+l'hôte et les tests Android utilisent un téléphone connecté.
+La construction accepte les licences du SDK Android.
 
 1. Installer Docker et l'extension VS Code **Dev Containers**, puis démarrer Docker.
    Si le réseau utilise un proxy HTTPS d'entreprise, copier ses certificats
@@ -139,8 +141,9 @@ flutter test
 flutter build web --release --dart-define-from-file=.env
 ```
 
-Les avertissements de `flutter doctor` sur Chrome et Android sont attendus dans
-ce conteneur Web. Le port `8035` est transféré automatiquement; les ports
+Les avertissements de `flutter doctor` sur Chrome et la chaîne Linux desktop
+sont attendus; la chaîne Android doit être valide. Le port `8035` est transféré
+automatiquement; les ports
 `54321`/`54323` et Supabase CLI restent disponibles pour un éventuel backend
 local, mais aucun service Supabase local n'est démarré dans ce parcours.
 Le template [.devcontainer/.env.template](.devcontainer/.env.template) décrit
@@ -148,6 +151,64 @@ uniquement des variables de proxy; il ne remplace pas le `.env` applicatif racin
 En cas d'erreur `unable to get local issuer certificate`, vérifier les certificats
 dans ce dossier puis reconstruire le conteneur; ne pas désactiver la
 vérification TLS.
+
+### Tester l'application Android depuis le Dev Container
+
+Après cette évolution du Dockerfile, utiliser **Dev Containers: Rebuild Container**.
+Le premier téléchargement du SDK/NDK peut prendre plusieurs minutes.
+
+Sur Android 11 ou plus récent, connecter le téléphone au même Wi-Fi que le PC,
+puis activer **Options pour les développeurs > Débogage sans fil**.
+Ouvrir **Associer l'appareil avec un code d'association** et, dans le conteneur :
+
+```bash
+adb pair <IP>:<port-association>
+# Saisir le code affiché sur le téléphone à l'invite ADB.
+adb connect <IP>:<port-connexion>
+adb devices -l
+flutter devices
+flutter run -d <identifiant-flutter> --dart-define-from-file=.env
+```
+
+Le port d'association et le port de connexion sont différents. Le second est
+affiché sur l'écran principal du débogage sans fil; ils peuvent changer après
+une reconnexion. Le réseau et le pare-feu doivent autoriser ces connexions depuis
+le conteneur. La découverte automatique peut échouer sous Docker/WSL2 :
+utiliser alors explicitement l'IP et le port. Aucun transfert USB ni port Docker
+entrant n'est nécessaire.
+
+#### Relancer une session de développement mobile
+
+Depuis la racine du projet, dans le terminal du Dev Container :
+
+```bash
+adb connect <IP>:<port-connexion>
+flutter run -d <IP>:<port-connexion> --dart-define-from-file=.env
+```
+
+Par exemple, avec l'adresse utilisée lors de la configuration initiale :
+
+```bash
+adb connect 192.168.1.10:43115
+flutter run -d 192.168.1.10:43115 --dart-define-from-file=.env
+```
+
+Vérifier l'adresse et le port dans **Débogage sans fil** avant chaque session
+et adapter les commandes s'ils ont changé. L'association avec `adb pair` n'est
+à refaire que si l'autorisation a été perdue.
+
+Pendant que `flutter run` reste ouvert, utiliser `r` pour le hot reload,
+`R` pour redémarrer l'application et `q` pour arrêter la session.
+
+Le fichier `.env` racine doit être configuré comme pour le Web. Le téléphone
+doit pouvoir joindre Supabase. Ne pas enregistrer le code d'association ou les
+clés privées ADB dans Git; une reconstruction peut nécessiter une nouvelle
+association. Désactiver le débogage sans fil après les tests sur un réseau partagé.
+
+Si l'installation échoue avec `INSTALL_FAILED_UPDATE_INCOMPATIBLE`, une version
+signée avec une autre clé est déjà présente. Sa désinstallation permet
+l'installation de développement, mais efface ses données locales : sauvegarder
+ou synchroniser les données nécessaires avant de confirmer cette opération.
 
 ---
 
