@@ -7,10 +7,85 @@ import '../database/app_database.dart';
 import '../database/tables/tables.dart';
 import '../utils/app_errors.dart';
 import '../utils/armor_class_helper.dart';
+import '../utils/character_edit_rules.dart';
 import '../utils/dnd_rules.dart';
 import '../utils/starting_equipment_helper.dart';
 import '../../features/character/providers/wizard_provider.dart';
 import '../../l10n/app_localizations.dart';
+
+/// Conséquences d'un changement d'historique sur les maîtrises et le don d'origine.
+class OriginChangePreview {
+  final List<String> removedProficiencies;
+  final List<String> addedProficiencies;
+  final String? removedFeatId;
+  final String? addedFeatId;
+
+  const OriginChangePreview({
+    this.removedProficiencies = const [],
+    this.addedProficiencies = const [],
+    this.removedFeatId,
+    this.addedFeatId,
+  });
+
+  bool get isEmpty =>
+      removedProficiencies.isEmpty &&
+      addedProficiencies.isEmpty &&
+      removedFeatId == null &&
+      addedFeatId == null;
+}
+
+/// Conséquences d'un changement de caractéristiques sur les PV max et la CA.
+class AbilityChangePreview {
+  final int hpMaxBefore;
+  final int hpMaxAfter;
+  final int acBefore;
+  final int acAfter;
+
+  const AbilityChangePreview({
+    required this.hpMaxBefore,
+    required this.hpMaxAfter,
+    required this.acBefore,
+    required this.acAfter,
+  });
+
+  bool get hasChanges => hpMaxBefore != hpMaxAfter || acBefore != acAfter;
+}
+
+class CharacterEditRequest {
+  final String name;
+  final String playerName;
+  final String alignment;
+  final Map<String, int> finalScores;
+  final String? speciesId;
+  final String? subspeciesId;
+  final String? backgroundId;
+  final Map<String, int> originBonus;
+
+  const CharacterEditRequest({
+    required this.name,
+    required this.playerName,
+    required this.alignment,
+    required this.finalScores,
+    required this.speciesId,
+    required this.subspeciesId,
+    required this.backgroundId,
+    required this.originBonus,
+  });
+}
+
+class CharacterEditPreview {
+  final AbilityChangePreview abilities;
+  final OriginChangePreview origin;
+  final bool originChanged;
+
+  const CharacterEditPreview({
+    required this.abilities,
+    required this.origin,
+    required this.originChanged,
+  });
+
+  bool get hasConsequences => abilities.hasChanges || !origin.isEmpty;
+}
 
 class CharacterService {
   final AppDatabase db;
@@ -100,7 +175,10 @@ class CharacterService {
       ),
     );
 
-    // 3 — Insert final ability scores
+    // 3 — Insert final ability scores, with their base/origin-bonus split
+    final baseScores = wizard.abilityScores;
+    int baseOf(String key) => baseScores[key] ?? 10;
+    int bonusOf(String key) => (finalScores[key] ?? 10) - baseOf(key);
     await db.characterDao.upsertAbilityScores(
       CharacterAbilityScoresCompanion.insert(
         characterId: characterId,
@@ -110,6 +188,18 @@ class CharacterService {
         intelligence: Value(finalScores['int'] ?? 10),
         wisdom: Value(finalScores['wis'] ?? 10),
         charisma: Value(finalScores['cha'] ?? 10),
+        baseStrength: Value(baseOf('str')),
+        baseDexterity: Value(baseOf('dex')),
+        baseConstitution: Value(baseOf('con')),
+        baseIntelligence: Value(baseOf('int')),
+        baseWisdom: Value(baseOf('wis')),
+        baseCharisma: Value(baseOf('cha')),
+        bonusStrength: Value(bonusOf('str')),
+        bonusDexterity: Value(bonusOf('dex')),
+        bonusConstitution: Value(bonusOf('con')),
+        bonusIntelligence: Value(bonusOf('int')),
+        bonusWisdom: Value(bonusOf('wis')),
+        bonusCharisma: Value(bonusOf('cha')),
       ),
     );
 
@@ -592,25 +682,7 @@ class CharacterService {
   /// Recalculates the character's AC based on their current stats, classes, and equipped items.
   /// Then updates the armorClass field in the database.
   Future<int> recalculateCharacterAc(int characterId) async {
-    // 1. Get ability scores
-    final scores = await db.characterDao.getAbilityScores(characterId);
-    final dexScore = scores?.dexterity ?? 10;
-    final conScore = scores?.constitution ?? 10;
-    final wisScore = scores?.wisdom ?? 10;
-
-    // 2. Get character classes
-    final classes = await db.characterDao.getCharacterClasses(characterId);
-
-    // 3. Get equipment
-    final equipment = await db.characterDao.getEquipment(characterId);
-
-    final totalAc = ArmorClassHelper.calculateAc(
-      equippedItems: equipment.where((e) => e.equipped).toList(),
-      dexMod: DndRules.modifier(dexScore),
-      conMod: DndRules.modifier(conScore),
-      wisMod: DndRules.modifier(wisScore),
-      className: classes.map((c) => c.classId).join(' '),
-    ).totalAc;
+    final totalAc = await _computeAc(characterId);
 
     // 5. Update character AC in DB
     await db.characterDao.updateCharacter(CharactersCompanion(
@@ -620,6 +692,368 @@ class CharacterService {
     ));
 
     return totalAc;
+  }
+
+  /// Computes the AC from equipment/classes; [dex]/[con]/[wis] override the
+  /// stored scores (used to preview a pending edit).
+  Future<int> _computeAc(
+    int characterId, {
+    int? dex,
+    int? con,
+    int? wis,
+  }) async {
+    final scores = await db.characterDao.getAbilityScores(characterId);
+    final classes = await db.characterDao.getCharacterClasses(characterId);
+    final equipment = await db.characterDao.getEquipment(characterId);
+
+    return ArmorClassHelper.calculateAc(
+      equippedItems: equipment.where((e) => e.equipped).toList(),
+      dexMod: DndRules.modifier(dex ?? scores?.dexterity ?? 10),
+      conMod: DndRules.modifier(con ?? scores?.constitution ?? 10),
+      wisMod: DndRules.modifier(wis ?? scores?.wisdom ?? 10),
+      className: classes.map((c) => c.classId).join(' '),
+    ).totalAc;
+  }
+
+  // ── Édition d'un personnage existant ─────────────────────────────────────
+
+  Future<void> updateIdentity({
+    required int characterId,
+    required String name,
+    required String playerName,
+    required String alignment,
+  }) async {
+    await db.characterDao.updateCharacter(CharactersCompanion(
+      id: Value(characterId),
+      name: Value(name.trim()),
+      playerName: Value(playerName.trim()),
+      alignment: Value(alignment),
+      updatedAt: Value(DateTime.now().toIso8601String()),
+    ));
+  }
+
+  Future<({Set<String> toolKeys, String? featId})> _originGrants(
+    String? backgroundId,
+    RulesetVersion ruleset,
+  ) async {
+    if (backgroundId == null) return (toolKeys: <String>{}, featId: null);
+    final bg = await db.compendiumDao.getBackgroundById(backgroundId, ruleset);
+    if (bg == null) return (toolKeys: <String>{}, featId: null);
+    final keys = <String>{};
+    if (bg.toolProficiencies.isNotEmpty) {
+      for (final tool in (json.decode(bg.toolProficiencies) as List).cast<String>()) {
+        keys.add('tool_$tool');
+      }
+    }
+    return (
+      toolKeys: keys,
+      featId: ruleset == RulesetVersion.dnd2024 ? bg.originFeatId : null,
+    );
+  }
+
+  /// Ce qui change si l'origine devient (species, subspecies, background).
+  Future<OriginChangePreview> previewOriginChange({
+    required int characterId,
+    required String? backgroundId,
+  }) async {
+    final character = await db.characterDao.getCharacterById(characterId);
+    if (character == null || character.backgroundId == backgroundId) {
+      return const OriginChangePreview();
+    }
+    final old = await _originGrants(character.backgroundId, character.ruleset);
+    final next = await _originGrants(backgroundId, character.ruleset);
+
+    final currentProfs = (await db.characterDao.getProficiencies(characterId))
+        .map((p) => p.proficiencyKey)
+        .toSet();
+    final feats = await db.characterDao.getCharacterFeats(characterId);
+
+    final removedProfs = old.toolKeys
+        .difference(next.toolKeys)
+        .where(currentProfs.contains)
+        .toList()
+      ..sort();
+    final addedProfs = next.toolKeys
+        .difference(currentProfs)
+        .toList()
+      ..sort();
+
+    final removeFeat = old.featId != null &&
+        old.featId != next.featId &&
+        feats.any((f) => f.featId == old.featId);
+    final addFeat = next.featId != null &&
+        next.featId != old.featId &&
+        !feats.any((f) => f.featId == next.featId);
+
+    return OriginChangePreview(
+      removedProficiencies: removedProfs,
+      addedProficiencies: addedProfs,
+      removedFeatId: removeFeat ? old.featId : null,
+      addedFeatId: addFeat ? next.featId : null,
+    );
+  }
+
+  /// Change espèce / sous-espèce / historique. Seuls les éléments issus de
+  /// l'ancienne origine sont retirés : les ajouts manuels sont conservés.
+  /// Les caractéristiques ne sont pas touchées ici (voir [updateAbilityScores]).
+  Future<void> changeOrigin({
+    required int characterId,
+    required String? speciesId,
+    required String? subspeciesId,
+    required String? backgroundId,
+  }) async {
+    final character = await db.characterDao.getCharacterById(characterId);
+    if (character == null) return;
+
+    if (character.backgroundId != backgroundId) {
+      final old = await _originGrants(character.backgroundId, character.ruleset);
+      final next = await _originGrants(backgroundId, character.ruleset);
+      final preview = await previewOriginChange(
+        characterId: characterId,
+        backgroundId: backgroundId,
+      );
+
+      for (final key in preview.removedProficiencies) {
+        await db.characterDao.deleteProficiency(characterId, key);
+      }
+      for (final key in preview.addedProficiencies) {
+        await db.characterDao.insertProficiency(
+          CharacterProficienciesCompanion.insert(
+            characterId: characterId,
+            proficiencyKey: key,
+          ),
+        );
+      }
+
+      if (preview.removedFeatId != null) {
+        final feats = await db.characterDao.getCharacterFeats(characterId);
+        final row = feats.where((f) => f.featId == old.featId).firstOrNull;
+        if (row != null) await db.characterDao.deleteCharacterFeatById(row.id);
+      }
+      if (preview.addedFeatId != null) {
+        await db.characterDao.insertCharacterFeat(
+          CharacterFeatsCompanion.insert(
+            characterId: characterId,
+            featId: next.featId!,
+            ruleset: character.ruleset,
+          ),
+        );
+      }
+    }
+
+    await db.characterDao.updateCharacter(CharactersCompanion(
+      id: Value(characterId),
+      speciesId: Value(speciesId),
+      subspeciesId: Value(subspeciesId),
+      backgroundId: Value(backgroundId),
+      updatedAt: Value(DateTime.now().toIso8601String()),
+    ));
+  }
+
+  Future<int> _totalLevel(int characterId) async {
+    final classes = await db.characterDao.getCharacterClasses(characterId);
+    return classes.fold<int>(0, (sum, c) => sum + c.level);
+  }
+
+  /// Conséquences d'une modification des valeurs finales de caractéristiques.
+  Future<AbilityChangePreview> previewAbilityScores({
+    required int characterId,
+    required Map<String, int> finalScores,
+  }) async {
+    final character = await db.characterDao.getCharacterById(characterId);
+    final old = await db.characterDao.getAbilityScores(characterId);
+    if (character == null || old == null) {
+      return const AbilityChangePreview(
+        hpMaxBefore: 0,
+        hpMaxAfter: 0,
+        acBefore: 0,
+        acAfter: 0,
+      );
+    }
+    final newCon = finalScores['con'] ?? old.constitution;
+    final delta = CharacterEditRules.retroactiveHpDelta(
+      oldCon: old.constitution,
+      newCon: newCon,
+      totalLevel: await _totalLevel(characterId),
+    );
+    final hp = CharacterEditRules.applyHpDelta(
+      hpMax: character.hpMax,
+      hpCurrent: character.hpCurrent,
+      delta: delta,
+    );
+    final acBefore = await _computeAc(characterId);
+    final acAfter = await _computeAc(
+      characterId,
+      dex: finalScores['dex'],
+      con: newCon,
+      wis: finalScores['wis'],
+    );
+    return AbilityChangePreview(
+      hpMaxBefore: character.hpMax,
+      hpMaxAfter: hp.hpMax,
+      acBefore: acBefore,
+      acAfter: acAfter,
+    );
+  }
+
+  /// Enregistre les valeurs finales (= base + [originBonus]), applique l'écart
+  /// rétroactif de PV si la CON change et recalcule la CA. Les emplacements de
+  /// sorts dépendent uniquement des classes/niveaux, pas des caractéristiques.
+  Future<void> updateAbilityScores({
+    required int characterId,
+    required Map<String, int> finalScores,
+    required Map<String, int> originBonus,
+  }) async {
+    final character = await db.characterDao.getCharacterById(characterId);
+    final old = await db.characterDao.getAbilityScores(characterId);
+    if (character == null) return;
+
+    int score(String key, int fallback) => (finalScores[key] ?? fallback)
+        .clamp(CharacterEditRules.minScore, CharacterEditRules.maxScore);
+    int bonus(String key) => originBonus[key] ?? 0;
+
+    final str = score('str', old?.strength ?? 10);
+    final dex = score('dex', old?.dexterity ?? 10);
+    final newCon = score('con', old?.constitution ?? 10);
+    final intel = score('int', old?.intelligence ?? 10);
+    final wis = score('wis', old?.wisdom ?? 10);
+    final cha = score('cha', old?.charisma ?? 10);
+
+    await db.characterDao.upsertAbilityScores(
+      CharacterAbilityScoresCompanion(
+        characterId: Value(characterId),
+        strength: Value(str),
+        dexterity: Value(dex),
+        constitution: Value(newCon),
+        intelligence: Value(intel),
+        wisdom: Value(wis),
+        charisma: Value(cha),
+        baseStrength: Value(str - bonus('str')),
+        baseDexterity: Value(dex - bonus('dex')),
+        baseConstitution: Value(newCon - bonus('con')),
+        baseIntelligence: Value(intel - bonus('int')),
+        baseWisdom: Value(wis - bonus('wis')),
+        baseCharisma: Value(cha - bonus('cha')),
+        bonusStrength: Value(bonus('str')),
+        bonusDexterity: Value(bonus('dex')),
+        bonusConstitution: Value(bonus('con')),
+        bonusIntelligence: Value(bonus('int')),
+        bonusWisdom: Value(bonus('wis')),
+        bonusCharisma: Value(bonus('cha')),
+      ),
+    );
+
+    final delta = CharacterEditRules.retroactiveHpDelta(
+      oldCon: old?.constitution ?? newCon,
+      newCon: newCon,
+      totalLevel: await _totalLevel(characterId),
+    );
+    if (delta != 0) {
+      final hp = CharacterEditRules.applyHpDelta(
+        hpMax: character.hpMax,
+        hpCurrent: character.hpCurrent,
+        delta: delta,
+      );
+      await db.characterDao.updateCharacter(CharactersCompanion(
+        id: Value(characterId),
+        hpMax: Value(hp.hpMax),
+        hpCurrent: Value(hp.hpCurrent),
+        updatedAt: Value(DateTime.now().toIso8601String()),
+      ));
+    }
+
+    await recalculateCharacterAc(characterId);
+  }
+
+  /// Bonus d'origine par caractéristique. Lus dans les colonnes `bonus_*` ;
+  /// pour un personnage créé avant leur ajout, déduits de la race/sous-race
+  /// en 2014 (inconnus, donc 0, en 2024).
+  Future<Map<String, int>> loadOriginAbilityBonuses(int characterId) async {
+    final character = await db.characterDao.getCharacterById(characterId);
+    if (character == null) return {};
+
+    final scores = await db.characterDao.getAbilityScores(characterId);
+    if (scores != null) {
+      final stored = {
+        'str': scores.bonusStrength,
+        'dex': scores.bonusDexterity,
+        'con': scores.bonusConstitution,
+        'int': scores.bonusIntelligence,
+        'wis': scores.bonusWisdom,
+        'cha': scores.bonusCharisma,
+      };
+      if (stored.values.any((v) => v != null)) {
+        return {for (final e in stored.entries) e.key: e.value ?? 0};
+      }
+    }
+
+    if (character.ruleset == RulesetVersion.dnd2024) return {};
+    final speciesId = character.speciesId;
+    if (speciesId == null) return {};
+    final race = await db.compendiumDao.getRaceById(speciesId, character.ruleset);
+    final subraces = await db.compendiumDao.getSubraces(speciesId, character.ruleset);
+    final subrace =
+        subraces.where((s) => s.id == character.subspeciesId).firstOrNull;
+    return CharacterEditRules.sumBonuses([
+      CharacterEditRules.parseAbilityBonuses(race?.abilityBonuses),
+      CharacterEditRules.parseAbilityBonuses(subrace?.abilityBonuses),
+    ]);
+  }
+
+  /// Conséquences cumulées d'une édition, pour le dialogue de confirmation.
+  Future<CharacterEditPreview> previewEdit(
+    int characterId,
+    CharacterEditRequest request,
+  ) async {
+    final character = await db.characterDao.getCharacterById(characterId);
+    final abilities = await previewAbilityScores(
+      characterId: characterId,
+      finalScores: request.finalScores,
+    );
+    final origin = await previewOriginChange(
+      characterId: characterId,
+      backgroundId: request.backgroundId,
+    );
+    return CharacterEditPreview(
+      abilities: abilities,
+      origin: origin,
+      originChanged: character != null &&
+          (character.speciesId != request.speciesId ||
+              character.subspeciesId != request.subspeciesId ||
+              character.backgroundId != request.backgroundId),
+    );
+  }
+
+  /// Applique une édition complète : identité, origine, puis caractéristiques
+  /// (PV max rétroactifs et CA recalculés en dernier).
+  Future<void> applyEdit(int characterId, CharacterEditRequest request) async {
+    final character = await db.characterDao.getCharacterById(characterId);
+    if (character == null) return;
+
+    await updateIdentity(
+      characterId: characterId,
+      name: request.name,
+      playerName: request.playerName,
+      alignment: request.alignment,
+    );
+
+    final originChanged = character.speciesId != request.speciesId ||
+        character.subspeciesId != request.subspeciesId ||
+        character.backgroundId != request.backgroundId;
+    if (originChanged) {
+      await changeOrigin(
+        characterId: characterId,
+        speciesId: request.speciesId,
+        subspeciesId: request.subspeciesId,
+        backgroundId: request.backgroundId,
+      );
+    }
+
+    await updateAbilityScores(
+      characterId: characterId,
+      finalScores: request.finalScores,
+      originBonus: request.originBonus,
+    );
   }
 
   // Helper parser

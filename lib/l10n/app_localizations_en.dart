@@ -1361,4 +1361,99 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get actionOk => 'OK';
+
+  @override
+  String get editCharacterTitle => 'Edit character';
+
+  @override
+  String get editCharacterTooltip => 'Edit';
+
+  @override
+  String get editSectionIdentity => 'Identity';
+
+  @override
+  String get editSectionAbilities => 'Ability scores';
+
+  @override
+  String get editSectionOrigin => 'Origin';
+
+  @override
+  String get editBackgroundLabel => 'Background';
+
+  @override
+  String get editAlignmentLabel => 'Alignment';
+
+  @override
+  String get editNameRequired => 'Name is required';
+
+  @override
+  String get editAbilityBase => 'Base';
+
+  @override
+  String get editAbilityOriginBonus => 'Origin';
+
+  @override
+  String get editAbilityTotal => 'Total';
+
+  @override
+  String get editAbilityHint =>
+      'Base = score without the origin bonus (level-up increases are included). Total is limited to 1–30.';
+
+  @override
+  String get editAbilityOutOfRange => 'Total must be between 1 and 30';
+
+  @override
+  String get editModifyOrigin => 'Edit origin';
+
+  @override
+  String get editOriginWarning =>
+      'Changing species or background changes ability bonuses, tool proficiencies and the origin feat. Proficiencies added manually are kept.';
+
+  @override
+  String get editBackgroundAsiTitle => 'Background bonus';
+
+  @override
+  String get editConfirmTitle => 'Confirm changes';
+
+  @override
+  String editConfirmHpMax(int before, int after) {
+    return 'Max HP: $before → $after';
+  }
+
+  @override
+  String editConfirmAc(int before, int after) {
+    return 'AC: $before → $after';
+  }
+
+  @override
+  String editConfirmProfsAdded(String list) {
+    return 'Proficiencies added: $list';
+  }
+
+  @override
+  String editConfirmProfsRemoved(String list) {
+    return 'Proficiencies removed: $list';
+  }
+
+  @override
+  String editConfirmFeatAdded(String name) {
+    return 'Origin feat added: $name';
+  }
+
+  @override
+  String editConfirmFeatRemoved(String name) {
+    return 'Origin feat removed: $name';
+  }
+
+  @override
+  String get editConfirmNoConsequence =>
+      'No consequence on max HP, AC, proficiencies or feats.';
+
+  @override
+  String get editSaved => 'Character updated';
+
+  @override
+  String editSaveError(String error) {
+    return 'Error while saving: $error';
+  }
 }

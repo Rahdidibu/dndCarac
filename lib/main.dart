@@ -16,6 +16,7 @@ import 'features/batman/screens/batman_level_up_screen.dart';
 import 'features/batman/screens/batman_sheet_screen.dart';
 import 'features/character/screens/character_creation_wizard.dart';
 import 'features/character/screens/character_sheet_screen.dart';
+import 'features/character/screens/character_edit_screen.dart';
 import 'features/character/screens/level_up_screen.dart';
 import 'features/spells/screens/spell_management_screen.dart';
 import 'l10n/app_localizations.dart';
@@ -77,6 +78,15 @@ class DndApp extends ConsumerWidget {
         '/character/sheet': (ctx) {
           final id = ModalRoute.of(ctx)?.settings.arguments;
           if (id is int) return CharacterSheetScreen(characterId: id);
+          return Scaffold(
+            body: Center(
+              child: Text(AppLocalizations.of(ctx)!.invalidNavigation),
+            ),
+          );
+        },
+        '/character/edit': (ctx) {
+          final id = ModalRoute.of(ctx)?.settings.arguments;
+          if (id is int) return CharacterEditScreen(characterId: id);
           return Scaffold(
             body: Center(
               child: Text(AppLocalizations.of(ctx)!.invalidNavigation),

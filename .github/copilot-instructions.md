@@ -18,7 +18,7 @@
 
 ## Donnees et configuration
 
-- Drift : [AppDatabase](../lib/core/database/app_database.dart), schema version 4,
+- Drift : [AppDatabase](../lib/core/database/app_database.dart), schema version 5,
   tables et DAOs dans `lib/core/database/`. Les donnees de reference viennent de
   [assets/data/](../assets/data/). Toute evolution de schema doit inclure sa
   migration et la regeneration des fichiers associes.

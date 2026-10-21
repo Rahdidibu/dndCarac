@@ -50,7 +50,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -68,6 +68,25 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 4) {
         await migrator.addColumn(characters, characters.imageUrl);
+      }
+      if (from < 5) {
+        final scores = characterAbilityScores;
+        for (final column in [
+          scores.baseStrength,
+          scores.baseDexterity,
+          scores.baseConstitution,
+          scores.baseIntelligence,
+          scores.baseWisdom,
+          scores.baseCharisma,
+          scores.bonusStrength,
+          scores.bonusDexterity,
+          scores.bonusConstitution,
+          scores.bonusIntelligence,
+          scores.bonusWisdom,
+          scores.bonusCharisma,
+        ]) {
+          await migrator.addColumn(scores, column);
+        }
       }
     },
   );

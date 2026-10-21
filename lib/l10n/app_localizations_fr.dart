@@ -1367,4 +1367,99 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get actionOk => 'OK';
+
+  @override
+  String get editCharacterTitle => 'Modifier le personnage';
+
+  @override
+  String get editCharacterTooltip => 'Modifier';
+
+  @override
+  String get editSectionIdentity => 'Identité';
+
+  @override
+  String get editSectionAbilities => 'Caractéristiques';
+
+  @override
+  String get editSectionOrigin => 'Origine';
+
+  @override
+  String get editBackgroundLabel => 'Historique';
+
+  @override
+  String get editAlignmentLabel => 'Alignement';
+
+  @override
+  String get editNameRequired => 'Le nom est obligatoire';
+
+  @override
+  String get editAbilityBase => 'Base';
+
+  @override
+  String get editAbilityOriginBonus => 'Origine';
+
+  @override
+  String get editAbilityTotal => 'Total';
+
+  @override
+  String get editAbilityHint =>
+      'Base = valeur sans le bonus d\'origine (les montées de niveau y sont incluses). Total borné de 1 à 30.';
+
+  @override
+  String get editAbilityOutOfRange => 'Le total doit être entre 1 et 30';
+
+  @override
+  String get editModifyOrigin => 'Modifier l\'origine';
+
+  @override
+  String get editOriginWarning =>
+      'Changer d\'espèce ou d\'historique modifie les bonus de caractéristiques, les maîtrises d\'outils et le don d\'origine. Les maîtrises ajoutées manuellement sont conservées.';
+
+  @override
+  String get editBackgroundAsiTitle => 'Bonus d\'historique';
+
+  @override
+  String get editConfirmTitle => 'Confirmer les modifications';
+
+  @override
+  String editConfirmHpMax(int before, int after) {
+    return 'PV max : $before → $after';
+  }
+
+  @override
+  String editConfirmAc(int before, int after) {
+    return 'CA : $before → $after';
+  }
+
+  @override
+  String editConfirmProfsAdded(String list) {
+    return 'Maîtrises ajoutées : $list';
+  }
+
+  @override
+  String editConfirmProfsRemoved(String list) {
+    return 'Maîtrises retirées : $list';
+  }
+
+  @override
+  String editConfirmFeatAdded(String name) {
+    return 'Don d\'origine ajouté : $name';
+  }
+
+  @override
+  String editConfirmFeatRemoved(String name) {
+    return 'Don d\'origine retiré : $name';
+  }
+
+  @override
+  String get editConfirmNoConsequence =>
+      'Aucune conséquence sur les PV max, la CA, les maîtrises ou les dons.';
+
+  @override
+  String get editSaved => 'Personnage mis à jour';
+
+  @override
+  String editSaveError(String error) {
+    return 'Erreur lors de l\'enregistrement : $error';
+  }
 }

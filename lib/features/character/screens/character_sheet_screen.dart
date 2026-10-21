@@ -6,8 +6,6 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printing/printing.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/database/tables/tables.dart';
@@ -21,6 +19,7 @@ import '../../../core/utils/string_utils.dart';
 import '../../../core/utils/skills_catalog.dart';
 import '../../export/pdf_generator.dart';
 import '../providers/character_providers.dart';
+import '../widgets/avatar_upload.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/providers/forge_navigation_provider.dart';
 import '../../../core/utils/markdown_text.dart';
@@ -30,7 +29,6 @@ import '../../../core/widgets/undo_snackbar.dart';
 import '../../../core/widgets/conditions_dialog.dart';
 import '../../../core/widgets/roll_result_dialog.dart';
 import '../../../core/widgets/universal_dice_roller.dart';
-import '../../../core/widgets/image_cropper_dialog.dart';
 import '../../../core/widgets/currency_manager_dialog.dart';
 import '../../../core/widgets/combat_attack_dialog.dart';
 import '../../../core/utils/armor_class_helper.dart';
@@ -235,6 +233,13 @@ class CharacterSheetScreen extends ConsumerWidget {
               ],
             ),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.edit_outlined, color: AppTheme.neonCyan),
+                tooltip: l10n.editCharacterTooltip,
+                onPressed: () => Navigator.of(
+                  context,
+                ).pushNamed('/character/edit', arguments: characterId),
+              ),
               IconButton(
                 icon: const Icon(Icons.gavel, color: AppTheme.neonCyan),
                 tooltip: l10n.navForge,

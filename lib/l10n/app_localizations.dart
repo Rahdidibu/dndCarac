@@ -2569,6 +2569,162 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'OK'**
   String get actionOk;
+
+  /// No description provided for @editCharacterTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le personnage'**
+  String get editCharacterTitle;
+
+  /// No description provided for @editCharacterTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier'**
+  String get editCharacterTooltip;
+
+  /// No description provided for @editSectionIdentity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identité'**
+  String get editSectionIdentity;
+
+  /// No description provided for @editSectionAbilities.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caractéristiques'**
+  String get editSectionAbilities;
+
+  /// No description provided for @editSectionOrigin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Origine'**
+  String get editSectionOrigin;
+
+  /// No description provided for @editBackgroundLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique'**
+  String get editBackgroundLabel;
+
+  /// No description provided for @editAlignmentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alignement'**
+  String get editAlignmentLabel;
+
+  /// No description provided for @editNameRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le nom est obligatoire'**
+  String get editNameRequired;
+
+  /// No description provided for @editAbilityBase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Base'**
+  String get editAbilityBase;
+
+  /// No description provided for @editAbilityOriginBonus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Origine'**
+  String get editAbilityOriginBonus;
+
+  /// No description provided for @editAbilityTotal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total'**
+  String get editAbilityTotal;
+
+  /// No description provided for @editAbilityHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Base = valeur sans le bonus d\'origine (les montées de niveau y sont incluses). Total borné de 1 à 30.'**
+  String get editAbilityHint;
+
+  /// No description provided for @editAbilityOutOfRange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le total doit être entre 1 et 30'**
+  String get editAbilityOutOfRange;
+
+  /// No description provided for @editModifyOrigin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier l\'origine'**
+  String get editModifyOrigin;
+
+  /// No description provided for @editOriginWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer d\'espèce ou d\'historique modifie les bonus de caractéristiques, les maîtrises d\'outils et le don d\'origine. Les maîtrises ajoutées manuellement sont conservées.'**
+  String get editOriginWarning;
+
+  /// No description provided for @editBackgroundAsiTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonus d\'historique'**
+  String get editBackgroundAsiTitle;
+
+  /// No description provided for @editConfirmTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer les modifications'**
+  String get editConfirmTitle;
+
+  /// No description provided for @editConfirmHpMax.
+  ///
+  /// In fr, this message translates to:
+  /// **'PV max : {before} → {after}'**
+  String editConfirmHpMax(int before, int after);
+
+  /// No description provided for @editConfirmAc.
+  ///
+  /// In fr, this message translates to:
+  /// **'CA : {before} → {after}'**
+  String editConfirmAc(int before, int after);
+
+  /// No description provided for @editConfirmProfsAdded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maîtrises ajoutées : {list}'**
+  String editConfirmProfsAdded(String list);
+
+  /// No description provided for @editConfirmProfsRemoved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maîtrises retirées : {list}'**
+  String editConfirmProfsRemoved(String list);
+
+  /// No description provided for @editConfirmFeatAdded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Don d\'origine ajouté : {name}'**
+  String editConfirmFeatAdded(String name);
+
+  /// No description provided for @editConfirmFeatRemoved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Don d\'origine retiré : {name}'**
+  String editConfirmFeatRemoved(String name);
+
+  /// No description provided for @editConfirmNoConsequence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune conséquence sur les PV max, la CA, les maîtrises ou les dons.'**
+  String get editConfirmNoConsequence;
+
+  /// No description provided for @editSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personnage mis à jour'**
+  String get editSaved;
+
+  /// No description provided for @editSaveError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de l\'enregistrement : {error}'**
+  String editSaveError(String error);
 }
 
 class _AppLocalizationsDelegate

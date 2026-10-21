@@ -290,7 +290,7 @@ class _Step4OriginState extends ConsumerState<Step4Origin> {
                 if (bg?.asiJson == null) return const SizedBox.shrink();
                 final eligible = (json.decode(bg!.asiJson!) as List)
                     .cast<String>();
-                return _BackgroundAsiPicker(
+                return BackgroundAsiPicker(
                   eligibleAbilities: eligible,
                   currentChoices: wizard.backgroundAsiChoices,
                   onChanged: notifier.setBackgroundAsi,
@@ -416,12 +416,13 @@ class _SubraceDropdown extends ConsumerWidget {
   }
 }
 
-class _BackgroundAsiPicker extends StatelessWidget {
+class BackgroundAsiPicker extends StatelessWidget {
   final List<String> eligibleAbilities;
   final Map<String, int> currentChoices;
   final void Function(Map<String, int>) onChanged;
 
-  const _BackgroundAsiPicker({
+  const BackgroundAsiPicker({
+    super.key,
     required this.eligibleAbilities,
     required this.currentChoices,
     required this.onChanged,

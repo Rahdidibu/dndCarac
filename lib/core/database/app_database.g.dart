@@ -7506,6 +7506,138 @@ class $CharacterAbilityScoresTable extends CharacterAbilityScores
     requiredDuringInsert: false,
     defaultValue: const Constant(10),
   );
+  static const VerificationMeta _baseStrengthMeta = const VerificationMeta(
+    'baseStrength',
+  );
+  @override
+  late final GeneratedColumn<int> baseStrength = GeneratedColumn<int>(
+    'base_strength',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _baseDexterityMeta = const VerificationMeta(
+    'baseDexterity',
+  );
+  @override
+  late final GeneratedColumn<int> baseDexterity = GeneratedColumn<int>(
+    'base_dexterity',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _baseConstitutionMeta = const VerificationMeta(
+    'baseConstitution',
+  );
+  @override
+  late final GeneratedColumn<int> baseConstitution = GeneratedColumn<int>(
+    'base_constitution',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _baseIntelligenceMeta = const VerificationMeta(
+    'baseIntelligence',
+  );
+  @override
+  late final GeneratedColumn<int> baseIntelligence = GeneratedColumn<int>(
+    'base_intelligence',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _baseWisdomMeta = const VerificationMeta(
+    'baseWisdom',
+  );
+  @override
+  late final GeneratedColumn<int> baseWisdom = GeneratedColumn<int>(
+    'base_wisdom',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _baseCharismaMeta = const VerificationMeta(
+    'baseCharisma',
+  );
+  @override
+  late final GeneratedColumn<int> baseCharisma = GeneratedColumn<int>(
+    'base_charisma',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bonusStrengthMeta = const VerificationMeta(
+    'bonusStrength',
+  );
+  @override
+  late final GeneratedColumn<int> bonusStrength = GeneratedColumn<int>(
+    'bonus_strength',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bonusDexterityMeta = const VerificationMeta(
+    'bonusDexterity',
+  );
+  @override
+  late final GeneratedColumn<int> bonusDexterity = GeneratedColumn<int>(
+    'bonus_dexterity',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bonusConstitutionMeta = const VerificationMeta(
+    'bonusConstitution',
+  );
+  @override
+  late final GeneratedColumn<int> bonusConstitution = GeneratedColumn<int>(
+    'bonus_constitution',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bonusIntelligenceMeta = const VerificationMeta(
+    'bonusIntelligence',
+  );
+  @override
+  late final GeneratedColumn<int> bonusIntelligence = GeneratedColumn<int>(
+    'bonus_intelligence',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bonusWisdomMeta = const VerificationMeta(
+    'bonusWisdom',
+  );
+  @override
+  late final GeneratedColumn<int> bonusWisdom = GeneratedColumn<int>(
+    'bonus_wisdom',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bonusCharismaMeta = const VerificationMeta(
+    'bonusCharisma',
+  );
+  @override
+  late final GeneratedColumn<int> bonusCharisma = GeneratedColumn<int>(
+    'bonus_charisma',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -7516,6 +7648,18 @@ class $CharacterAbilityScoresTable extends CharacterAbilityScores
     intelligence,
     wisdom,
     charisma,
+    baseStrength,
+    baseDexterity,
+    baseConstitution,
+    baseIntelligence,
+    baseWisdom,
+    baseCharisma,
+    bonusStrength,
+    bonusDexterity,
+    bonusConstitution,
+    bonusIntelligence,
+    bonusWisdom,
+    bonusCharisma,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -7585,6 +7729,111 @@ class $CharacterAbilityScoresTable extends CharacterAbilityScores
         charisma.isAcceptableOrUnknown(data['charisma']!, _charismaMeta),
       );
     }
+    if (data.containsKey('base_strength')) {
+      context.handle(
+        _baseStrengthMeta,
+        baseStrength.isAcceptableOrUnknown(
+          data['base_strength']!,
+          _baseStrengthMeta,
+        ),
+      );
+    }
+    if (data.containsKey('base_dexterity')) {
+      context.handle(
+        _baseDexterityMeta,
+        baseDexterity.isAcceptableOrUnknown(
+          data['base_dexterity']!,
+          _baseDexterityMeta,
+        ),
+      );
+    }
+    if (data.containsKey('base_constitution')) {
+      context.handle(
+        _baseConstitutionMeta,
+        baseConstitution.isAcceptableOrUnknown(
+          data['base_constitution']!,
+          _baseConstitutionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('base_intelligence')) {
+      context.handle(
+        _baseIntelligenceMeta,
+        baseIntelligence.isAcceptableOrUnknown(
+          data['base_intelligence']!,
+          _baseIntelligenceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('base_wisdom')) {
+      context.handle(
+        _baseWisdomMeta,
+        baseWisdom.isAcceptableOrUnknown(data['base_wisdom']!, _baseWisdomMeta),
+      );
+    }
+    if (data.containsKey('base_charisma')) {
+      context.handle(
+        _baseCharismaMeta,
+        baseCharisma.isAcceptableOrUnknown(
+          data['base_charisma']!,
+          _baseCharismaMeta,
+        ),
+      );
+    }
+    if (data.containsKey('bonus_strength')) {
+      context.handle(
+        _bonusStrengthMeta,
+        bonusStrength.isAcceptableOrUnknown(
+          data['bonus_strength']!,
+          _bonusStrengthMeta,
+        ),
+      );
+    }
+    if (data.containsKey('bonus_dexterity')) {
+      context.handle(
+        _bonusDexterityMeta,
+        bonusDexterity.isAcceptableOrUnknown(
+          data['bonus_dexterity']!,
+          _bonusDexterityMeta,
+        ),
+      );
+    }
+    if (data.containsKey('bonus_constitution')) {
+      context.handle(
+        _bonusConstitutionMeta,
+        bonusConstitution.isAcceptableOrUnknown(
+          data['bonus_constitution']!,
+          _bonusConstitutionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('bonus_intelligence')) {
+      context.handle(
+        _bonusIntelligenceMeta,
+        bonusIntelligence.isAcceptableOrUnknown(
+          data['bonus_intelligence']!,
+          _bonusIntelligenceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('bonus_wisdom')) {
+      context.handle(
+        _bonusWisdomMeta,
+        bonusWisdom.isAcceptableOrUnknown(
+          data['bonus_wisdom']!,
+          _bonusWisdomMeta,
+        ),
+      );
+    }
+    if (data.containsKey('bonus_charisma')) {
+      context.handle(
+        _bonusCharismaMeta,
+        bonusCharisma.isAcceptableOrUnknown(
+          data['bonus_charisma']!,
+          _bonusCharismaMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -7626,6 +7875,54 @@ class $CharacterAbilityScoresTable extends CharacterAbilityScores
         DriftSqlType.int,
         data['${effectivePrefix}charisma'],
       )!,
+      baseStrength: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}base_strength'],
+      ),
+      baseDexterity: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}base_dexterity'],
+      ),
+      baseConstitution: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}base_constitution'],
+      ),
+      baseIntelligence: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}base_intelligence'],
+      ),
+      baseWisdom: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}base_wisdom'],
+      ),
+      baseCharisma: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}base_charisma'],
+      ),
+      bonusStrength: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}bonus_strength'],
+      ),
+      bonusDexterity: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}bonus_dexterity'],
+      ),
+      bonusConstitution: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}bonus_constitution'],
+      ),
+      bonusIntelligence: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}bonus_intelligence'],
+      ),
+      bonusWisdom: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}bonus_wisdom'],
+      ),
+      bonusCharisma: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}bonus_charisma'],
+      ),
     );
   }
 
@@ -7645,6 +7942,18 @@ class CharacterAbilityScore extends DataClass
   final int intelligence;
   final int wisdom;
   final int charisma;
+  final int? baseStrength;
+  final int? baseDexterity;
+  final int? baseConstitution;
+  final int? baseIntelligence;
+  final int? baseWisdom;
+  final int? baseCharisma;
+  final int? bonusStrength;
+  final int? bonusDexterity;
+  final int? bonusConstitution;
+  final int? bonusIntelligence;
+  final int? bonusWisdom;
+  final int? bonusCharisma;
   const CharacterAbilityScore({
     required this.id,
     required this.characterId,
@@ -7654,6 +7963,18 @@ class CharacterAbilityScore extends DataClass
     required this.intelligence,
     required this.wisdom,
     required this.charisma,
+    this.baseStrength,
+    this.baseDexterity,
+    this.baseConstitution,
+    this.baseIntelligence,
+    this.baseWisdom,
+    this.baseCharisma,
+    this.bonusStrength,
+    this.bonusDexterity,
+    this.bonusConstitution,
+    this.bonusIntelligence,
+    this.bonusWisdom,
+    this.bonusCharisma,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -7666,6 +7987,42 @@ class CharacterAbilityScore extends DataClass
     map['intelligence'] = Variable<int>(intelligence);
     map['wisdom'] = Variable<int>(wisdom);
     map['charisma'] = Variable<int>(charisma);
+    if (!nullToAbsent || baseStrength != null) {
+      map['base_strength'] = Variable<int>(baseStrength);
+    }
+    if (!nullToAbsent || baseDexterity != null) {
+      map['base_dexterity'] = Variable<int>(baseDexterity);
+    }
+    if (!nullToAbsent || baseConstitution != null) {
+      map['base_constitution'] = Variable<int>(baseConstitution);
+    }
+    if (!nullToAbsent || baseIntelligence != null) {
+      map['base_intelligence'] = Variable<int>(baseIntelligence);
+    }
+    if (!nullToAbsent || baseWisdom != null) {
+      map['base_wisdom'] = Variable<int>(baseWisdom);
+    }
+    if (!nullToAbsent || baseCharisma != null) {
+      map['base_charisma'] = Variable<int>(baseCharisma);
+    }
+    if (!nullToAbsent || bonusStrength != null) {
+      map['bonus_strength'] = Variable<int>(bonusStrength);
+    }
+    if (!nullToAbsent || bonusDexterity != null) {
+      map['bonus_dexterity'] = Variable<int>(bonusDexterity);
+    }
+    if (!nullToAbsent || bonusConstitution != null) {
+      map['bonus_constitution'] = Variable<int>(bonusConstitution);
+    }
+    if (!nullToAbsent || bonusIntelligence != null) {
+      map['bonus_intelligence'] = Variable<int>(bonusIntelligence);
+    }
+    if (!nullToAbsent || bonusWisdom != null) {
+      map['bonus_wisdom'] = Variable<int>(bonusWisdom);
+    }
+    if (!nullToAbsent || bonusCharisma != null) {
+      map['bonus_charisma'] = Variable<int>(bonusCharisma);
+    }
     return map;
   }
 
@@ -7679,6 +8036,42 @@ class CharacterAbilityScore extends DataClass
       intelligence: Value(intelligence),
       wisdom: Value(wisdom),
       charisma: Value(charisma),
+      baseStrength: baseStrength == null && nullToAbsent
+          ? const Value.absent()
+          : Value(baseStrength),
+      baseDexterity: baseDexterity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(baseDexterity),
+      baseConstitution: baseConstitution == null && nullToAbsent
+          ? const Value.absent()
+          : Value(baseConstitution),
+      baseIntelligence: baseIntelligence == null && nullToAbsent
+          ? const Value.absent()
+          : Value(baseIntelligence),
+      baseWisdom: baseWisdom == null && nullToAbsent
+          ? const Value.absent()
+          : Value(baseWisdom),
+      baseCharisma: baseCharisma == null && nullToAbsent
+          ? const Value.absent()
+          : Value(baseCharisma),
+      bonusStrength: bonusStrength == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bonusStrength),
+      bonusDexterity: bonusDexterity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bonusDexterity),
+      bonusConstitution: bonusConstitution == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bonusConstitution),
+      bonusIntelligence: bonusIntelligence == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bonusIntelligence),
+      bonusWisdom: bonusWisdom == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bonusWisdom),
+      bonusCharisma: bonusCharisma == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bonusCharisma),
     );
   }
 
@@ -7696,6 +8089,18 @@ class CharacterAbilityScore extends DataClass
       intelligence: serializer.fromJson<int>(json['intelligence']),
       wisdom: serializer.fromJson<int>(json['wisdom']),
       charisma: serializer.fromJson<int>(json['charisma']),
+      baseStrength: serializer.fromJson<int?>(json['baseStrength']),
+      baseDexterity: serializer.fromJson<int?>(json['baseDexterity']),
+      baseConstitution: serializer.fromJson<int?>(json['baseConstitution']),
+      baseIntelligence: serializer.fromJson<int?>(json['baseIntelligence']),
+      baseWisdom: serializer.fromJson<int?>(json['baseWisdom']),
+      baseCharisma: serializer.fromJson<int?>(json['baseCharisma']),
+      bonusStrength: serializer.fromJson<int?>(json['bonusStrength']),
+      bonusDexterity: serializer.fromJson<int?>(json['bonusDexterity']),
+      bonusConstitution: serializer.fromJson<int?>(json['bonusConstitution']),
+      bonusIntelligence: serializer.fromJson<int?>(json['bonusIntelligence']),
+      bonusWisdom: serializer.fromJson<int?>(json['bonusWisdom']),
+      bonusCharisma: serializer.fromJson<int?>(json['bonusCharisma']),
     );
   }
   @override
@@ -7710,6 +8115,18 @@ class CharacterAbilityScore extends DataClass
       'intelligence': serializer.toJson<int>(intelligence),
       'wisdom': serializer.toJson<int>(wisdom),
       'charisma': serializer.toJson<int>(charisma),
+      'baseStrength': serializer.toJson<int?>(baseStrength),
+      'baseDexterity': serializer.toJson<int?>(baseDexterity),
+      'baseConstitution': serializer.toJson<int?>(baseConstitution),
+      'baseIntelligence': serializer.toJson<int?>(baseIntelligence),
+      'baseWisdom': serializer.toJson<int?>(baseWisdom),
+      'baseCharisma': serializer.toJson<int?>(baseCharisma),
+      'bonusStrength': serializer.toJson<int?>(bonusStrength),
+      'bonusDexterity': serializer.toJson<int?>(bonusDexterity),
+      'bonusConstitution': serializer.toJson<int?>(bonusConstitution),
+      'bonusIntelligence': serializer.toJson<int?>(bonusIntelligence),
+      'bonusWisdom': serializer.toJson<int?>(bonusWisdom),
+      'bonusCharisma': serializer.toJson<int?>(bonusCharisma),
     };
   }
 
@@ -7722,6 +8139,18 @@ class CharacterAbilityScore extends DataClass
     int? intelligence,
     int? wisdom,
     int? charisma,
+    Value<int?> baseStrength = const Value.absent(),
+    Value<int?> baseDexterity = const Value.absent(),
+    Value<int?> baseConstitution = const Value.absent(),
+    Value<int?> baseIntelligence = const Value.absent(),
+    Value<int?> baseWisdom = const Value.absent(),
+    Value<int?> baseCharisma = const Value.absent(),
+    Value<int?> bonusStrength = const Value.absent(),
+    Value<int?> bonusDexterity = const Value.absent(),
+    Value<int?> bonusConstitution = const Value.absent(),
+    Value<int?> bonusIntelligence = const Value.absent(),
+    Value<int?> bonusWisdom = const Value.absent(),
+    Value<int?> bonusCharisma = const Value.absent(),
   }) => CharacterAbilityScore(
     id: id ?? this.id,
     characterId: characterId ?? this.characterId,
@@ -7731,6 +8160,34 @@ class CharacterAbilityScore extends DataClass
     intelligence: intelligence ?? this.intelligence,
     wisdom: wisdom ?? this.wisdom,
     charisma: charisma ?? this.charisma,
+    baseStrength: baseStrength.present ? baseStrength.value : this.baseStrength,
+    baseDexterity: baseDexterity.present
+        ? baseDexterity.value
+        : this.baseDexterity,
+    baseConstitution: baseConstitution.present
+        ? baseConstitution.value
+        : this.baseConstitution,
+    baseIntelligence: baseIntelligence.present
+        ? baseIntelligence.value
+        : this.baseIntelligence,
+    baseWisdom: baseWisdom.present ? baseWisdom.value : this.baseWisdom,
+    baseCharisma: baseCharisma.present ? baseCharisma.value : this.baseCharisma,
+    bonusStrength: bonusStrength.present
+        ? bonusStrength.value
+        : this.bonusStrength,
+    bonusDexterity: bonusDexterity.present
+        ? bonusDexterity.value
+        : this.bonusDexterity,
+    bonusConstitution: bonusConstitution.present
+        ? bonusConstitution.value
+        : this.bonusConstitution,
+    bonusIntelligence: bonusIntelligence.present
+        ? bonusIntelligence.value
+        : this.bonusIntelligence,
+    bonusWisdom: bonusWisdom.present ? bonusWisdom.value : this.bonusWisdom,
+    bonusCharisma: bonusCharisma.present
+        ? bonusCharisma.value
+        : this.bonusCharisma,
   );
   CharacterAbilityScore copyWithCompanion(
     CharacterAbilityScoresCompanion data,
@@ -7750,6 +8207,42 @@ class CharacterAbilityScore extends DataClass
           : this.intelligence,
       wisdom: data.wisdom.present ? data.wisdom.value : this.wisdom,
       charisma: data.charisma.present ? data.charisma.value : this.charisma,
+      baseStrength: data.baseStrength.present
+          ? data.baseStrength.value
+          : this.baseStrength,
+      baseDexterity: data.baseDexterity.present
+          ? data.baseDexterity.value
+          : this.baseDexterity,
+      baseConstitution: data.baseConstitution.present
+          ? data.baseConstitution.value
+          : this.baseConstitution,
+      baseIntelligence: data.baseIntelligence.present
+          ? data.baseIntelligence.value
+          : this.baseIntelligence,
+      baseWisdom: data.baseWisdom.present
+          ? data.baseWisdom.value
+          : this.baseWisdom,
+      baseCharisma: data.baseCharisma.present
+          ? data.baseCharisma.value
+          : this.baseCharisma,
+      bonusStrength: data.bonusStrength.present
+          ? data.bonusStrength.value
+          : this.bonusStrength,
+      bonusDexterity: data.bonusDexterity.present
+          ? data.bonusDexterity.value
+          : this.bonusDexterity,
+      bonusConstitution: data.bonusConstitution.present
+          ? data.bonusConstitution.value
+          : this.bonusConstitution,
+      bonusIntelligence: data.bonusIntelligence.present
+          ? data.bonusIntelligence.value
+          : this.bonusIntelligence,
+      bonusWisdom: data.bonusWisdom.present
+          ? data.bonusWisdom.value
+          : this.bonusWisdom,
+      bonusCharisma: data.bonusCharisma.present
+          ? data.bonusCharisma.value
+          : this.bonusCharisma,
     );
   }
 
@@ -7763,7 +8256,19 @@ class CharacterAbilityScore extends DataClass
           ..write('constitution: $constitution, ')
           ..write('intelligence: $intelligence, ')
           ..write('wisdom: $wisdom, ')
-          ..write('charisma: $charisma')
+          ..write('charisma: $charisma, ')
+          ..write('baseStrength: $baseStrength, ')
+          ..write('baseDexterity: $baseDexterity, ')
+          ..write('baseConstitution: $baseConstitution, ')
+          ..write('baseIntelligence: $baseIntelligence, ')
+          ..write('baseWisdom: $baseWisdom, ')
+          ..write('baseCharisma: $baseCharisma, ')
+          ..write('bonusStrength: $bonusStrength, ')
+          ..write('bonusDexterity: $bonusDexterity, ')
+          ..write('bonusConstitution: $bonusConstitution, ')
+          ..write('bonusIntelligence: $bonusIntelligence, ')
+          ..write('bonusWisdom: $bonusWisdom, ')
+          ..write('bonusCharisma: $bonusCharisma')
           ..write(')'))
         .toString();
   }
@@ -7778,6 +8283,18 @@ class CharacterAbilityScore extends DataClass
     intelligence,
     wisdom,
     charisma,
+    baseStrength,
+    baseDexterity,
+    baseConstitution,
+    baseIntelligence,
+    baseWisdom,
+    baseCharisma,
+    bonusStrength,
+    bonusDexterity,
+    bonusConstitution,
+    bonusIntelligence,
+    bonusWisdom,
+    bonusCharisma,
   );
   @override
   bool operator ==(Object other) =>
@@ -7790,7 +8307,19 @@ class CharacterAbilityScore extends DataClass
           other.constitution == this.constitution &&
           other.intelligence == this.intelligence &&
           other.wisdom == this.wisdom &&
-          other.charisma == this.charisma);
+          other.charisma == this.charisma &&
+          other.baseStrength == this.baseStrength &&
+          other.baseDexterity == this.baseDexterity &&
+          other.baseConstitution == this.baseConstitution &&
+          other.baseIntelligence == this.baseIntelligence &&
+          other.baseWisdom == this.baseWisdom &&
+          other.baseCharisma == this.baseCharisma &&
+          other.bonusStrength == this.bonusStrength &&
+          other.bonusDexterity == this.bonusDexterity &&
+          other.bonusConstitution == this.bonusConstitution &&
+          other.bonusIntelligence == this.bonusIntelligence &&
+          other.bonusWisdom == this.bonusWisdom &&
+          other.bonusCharisma == this.bonusCharisma);
 }
 
 class CharacterAbilityScoresCompanion
@@ -7803,6 +8332,18 @@ class CharacterAbilityScoresCompanion
   final Value<int> intelligence;
   final Value<int> wisdom;
   final Value<int> charisma;
+  final Value<int?> baseStrength;
+  final Value<int?> baseDexterity;
+  final Value<int?> baseConstitution;
+  final Value<int?> baseIntelligence;
+  final Value<int?> baseWisdom;
+  final Value<int?> baseCharisma;
+  final Value<int?> bonusStrength;
+  final Value<int?> bonusDexterity;
+  final Value<int?> bonusConstitution;
+  final Value<int?> bonusIntelligence;
+  final Value<int?> bonusWisdom;
+  final Value<int?> bonusCharisma;
   const CharacterAbilityScoresCompanion({
     this.id = const Value.absent(),
     this.characterId = const Value.absent(),
@@ -7812,6 +8353,18 @@ class CharacterAbilityScoresCompanion
     this.intelligence = const Value.absent(),
     this.wisdom = const Value.absent(),
     this.charisma = const Value.absent(),
+    this.baseStrength = const Value.absent(),
+    this.baseDexterity = const Value.absent(),
+    this.baseConstitution = const Value.absent(),
+    this.baseIntelligence = const Value.absent(),
+    this.baseWisdom = const Value.absent(),
+    this.baseCharisma = const Value.absent(),
+    this.bonusStrength = const Value.absent(),
+    this.bonusDexterity = const Value.absent(),
+    this.bonusConstitution = const Value.absent(),
+    this.bonusIntelligence = const Value.absent(),
+    this.bonusWisdom = const Value.absent(),
+    this.bonusCharisma = const Value.absent(),
   });
   CharacterAbilityScoresCompanion.insert({
     this.id = const Value.absent(),
@@ -7822,6 +8375,18 @@ class CharacterAbilityScoresCompanion
     this.intelligence = const Value.absent(),
     this.wisdom = const Value.absent(),
     this.charisma = const Value.absent(),
+    this.baseStrength = const Value.absent(),
+    this.baseDexterity = const Value.absent(),
+    this.baseConstitution = const Value.absent(),
+    this.baseIntelligence = const Value.absent(),
+    this.baseWisdom = const Value.absent(),
+    this.baseCharisma = const Value.absent(),
+    this.bonusStrength = const Value.absent(),
+    this.bonusDexterity = const Value.absent(),
+    this.bonusConstitution = const Value.absent(),
+    this.bonusIntelligence = const Value.absent(),
+    this.bonusWisdom = const Value.absent(),
+    this.bonusCharisma = const Value.absent(),
   }) : characterId = Value(characterId);
   static Insertable<CharacterAbilityScore> custom({
     Expression<int>? id,
@@ -7832,6 +8397,18 @@ class CharacterAbilityScoresCompanion
     Expression<int>? intelligence,
     Expression<int>? wisdom,
     Expression<int>? charisma,
+    Expression<int>? baseStrength,
+    Expression<int>? baseDexterity,
+    Expression<int>? baseConstitution,
+    Expression<int>? baseIntelligence,
+    Expression<int>? baseWisdom,
+    Expression<int>? baseCharisma,
+    Expression<int>? bonusStrength,
+    Expression<int>? bonusDexterity,
+    Expression<int>? bonusConstitution,
+    Expression<int>? bonusIntelligence,
+    Expression<int>? bonusWisdom,
+    Expression<int>? bonusCharisma,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -7842,6 +8419,18 @@ class CharacterAbilityScoresCompanion
       if (intelligence != null) 'intelligence': intelligence,
       if (wisdom != null) 'wisdom': wisdom,
       if (charisma != null) 'charisma': charisma,
+      if (baseStrength != null) 'base_strength': baseStrength,
+      if (baseDexterity != null) 'base_dexterity': baseDexterity,
+      if (baseConstitution != null) 'base_constitution': baseConstitution,
+      if (baseIntelligence != null) 'base_intelligence': baseIntelligence,
+      if (baseWisdom != null) 'base_wisdom': baseWisdom,
+      if (baseCharisma != null) 'base_charisma': baseCharisma,
+      if (bonusStrength != null) 'bonus_strength': bonusStrength,
+      if (bonusDexterity != null) 'bonus_dexterity': bonusDexterity,
+      if (bonusConstitution != null) 'bonus_constitution': bonusConstitution,
+      if (bonusIntelligence != null) 'bonus_intelligence': bonusIntelligence,
+      if (bonusWisdom != null) 'bonus_wisdom': bonusWisdom,
+      if (bonusCharisma != null) 'bonus_charisma': bonusCharisma,
     });
   }
 
@@ -7854,6 +8443,18 @@ class CharacterAbilityScoresCompanion
     Value<int>? intelligence,
     Value<int>? wisdom,
     Value<int>? charisma,
+    Value<int?>? baseStrength,
+    Value<int?>? baseDexterity,
+    Value<int?>? baseConstitution,
+    Value<int?>? baseIntelligence,
+    Value<int?>? baseWisdom,
+    Value<int?>? baseCharisma,
+    Value<int?>? bonusStrength,
+    Value<int?>? bonusDexterity,
+    Value<int?>? bonusConstitution,
+    Value<int?>? bonusIntelligence,
+    Value<int?>? bonusWisdom,
+    Value<int?>? bonusCharisma,
   }) {
     return CharacterAbilityScoresCompanion(
       id: id ?? this.id,
@@ -7864,6 +8465,18 @@ class CharacterAbilityScoresCompanion
       intelligence: intelligence ?? this.intelligence,
       wisdom: wisdom ?? this.wisdom,
       charisma: charisma ?? this.charisma,
+      baseStrength: baseStrength ?? this.baseStrength,
+      baseDexterity: baseDexterity ?? this.baseDexterity,
+      baseConstitution: baseConstitution ?? this.baseConstitution,
+      baseIntelligence: baseIntelligence ?? this.baseIntelligence,
+      baseWisdom: baseWisdom ?? this.baseWisdom,
+      baseCharisma: baseCharisma ?? this.baseCharisma,
+      bonusStrength: bonusStrength ?? this.bonusStrength,
+      bonusDexterity: bonusDexterity ?? this.bonusDexterity,
+      bonusConstitution: bonusConstitution ?? this.bonusConstitution,
+      bonusIntelligence: bonusIntelligence ?? this.bonusIntelligence,
+      bonusWisdom: bonusWisdom ?? this.bonusWisdom,
+      bonusCharisma: bonusCharisma ?? this.bonusCharisma,
     );
   }
 
@@ -7894,6 +8507,42 @@ class CharacterAbilityScoresCompanion
     if (charisma.present) {
       map['charisma'] = Variable<int>(charisma.value);
     }
+    if (baseStrength.present) {
+      map['base_strength'] = Variable<int>(baseStrength.value);
+    }
+    if (baseDexterity.present) {
+      map['base_dexterity'] = Variable<int>(baseDexterity.value);
+    }
+    if (baseConstitution.present) {
+      map['base_constitution'] = Variable<int>(baseConstitution.value);
+    }
+    if (baseIntelligence.present) {
+      map['base_intelligence'] = Variable<int>(baseIntelligence.value);
+    }
+    if (baseWisdom.present) {
+      map['base_wisdom'] = Variable<int>(baseWisdom.value);
+    }
+    if (baseCharisma.present) {
+      map['base_charisma'] = Variable<int>(baseCharisma.value);
+    }
+    if (bonusStrength.present) {
+      map['bonus_strength'] = Variable<int>(bonusStrength.value);
+    }
+    if (bonusDexterity.present) {
+      map['bonus_dexterity'] = Variable<int>(bonusDexterity.value);
+    }
+    if (bonusConstitution.present) {
+      map['bonus_constitution'] = Variable<int>(bonusConstitution.value);
+    }
+    if (bonusIntelligence.present) {
+      map['bonus_intelligence'] = Variable<int>(bonusIntelligence.value);
+    }
+    if (bonusWisdom.present) {
+      map['bonus_wisdom'] = Variable<int>(bonusWisdom.value);
+    }
+    if (bonusCharisma.present) {
+      map['bonus_charisma'] = Variable<int>(bonusCharisma.value);
+    }
     return map;
   }
 
@@ -7907,7 +8556,19 @@ class CharacterAbilityScoresCompanion
           ..write('constitution: $constitution, ')
           ..write('intelligence: $intelligence, ')
           ..write('wisdom: $wisdom, ')
-          ..write('charisma: $charisma')
+          ..write('charisma: $charisma, ')
+          ..write('baseStrength: $baseStrength, ')
+          ..write('baseDexterity: $baseDexterity, ')
+          ..write('baseConstitution: $baseConstitution, ')
+          ..write('baseIntelligence: $baseIntelligence, ')
+          ..write('baseWisdom: $baseWisdom, ')
+          ..write('baseCharisma: $baseCharisma, ')
+          ..write('bonusStrength: $bonusStrength, ')
+          ..write('bonusDexterity: $bonusDexterity, ')
+          ..write('bonusConstitution: $bonusConstitution, ')
+          ..write('bonusIntelligence: $bonusIntelligence, ')
+          ..write('bonusWisdom: $bonusWisdom, ')
+          ..write('bonusCharisma: $bonusCharisma')
           ..write(')'))
         .toString();
   }
@@ -17667,6 +18328,18 @@ typedef $$CharacterAbilityScoresTableCreateCompanionBuilder =
       Value<int> intelligence,
       Value<int> wisdom,
       Value<int> charisma,
+      Value<int?> baseStrength,
+      Value<int?> baseDexterity,
+      Value<int?> baseConstitution,
+      Value<int?> baseIntelligence,
+      Value<int?> baseWisdom,
+      Value<int?> baseCharisma,
+      Value<int?> bonusStrength,
+      Value<int?> bonusDexterity,
+      Value<int?> bonusConstitution,
+      Value<int?> bonusIntelligence,
+      Value<int?> bonusWisdom,
+      Value<int?> bonusCharisma,
     });
 typedef $$CharacterAbilityScoresTableUpdateCompanionBuilder =
     CharacterAbilityScoresCompanion Function({
@@ -17678,6 +18351,18 @@ typedef $$CharacterAbilityScoresTableUpdateCompanionBuilder =
       Value<int> intelligence,
       Value<int> wisdom,
       Value<int> charisma,
+      Value<int?> baseStrength,
+      Value<int?> baseDexterity,
+      Value<int?> baseConstitution,
+      Value<int?> baseIntelligence,
+      Value<int?> baseWisdom,
+      Value<int?> baseCharisma,
+      Value<int?> bonusStrength,
+      Value<int?> bonusDexterity,
+      Value<int?> bonusConstitution,
+      Value<int?> bonusIntelligence,
+      Value<int?> bonusWisdom,
+      Value<int?> bonusCharisma,
     });
 
 final class $$CharacterAbilityScoresTableReferences
@@ -17760,6 +18445,66 @@ class $$CharacterAbilityScoresTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get baseStrength => $composableBuilder(
+    column: $table.baseStrength,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get baseDexterity => $composableBuilder(
+    column: $table.baseDexterity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get baseConstitution => $composableBuilder(
+    column: $table.baseConstitution,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get baseIntelligence => $composableBuilder(
+    column: $table.baseIntelligence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get baseWisdom => $composableBuilder(
+    column: $table.baseWisdom,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get baseCharisma => $composableBuilder(
+    column: $table.baseCharisma,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bonusStrength => $composableBuilder(
+    column: $table.bonusStrength,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bonusDexterity => $composableBuilder(
+    column: $table.bonusDexterity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bonusConstitution => $composableBuilder(
+    column: $table.bonusConstitution,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bonusIntelligence => $composableBuilder(
+    column: $table.bonusIntelligence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bonusWisdom => $composableBuilder(
+    column: $table.bonusWisdom,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bonusCharisma => $composableBuilder(
+    column: $table.bonusCharisma,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$CharactersTableFilterComposer get characterId {
     final $$CharactersTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -17828,6 +18573,66 @@ class $$CharacterAbilityScoresTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get baseStrength => $composableBuilder(
+    column: $table.baseStrength,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get baseDexterity => $composableBuilder(
+    column: $table.baseDexterity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get baseConstitution => $composableBuilder(
+    column: $table.baseConstitution,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get baseIntelligence => $composableBuilder(
+    column: $table.baseIntelligence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get baseWisdom => $composableBuilder(
+    column: $table.baseWisdom,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get baseCharisma => $composableBuilder(
+    column: $table.baseCharisma,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bonusStrength => $composableBuilder(
+    column: $table.bonusStrength,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bonusDexterity => $composableBuilder(
+    column: $table.bonusDexterity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bonusConstitution => $composableBuilder(
+    column: $table.bonusConstitution,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bonusIntelligence => $composableBuilder(
+    column: $table.bonusIntelligence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bonusWisdom => $composableBuilder(
+    column: $table.bonusWisdom,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bonusCharisma => $composableBuilder(
+    column: $table.bonusCharisma,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$CharactersTableOrderingComposer get characterId {
     final $$CharactersTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -17885,6 +18690,66 @@ class $$CharacterAbilityScoresTableAnnotationComposer
 
   GeneratedColumn<int> get charisma =>
       $composableBuilder(column: $table.charisma, builder: (column) => column);
+
+  GeneratedColumn<int> get baseStrength => $composableBuilder(
+    column: $table.baseStrength,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get baseDexterity => $composableBuilder(
+    column: $table.baseDexterity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get baseConstitution => $composableBuilder(
+    column: $table.baseConstitution,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get baseIntelligence => $composableBuilder(
+    column: $table.baseIntelligence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get baseWisdom => $composableBuilder(
+    column: $table.baseWisdom,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get baseCharisma => $composableBuilder(
+    column: $table.baseCharisma,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get bonusStrength => $composableBuilder(
+    column: $table.bonusStrength,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get bonusDexterity => $composableBuilder(
+    column: $table.bonusDexterity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get bonusConstitution => $composableBuilder(
+    column: $table.bonusConstitution,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get bonusIntelligence => $composableBuilder(
+    column: $table.bonusIntelligence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get bonusWisdom => $composableBuilder(
+    column: $table.bonusWisdom,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get bonusCharisma => $composableBuilder(
+    column: $table.bonusCharisma,
+    builder: (column) => column,
+  );
 
   $$CharactersTableAnnotationComposer get characterId {
     final $$CharactersTableAnnotationComposer composer = $composerBuilder(
@@ -17957,6 +18822,18 @@ class $$CharacterAbilityScoresTableTableManager
                 Value<int> intelligence = const Value.absent(),
                 Value<int> wisdom = const Value.absent(),
                 Value<int> charisma = const Value.absent(),
+                Value<int?> baseStrength = const Value.absent(),
+                Value<int?> baseDexterity = const Value.absent(),
+                Value<int?> baseConstitution = const Value.absent(),
+                Value<int?> baseIntelligence = const Value.absent(),
+                Value<int?> baseWisdom = const Value.absent(),
+                Value<int?> baseCharisma = const Value.absent(),
+                Value<int?> bonusStrength = const Value.absent(),
+                Value<int?> bonusDexterity = const Value.absent(),
+                Value<int?> bonusConstitution = const Value.absent(),
+                Value<int?> bonusIntelligence = const Value.absent(),
+                Value<int?> bonusWisdom = const Value.absent(),
+                Value<int?> bonusCharisma = const Value.absent(),
               }) => CharacterAbilityScoresCompanion(
                 id: id,
                 characterId: characterId,
@@ -17966,6 +18843,18 @@ class $$CharacterAbilityScoresTableTableManager
                 intelligence: intelligence,
                 wisdom: wisdom,
                 charisma: charisma,
+                baseStrength: baseStrength,
+                baseDexterity: baseDexterity,
+                baseConstitution: baseConstitution,
+                baseIntelligence: baseIntelligence,
+                baseWisdom: baseWisdom,
+                baseCharisma: baseCharisma,
+                bonusStrength: bonusStrength,
+                bonusDexterity: bonusDexterity,
+                bonusConstitution: bonusConstitution,
+                bonusIntelligence: bonusIntelligence,
+                bonusWisdom: bonusWisdom,
+                bonusCharisma: bonusCharisma,
               ),
           createCompanionCallback:
               ({
@@ -17977,6 +18866,18 @@ class $$CharacterAbilityScoresTableTableManager
                 Value<int> intelligence = const Value.absent(),
                 Value<int> wisdom = const Value.absent(),
                 Value<int> charisma = const Value.absent(),
+                Value<int?> baseStrength = const Value.absent(),
+                Value<int?> baseDexterity = const Value.absent(),
+                Value<int?> baseConstitution = const Value.absent(),
+                Value<int?> baseIntelligence = const Value.absent(),
+                Value<int?> baseWisdom = const Value.absent(),
+                Value<int?> baseCharisma = const Value.absent(),
+                Value<int?> bonusStrength = const Value.absent(),
+                Value<int?> bonusDexterity = const Value.absent(),
+                Value<int?> bonusConstitution = const Value.absent(),
+                Value<int?> bonusIntelligence = const Value.absent(),
+                Value<int?> bonusWisdom = const Value.absent(),
+                Value<int?> bonusCharisma = const Value.absent(),
               }) => CharacterAbilityScoresCompanion.insert(
                 id: id,
                 characterId: characterId,
@@ -17986,6 +18887,18 @@ class $$CharacterAbilityScoresTableTableManager
                 intelligence: intelligence,
                 wisdom: wisdom,
                 charisma: charisma,
+                baseStrength: baseStrength,
+                baseDexterity: baseDexterity,
+                baseConstitution: baseConstitution,
+                baseIntelligence: baseIntelligence,
+                baseWisdom: baseWisdom,
+                baseCharisma: baseCharisma,
+                bonusStrength: bonusStrength,
+                bonusDexterity: bonusDexterity,
+                bonusConstitution: bonusConstitution,
+                bonusIntelligence: bonusIntelligence,
+                bonusWisdom: bonusWisdom,
+                bonusCharisma: bonusCharisma,
               ),
           withReferenceMapper: (p0) => p0
               .map(

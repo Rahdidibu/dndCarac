@@ -191,6 +191,22 @@ class CharacterAbilityScores extends Table {
   IntColumn get intelligence => integer().withDefault(const Constant(10))();
   IntColumn get wisdom => integer().withDefault(const Constant(10))();
   IntColumn get charisma => integer().withDefault(const Constant(10))();
+
+  // Décomposition de chaque valeur finale : final = base + bonus d'origine
+  // (race/sous-race en 2014, bonus d'historique en 2024). Null = non enregistré
+  // (personnage créé avant l'ajout de ces colonnes).
+  IntColumn get baseStrength => integer().nullable()();
+  IntColumn get baseDexterity => integer().nullable()();
+  IntColumn get baseConstitution => integer().nullable()();
+  IntColumn get baseIntelligence => integer().nullable()();
+  IntColumn get baseWisdom => integer().nullable()();
+  IntColumn get baseCharisma => integer().nullable()();
+  IntColumn get bonusStrength => integer().nullable()();
+  IntColumn get bonusDexterity => integer().nullable()();
+  IntColumn get bonusConstitution => integer().nullable()();
+  IntColumn get bonusIntelligence => integer().nullable()();
+  IntColumn get bonusWisdom => integer().nullable()();
+  IntColumn get bonusCharisma => integer().nullable()();
 }
 
 /// Proficiencies and expertise for skills and saving throws

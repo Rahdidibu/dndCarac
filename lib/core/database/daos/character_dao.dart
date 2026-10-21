@@ -554,6 +554,11 @@ class CharacterDao extends DatabaseAccessor<AppDatabase>
         .eq('feat_id', featId);
   }
 
+  Future<void> deleteCharacterFeatById(int id) async {
+    final client = Supabase.instance.client;
+    await client.from('character_feats').delete().eq('id', id);
+  }
+
   // ── Notes & Journal ──────────────────────────────────────
 
   Stream<List<CharacterNote>> watchCharacterNotes(int characterId) {

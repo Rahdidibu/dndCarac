@@ -7,6 +7,7 @@ import '../../../core/database/tables/tables.dart';
 import '../../../core/models/character_note.dart';
 import '../../../core/models/character_companion.dart';
 import '../../../core/providers/database_provider.dart';
+import '../../../core/utils/character_service.dart';
 import '../../../core/utils/proficiency_utils.dart';
 import '../../../core/utils/supabase_mapper.dart';
 import '../../../core/providers/auth_provider.dart';
@@ -356,3 +357,22 @@ final characterCompanionsProvider = FutureProvider.family<List<CharacterCompanio
 });
 
 
+/// Bonus de caractéristiques d'origine (race/sous-race 2014, ASI d'historique 2024).
+final characterOriginBonusProvider =
+    FutureProvider.autoDispose.family<Map<String, int>, int>((ref, characterId) {
+  final db = ref.watch(databaseProvider);
+  return CharacterService(db).loadOriginAbilityBonuses(characterId);
+});
+
+/// Rafraîchit tout ce qu'une édition de personnage peut avoir modifié.
+void invalidateCharacterAfterEdit(WidgetRef ref, int characterId) {
+  ref.invalidate(characterByIdProvider(characterId));
+  ref.invalidate(characterAbilityScoresProvider(characterId));
+  ref.invalidate(characterProficienciesProvider(characterId));
+  ref.invalidate(characterFeatsProvider(characterId));
+  ref.invalidate(characterFeatDetailsProvider(characterId));
+  ref.invalidate(characterSpeciesNameProvider(characterId));
+  ref.invalidate(characterSubspeciesNameProvider(characterId));
+  ref.invalidate(characterBackgroundNameProvider(characterId));
+  ref.invalidate(characterOriginBonusProvider(characterId));
+}

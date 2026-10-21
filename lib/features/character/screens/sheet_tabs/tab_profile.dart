@@ -84,78 +84,8 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
     if (mounted) setState(() => _dirty = false);
   }
 
-  Future<void> _pickAndUploadImage() async {
-    final l10n = AppLocalizations.of(context)!;
-    try {
-      final picker = ImagePicker();
-      final XFile? image = await picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 2048,
-        maxHeight: 2048,
-      );
-      if (image == null) return;
-
-      final rawBytes = await image.readAsBytes();
-      if (!mounted) return;
-
-      final croppedBytes = await ImageCropperDialog.show(context, rawBytes);
-      if (croppedBytes == null) return;
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.profilePhotoUploading)));
-
-      final client = Supabase.instance.client;
-      final userId = client.auth.currentUser?.id;
-      if (userId == null) throw Exception('Utilisateur non connecté');
-
-      final fileName =
-          '$userId/${widget.characterId}_${DateTime.now().millisecondsSinceEpoch}.png';
-
-      // Upload to Supabase Storage
-      await client.storage
-          .from('character-avatars')
-          .uploadBinary(
-            fileName,
-            croppedBytes,
-            fileOptions: const FileOptions(
-              contentType: 'image/png',
-              upsert: true,
-            ),
-          );
-
-      // Get public URL
-      final imageUrl = client.storage
-          .from('character-avatars')
-          .getPublicUrl(fileName);
-
-      // Update character in DB
-      final db = ref.read(databaseProvider);
-      await db.characterDao.updateCharacter(
-        CharactersCompanion(
-          id: Value(widget.characterId),
-          imageUrl: Value(imageUrl),
-          updatedAt: Value(DateTime.now().toIso8601String()),
-        ),
-      );
-
-      // Invalidate provider to refresh UI
-      ref.invalidate(characterByIdProvider(widget.characterId));
-
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.profilePhotoUpdated)));
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.profilePhotoUploadError(e.toString()))),
-        );
-      }
-    }
-  }
+  Future<void> _pickAndUploadImage() =>
+      pickAndUploadCharacterAvatar(context, ref, widget.characterId);
 
   Future<void> _deleteFeat(String featId) async {
     final db = ref.read(databaseProvider);
