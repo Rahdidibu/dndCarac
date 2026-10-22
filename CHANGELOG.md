@@ -4,6 +4,49 @@ Toutes les modifications notables apportées au projet **D&D Character Manager**
 
 ---
 
+## [2.2.0] - 2026-10-22
+
+### 🛡️ Fiabilité des données (Lot 0)
+- **Supabase comme source unique** : les données des personnages passent désormais par les DAOs Supabase, sans accès local Drift parallèle.
+- **Écritures atomiques** : remplacement des maîtrises, emplacements de sorts et ressources de classe en une seule opération.
+- **Erreurs visibles** : utilitaire `AppErrors` (journalisation et messages utilisateur traduits), widget `AsyncErrorView` avec bouton **Réessayer** et suppression des erreurs silencieuses.
+- **Tests** : dédoublonnage des maîtrises et messages d'erreur.
+
+### ✨ Corrections rapides UX/UI (Lot 1)
+- **Catalogue de compétences unique** : tri par caractéristique puis alphabétique, avec titres de groupe dans la gestion des maîtrises.
+- **Tris alphabétiques** des outils, armes, dons et sorts.
+- **Alignement** : sélection en grille 3×3 adaptée au mobile.
+- **Achat de points** : lignes de caractéristiques responsives, cibles tactiles de 44 px minimum.
+- **Liste de personnages** : recherche et tri (nom, niveau, dernière modification).
+- **Onglets mobiles** défilables avec libellés courts.
+- **Annulation** : bouton « Annuler » après la suppression d'une note, d'un sort ou d'un équipement.
+- **Traductions** : textes en dur de la fiche, des réglages, de l'authentification et des dialogues (repos, PV, monnaies) déplacés vers les `.arb` FR/EN.
+- **Accessibilité** : infobulles sur les boutons-icônes, libellés sémantiques (jauge de PV, dés, sauvegardes) et puces plus lisibles.
+- **Bouton de gestion d'erreur** sur l'écran d'authentification et la fiche.
+
+### 📝 Édition d'un personnage existant (Lot 2)
+- **Écran d'édition** : modification du nom, du joueur, de l'alignement, de l'avatar, des caractéristiques, de l'espèce et de l'historique sans recréer le personnage.
+- **Bonus de caractéristiques séparés** : stockage de la base et du bonus (migration Supabase `add_ability_score_base_bonus`).
+- **Règles d'édition** testées (`character_edit_rules`).
+
+### ⚔️ Capacités de classe, sous-classe, espèce et dons (Lot 3)
+- **Section « Capacités »** de la fiche : traits par niveau avec ressources utilisables, en 2014 et en 2024.
+- **Données 2024** : nouveaux fichiers `features.json`, `levels.json` et traductions françaises `features_fr.json`, générés par `tool/build_2024_features.dart`.
+- **Ordre de classe** conservé pour les multiclassés (migration `add_class_order`).
+- **Export PDF** : capacités ajoutées à la fiche.
+
+### 📈 Montée de niveau complète (Lot 4)
+- **Assistant de montée de niveau** en étapes : classe (dont multiclassage), choix de capacités, amélioration de caractéristiques ou don, récapitulatif.
+- **Progression de classe** (`class_progression`) et plan de montée de niveau (`level_up_plan`) couvrant PV, sorts, ressources, maîtrises et capacités.
+- **Application en une seule opération** via la fonction Supabase `apply_level_up` (migration `add_apply_level_up`).
+- **Tests** : plan de montée de niveau et étapes de l'assistant.
+
+### 🔧 Technique
+- Schéma Drift passé en version 6 (capacités et ordre de classe), avec régénération des fichiers associés.
+- Nouvelles migrations Supabase à appliquer : `20261021000000`, `20261022000000`, `20261023000000`.
+
+---
+
 ## [2.0.0] - 2026-07-26
 
 ### 🐾 Compagnons, Familiers & Invocations

@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Flutter](https://img.shields.io/badge/Flutter-3.44%2B-blue)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2)](https://dart.dev)
-[![Version](https://img.shields.io/badge/Version-v2.1.0-neonCyan)](https://github.com/Rahdidibu/dndCarac/releases)
+[![Version](https://img.shields.io/badge/Version-v2.2.0-neonCyan)](https://github.com/Rahdidibu/dndCarac/releases)
 
 ![Le codex de l'aventurier banner](assets/readme_banner.svg)
 
