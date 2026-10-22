@@ -9,10 +9,36 @@ import '../utils/app_errors.dart';
 import '../utils/armor_class_helper.dart';
 import '../utils/class_orders.dart';
 import '../utils/character_edit_rules.dart';
+import '../utils/class_progression.dart';
 import '../utils/dnd_rules.dart';
+import '../utils/feature_rules.dart';
+import '../utils/level_up_plan.dart';
 import '../utils/starting_equipment_helper.dart';
 import '../../features/character/providers/wizard_provider.dart';
 import '../../l10n/app_localizations.dart';
+
+/// Choix incomplets ou invalides pour une montée de niveau.
+class LevelUpException implements Exception {
+  final List<LevelUpIssue> issues;
+
+  const LevelUpException(this.issues);
+
+  @override
+  String toString() => 'LevelUpException($issues)';
+}
+
+/// Montée de niveau appliquée : ce qui a été écrit, plus la CA recalculée.
+class LevelUpResult {
+  final LevelUpOutcome outcome;
+  final int armorClassBefore;
+  final int armorClassAfter;
+
+  const LevelUpResult({
+    required this.outcome,
+    required this.armorClassBefore,
+    required this.armorClassAfter,
+  });
+}
 
 /// Conséquences d'un changement d'historique sur les maîtrises et le don d'origine.
 class OriginChangePreview {
@@ -393,22 +419,18 @@ class CharacterService {
   }
 
   Future<void> _initSpellSlots(int characterId, WizardState wizard) async {
-    Map<int, int> slots;
-
-    if (wizard.classes.length == 1) {
-      final classId = wizard.classes.first.classId;
-      final level = wizard.classes.first.level;
-      if (classId == 'warlock') {
-        slots = DndRules.warlockPactSlots(level);
-      } else {
-        slots = DndRules.singleClassSpellSlots(classId, level);
-      }
-    } else {
-      final pairs = wizard.classes
-          .map((c) => (classId: c.classId, level: c.level))
-          .toList();
-      slots = DndRules.multiclassSpellSlots(pairs);
-    }
+    final slots = ClassProgression.spellSlots(
+      wizard.classes
+          .map(
+            (c) => ClassProgress(
+              classId: c.classId,
+              level: c.level,
+              subclassId: c.subclassId,
+            ),
+          )
+          .toList(),
+      wizard.ruleset,
+    );
 
     if (slots.isEmpty) return;
 
@@ -501,160 +523,199 @@ class CharacterService {
     }
   }
 
-  /// Apply a level-up to an existing character.
-  /// [classId] is the class gaining the level (may be new for multiclass).
-  /// [hpGained] is the HP rolled/chosen.
-  Future<void> levelUp({
-    required int characterId,
-    required String classId,
-    required int hpGained,
-    String? subclassId,
-    bool addNewClass = false,
-  }) async {
+  /// État du personnage utilisé par [LevelUpPlan], lu depuis la base. Null si
+  /// le personnage est introuvable.
+  Future<LevelUpState?> loadLevelUpState(int characterId) async {
     final character = await db.characterDao.getCharacterById(characterId);
-    if (character == null) return;
-
-    final existingClasses =
-        await db.characterDao.getCharacterClasses(characterId);
-
-    // Update or add class level
-    if (addNewClass) {
-      await db.characterDao.insertCharacterClass(
-        CharacterClassesCompanion.insert(
-          characterId: characterId,
-          classId: classId,
-          subclassId: Value(subclassId),
-          level: 1,
-        ),
-      );
-    } else {
-      final existing =
-          existingClasses.firstWhere((c) => c.classId == classId);
-      await db.characterDao.updateCharacterClass(
-        CharacterClassesCompanion(
-          id: Value(existing.id),
-          characterId: Value(characterId),
-          classId: Value(classId),
-          subclassId: Value(subclassId ?? existing.subclassId),
-          level: Value(existing.level + 1),
-        ),
-      );
-    }
-
-    // Update HP
-    final newHpMax = character.hpMax + hpGained;
-    final now = DateTime.now().toIso8601String();
-    await db.characterDao.updateCharacter(
-      CharactersCompanion(
-        id: Value(characterId),
-        hpMax: Value(newHpMax),
-        hpCurrent: Value(character.hpCurrent + hpGained),
-        updatedAt: Value(now),
-      ),
+    if (character == null) return null;
+    final classes = await db.characterDao.getCharacterClasses(characterId);
+    final scores = await db.characterDao.getAbilityScores(characterId);
+    final proficiencies = await db.characterDao.getProficiencies(characterId);
+    final feats = await db.characterDao.getCharacterFeats(characterId);
+    return LevelUpState(
+      ruleset: character.ruleset,
+      classes: classes
+          .map(
+            (c) => ClassProgress(
+              classId: c.classId,
+              level: c.level,
+              subclassId: c.subclassId,
+            ),
+          )
+          .toList(),
+      scores: {
+        'str': scores?.strength ?? 10,
+        'dex': scores?.dexterity ?? 10,
+        'con': scores?.constitution ?? 10,
+        'int': scores?.intelligence ?? 10,
+        'wis': scores?.wisdom ?? 10,
+        'cha': scores?.charisma ?? 10,
+      },
+      hpMax: character.hpMax,
+      hpCurrent: character.hpCurrent,
+      proficiencies: proficiencies.map((p) => p.proficiencyKey).toSet(),
+      featIds: feats.map((f) => f.featId).toSet(),
     );
-
-    // Recompute spell slots
-    final updatedClasses =
-        await db.characterDao.getCharacterClasses(characterId);
-    final pairs = updatedClasses
-        .map((c) => (classId: c.classId, level: c.level))
-        .toList();
-    final slots = DndRules.multiclassSpellSlots(pairs);
-    if (slots.isNotEmpty) {
-      // Preserve current slot usage: only increase max, don't reset current
-      final existingSlots = await db.characterDao
-          .watchSpellSlots(characterId)
-          .first;
-      final newCompanions = slots.entries.map((e) {
-        final existing = existingSlots
-            .where((s) => s.slotLevel == e.key)
-            .firstOrNull;
-        return CharacterSpellSlotsCompanion.insert(
-          characterId: characterId,
-          slotLevel: e.key,
-          slotMax: e.value,
-          slotCurrent: existing?.slotCurrent ?? e.value,
-        );
-      }).toList();
-      await db.characterDao
-          .replaceAllSpellSlots(characterId, newCompanions);
-    }
-
-    // Update Hit Dice resource
-    final hitDie = getHitDieForClass(classId);
-    final resources = await db.characterDao.watchResources(characterId).first;
-    final existingHitDice = resources
-        .where((r) => r.resourceName == 'hitDice_d$hitDie')
-        .firstOrNull;
-    if (existingHitDice != null) {
-      await db.characterDao.upsertResource(
-        CharacterResourcesCompanion(
-          id: Value(existingHitDice.id),
-          characterId: Value(characterId),
-          resourceName: Value(existingHitDice.resourceName),
-          current: Value(existingHitDice.current + 1),
-          maximum: Value(existingHitDice.maximum + 1),
-        ),
-      );
-    } else {
-      await db.characterDao.upsertResource(
-        CharacterResourcesCompanion.insert(
-          characterId: characterId,
-          resourceName: 'hitDice_d$hitDie',
-          current: 1,
-          maximum: 1,
-        ),
-      );
-    }
-
-    await _syncClassResources(characterId, updatedClasses, character.ruleset);
   }
 
-  /// Met à jour le maximum des ressources de classe sans réinitialiser le
-  /// courant : un maximum qui augmente ajoute autant d'utilisations
-  /// disponibles, un maximum qui diminue plafonne le courant.
-  Future<void> _syncClassResources(
-    int characterId,
-    List<CharacterClassesData> classes,
-    RulesetVersion ruleset,
-  ) async {
-    final target = <String, int>{};
-    for (final c in classes) {
-      for (final spec
-          in DndRules.classResourceByLevel(c.classId, c.level, ruleset)) {
-        final known = target[spec.key];
-        if (known == null || spec.maximum > known) target[spec.key] = spec.maximum;
-      }
-    }
+  /// Applique une montée de niveau complète : classe, PV, caractéristiques ou
+  /// don, maîtrises, ressources, emplacements, dés de vie et CA, en une seule
+  /// transaction côté serveur (`apply_level_up`). Retourne ce qui a été
+  /// appliqué, pour le résumé.
+  ///
+  /// Lève [LevelUpException] si les choix sont incomplets ou invalides ; une
+  /// erreur réseau ou serveur n'écrit rien.
+  Future<LevelUpResult> levelUp({
+    required int characterId,
+    required String classId,
+    required LevelUpChoices choices,
+    Iterable<SrdFeat> feats = const [],
+    bool hasSubclassOptions = true,
+  }) async {
+    final state = await loadLevelUpState(characterId);
+    if (state == null) throw StateError('Personnage introuvable');
 
-    final existing = await db.characterDao.watchResources(characterId).first;
-    for (final entry in target.entries) {
-      final current = existing.where((r) => r.resourceName == entry.key).firstOrNull;
-      if (current == null) {
-        await db.characterDao.upsertResource(
-          CharacterResourcesCompanion.insert(
-            characterId: characterId,
-            resourceName: entry.key,
-            current: entry.value,
-            maximum: entry.value,
-          ),
-        );
-        continue;
-      }
-      if (current.maximum == entry.value) continue;
-      final delta = entry.value - current.maximum;
-      final newCurrent = (current.current + (delta > 0 ? delta : 0))
-          .clamp(0, entry.value);
-      await db.characterDao.upsertResource(
-        CharacterResourcesCompanion(
-          id: Value(current.id),
-          characterId: Value(characterId),
-          resourceName: Value(current.resourceName),
-          current: Value(newCurrent),
-          maximum: Value(entry.value),
-        ),
+    final plan = LevelUpPlan.build(
+      state: state,
+      classId: classId,
+      hasSubclassOptions: hasSubclassOptions,
+    );
+    final issues = plan.validate(choices, feats: feats);
+    if (issues.isNotEmpty) throw LevelUpException(issues);
+    final outcome = plan.outcome(choices);
+
+    final classRows = await db.characterDao.getCharacterClasses(characterId);
+    final classRow = classRows.where((c) => c.classId == classId).firstOrNull;
+
+    final payload = <String, dynamic>{
+      'class': {
+        'id': classRow?.id,
+        'class_id': classId,
+        'subclass_id': outcome.classesAfter
+            .firstWhere((c) => c.classId == classId)
+            .subclassId,
+        'level': plan.newClassLevel,
+      },
+      'expected_level': classRow?.level,
+      'proficiencies': outcome.proficiencyKeysAdded,
+    };
+
+    if (outcome.abilityChanges.isNotEmpty) {
+      final bonus = await loadOriginAbilityBonuses(characterId);
+      payload['ability_scores'] = _abilityScoresPayload(
+        outcome.scoresAfter,
+        bonus,
       );
     }
+
+    if (outcome.featId != null) {
+      payload['feat'] = {
+        'feat_id': outcome.featId,
+        'ruleset': state.ruleset.name,
+      };
+    }
+
+    final storedResources = <String, ResourceValue>{};
+    for (final r in await db.characterDao.watchResources(characterId).first) {
+      storedResources.putIfAbsent(
+        r.resourceName,
+        () => ResourceValue(r.current, r.maximum),
+      );
+    }
+    payload['resources'] = [
+      for (final e in outcome.resourceChanges(storedResources).entries)
+        {
+          'resource_name': e.key,
+          'current': e.value.current,
+          'maximum': e.value.maximum,
+        },
+    ];
+
+    final slots = await _spellSlotsPayload(characterId, outcome);
+    if (slots != null) payload['spell_slots'] = slots;
+
+    // La CA enregistrée peut contenir des bonus saisis à la main : on lui
+    // applique seulement l'écart calculé par la montée de niveau.
+    final storedAc = (await db.characterDao.getCharacterById(characterId))
+        ?.armorClass;
+    final computedBefore = await _computeAc(characterId);
+    final computedAfter = await _computeAc(
+      characterId,
+      dex: outcome.scoresAfter['dex'],
+      con: outcome.scoresAfter['con'],
+      wis: outcome.scoresAfter['wis'],
+      classIds: outcome.classesAfter.map((c) => c.classId),
+    );
+    final armorClassBefore = storedAc ?? computedBefore;
+    final armorClassAfter = armorClassBefore + computedAfter - computedBefore;
+    payload['character'] = {
+      'hp_max': outcome.hpMaxAfter,
+      'hp_current': outcome.hpCurrentAfter,
+      'armor_class': armorClassAfter,
+      'updated_at': DateTime.now().toIso8601String(),
+    };
+
+    await db.characterDao.applyLevelUp(characterId, payload);
+    return LevelUpResult(
+      outcome: outcome,
+      armorClassBefore: armorClassBefore,
+      armorClassAfter: armorClassAfter,
+    );
+  }
+
+  Map<String, int> _abilityScoresPayload(
+    Map<String, int> finalScores,
+    Map<String, int> originBonus,
+  ) {
+    const columns = {
+      'str': 'strength',
+      'dex': 'dexterity',
+      'con': 'constitution',
+      'int': 'intelligence',
+      'wis': 'wisdom',
+      'cha': 'charisma',
+    };
+    final payload = <String, int>{};
+    columns.forEach((key, column) {
+      final score = (finalScores[key] ?? 10).clamp(
+        CharacterEditRules.minScore,
+        CharacterEditRules.maxScore,
+      );
+      final bonus = originBonus[key] ?? 0;
+      payload[column] = score;
+      payload['base_$column'] = score - bonus;
+      payload['bonus_$column'] = bonus;
+    });
+    return payload;
+  }
+
+  /// Emplacements à écrire (ensemble complet) ou null s'ils sont déjà à jour.
+  /// Les emplacements dépensés le restent ; un maximum qui augmente ajoute
+  /// autant d'emplacements disponibles.
+  Future<List<Map<String, int>>?> _spellSlotsPayload(
+    int characterId,
+    LevelUpOutcome outcome,
+  ) async {
+    final stored = await db.characterDao.watchSpellSlots(characterId).first;
+    final storedMax = {for (final s in stored) s.slotLevel: s.slotMax};
+    final target = outcome.spellSlotsAfter;
+    if (storedMax.length == target.length &&
+        target.entries.every((e) => storedMax[e.key] == e.value)) {
+      return null;
+    }
+    return [
+      for (final e in target.entries)
+        {
+          'slot_level': e.key,
+          'slot_max': e.value,
+          'slot_current': () {
+            final old = stored.where((s) => s.slotLevel == e.key).firstOrNull;
+            if (old == null) return e.value;
+            final gained = e.value > old.slotMax ? e.value - old.slotMax : 0;
+            return (old.slotCurrent + gained).clamp(0, e.value);
+          }(),
+        },
+    ];
   }
 
   /// Convert a class index to a display-friendly name
@@ -747,6 +808,7 @@ class CharacterService {
     int? dex,
     int? con,
     int? wis,
+    Iterable<String>? classIds,
   }) async {
     final scores = await db.characterDao.getAbilityScores(characterId);
     final classes = await db.characterDao.getCharacterClasses(characterId);
@@ -757,7 +819,7 @@ class CharacterService {
       dexMod: DndRules.modifier(dex ?? scores?.dexterity ?? 10),
       conMod: DndRules.modifier(con ?? scores?.constitution ?? 10),
       wisMod: DndRules.modifier(wis ?? scores?.wisdom ?? 10),
-      className: classes.map((c) => c.classId).join(' '),
+      className: (classIds ?? classes.map((c) => c.classId)).join(' '),
     ).totalAc;
   }
 

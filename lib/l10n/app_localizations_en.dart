@@ -1515,4 +1515,284 @@ class AppLocalizationsEn extends AppLocalizations {
   String editSaveError(String error) {
     return 'Error while saving: $error';
   }
+
+  @override
+  String get levelUpStepClass => 'Class';
+
+  @override
+  String get levelUpStepHp => 'Hit points';
+
+  @override
+  String get levelUpStepSubclass => 'Subclass';
+
+  @override
+  String get levelUpStepImprovement => 'Abilities and feats';
+
+  @override
+  String get levelUpStepSpells => 'Spells';
+
+  @override
+  String get levelUpStepSummary => 'Summary';
+
+  @override
+  String levelUpStepCounter(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get levelUpLevelCurrentLabel => 'Current level';
+
+  @override
+  String get levelUpLevelNewLabel => 'New level';
+
+  @override
+  String get levelUpExistingClass => 'Existing class';
+
+  @override
+  String get levelUpNewClass => 'New class';
+
+  @override
+  String get levelUpChooseClass => 'Class to advance';
+
+  @override
+  String get levelUpChooseNewClass => 'Choose a new class';
+
+  @override
+  String levelUpClassLevel(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String get levelUpMaxLevel => 'Maximum level (20) reached.';
+
+  @override
+  String get levelUpCharacterNotFound => 'Character not found';
+
+  @override
+  String get levelUpPrereqTitle => 'Multiclass prerequisites not met';
+
+  @override
+  String levelUpPrereqAll(String className, String ability, int minimum) {
+    return '$className: $ability $minimum minimum';
+  }
+
+  @override
+  String levelUpPrereqAny(String className, String abilities, int minimum) {
+    return '$className: $abilities $minimum minimum (either one is enough)';
+  }
+
+  @override
+  String get levelUpPrereqOverride => 'Continue anyway';
+
+  @override
+  String get levelUpProficienciesGained => 'Proficiencies gained';
+
+  @override
+  String get levelUpSkillChoice => 'Choose a skill';
+
+  @override
+  String get levelUpInstrumentChoice => 'Choose a musical instrument';
+
+  @override
+  String levelUpHpHitDie(int die) {
+    return 'Hit die: d$die';
+  }
+
+  @override
+  String levelUpHpAverageValue(int value) {
+    return 'Average: $value';
+  }
+
+  @override
+  String levelUpHpRollValue(int value) {
+    return 'Roll: $value';
+  }
+
+  @override
+  String levelUpHpConNote(String modifier) {
+    return 'Your final Constitution modifier ($modifier) is added to the die; a higher Constitution also grants HP for your previous levels.';
+  }
+
+  @override
+  String get levelUpSubclassPick => 'Choose a subclass';
+
+  @override
+  String get levelUpSubclassRequired => 'A subclass is required at this level.';
+
+  @override
+  String levelUpImprovementHint(int cap) {
+    return '+2 to one ability, or +1 to two abilities (maximum $cap).';
+  }
+
+  @override
+  String get levelUpImprovementModeAsi => 'Abilities';
+
+  @override
+  String get levelUpImprovementModeFeat => 'Feat';
+
+  @override
+  String levelUpImprovementRemaining(int count) {
+    return 'Points left: $count';
+  }
+
+  @override
+  String get levelUpImprovementNoRoom =>
+      'No ability can increase: choose a feat.';
+
+  @override
+  String get levelUpEpicBoonHint =>
+      'Level 19: choose an Epic Boon or another feat.';
+
+  @override
+  String get levelUpFixedHint =>
+      'Primal Champion: +4 Strength and +4 Constitution (maximum 24).';
+
+  @override
+  String levelUpSpellsCantrips(int count) {
+    return 'Cantrips to learn: $count';
+  }
+
+  @override
+  String levelUpSpellsToLearn(int count) {
+    return 'Extra spells to learn or prepare: $count';
+  }
+
+  @override
+  String levelUpSpellsSpellbook(int count) {
+    return 'Spells to add to your spellbook: $count';
+  }
+
+  @override
+  String levelUpSpellsPrepared(int count) {
+    return 'Maximum prepared spells: $count';
+  }
+
+  @override
+  String get levelUpSpellsNonBlocking =>
+      'This step does not block the level up: once it is applied, use spell management to make your choices.';
+
+  @override
+  String get levelUpSummaryPreview => 'What will change';
+
+  @override
+  String get levelUpSummaryDone => 'What changed';
+
+  @override
+  String get levelUpFinish => 'Done';
+
+  @override
+  String get levelUpOpenSpells => 'Manage spells';
+
+  @override
+  String get levelUpApplying => 'Applying the level up…';
+
+  @override
+  String levelUpChangeClass(String className, int level) {
+    return '$className: level $level';
+  }
+
+  @override
+  String levelUpChangeNewClass(String className) {
+    return 'New class: $className';
+  }
+
+  @override
+  String levelUpChangeProficiencyBonus(int before, int after) {
+    return 'Proficiency bonus: +$before → +$after';
+  }
+
+  @override
+  String levelUpChangeHp(int before, int after, int delta) {
+    return 'Max HP: $before → $after (+$delta)';
+  }
+
+  @override
+  String levelUpChangeHpRetro(int retro) {
+    return 'including +$retro retroactive HP (Constitution)';
+  }
+
+  @override
+  String levelUpChangeAbility(String ability, int before, int after) {
+    return '$ability: $before → $after';
+  }
+
+  @override
+  String levelUpChangeSubclass(String name) {
+    return 'Subclass: $name';
+  }
+
+  @override
+  String levelUpChangeFeat(String name) {
+    return 'Feat: $name';
+  }
+
+  @override
+  String levelUpChangeProficiencies(String list) {
+    return 'New proficiencies: $list';
+  }
+
+  @override
+  String levelUpChangeFeature(String name) {
+    return 'New feature: $name';
+  }
+
+  @override
+  String levelUpChangeResource(String resource, int before, int after) {
+    return '$resource: $before → $after';
+  }
+
+  @override
+  String levelUpChangeResourceNew(String resource, int after) {
+    return '$resource: $after';
+  }
+
+  @override
+  String levelUpChangeHitDie(int die) {
+    return 'Hit dice: +1 d$die';
+  }
+
+  @override
+  String levelUpChangeSlots(String slots) {
+    return 'Spell slots: $slots';
+  }
+
+  @override
+  String levelUpSlotEntry(int level, int count) {
+    return 'level $level ×$count';
+  }
+
+  @override
+  String levelUpChangeAc(int before, int after) {
+    return 'AC: $before → $after';
+  }
+
+  @override
+  String get levelUpConflict =>
+      'The character was modified in the meantime: nothing was applied. Reopen the level up.';
+
+  @override
+  String levelUpNotApplied(String error) {
+    return 'The level up was not applied and nothing was changed. $error';
+  }
+
+  @override
+  String get proficiencyKeyArmorLight => 'Light armor';
+
+  @override
+  String get proficiencyKeyArmorMedium => 'Medium armor';
+
+  @override
+  String get proficiencyKeyArmorShield => 'Shields';
+
+  @override
+  String get proficiencyKeyWeaponSimple => 'Simple weapons';
+
+  @override
+  String get proficiencyKeyWeaponMartial => 'Martial weapons';
+
+  @override
+  String get proficiencyKeyWeaponShortsword => 'Shortswords';
+
+  @override
+  String get proficiencyKeyToolThieves => 'Thieves\' tools';
 }

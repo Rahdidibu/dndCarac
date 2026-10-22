@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/utils/musical_instruments.dart';
 import '../../../../core/utils/string_utils.dart';
 import '../../../../core/utils/skills_catalog.dart';
 import '../../providers/character_providers.dart';
@@ -28,18 +29,6 @@ const List<({String key, String name})> _artisanTools = [
   (key: 'cooks_utensils', name: 'Ustensiles de cuisinier'),
 ];
 
-const List<({String key, String name})> _musicalInstruments = [
-  (key: 'shawm', name: 'Chalemie'),
-  (key: 'horn', name: 'Cor'),
-  (key: 'bagpipes', name: 'Cornemuse'),
-  (key: 'flute', name: 'Flûte'),
-  (key: 'pan_flute', name: 'Flûte de Pan'),
-  (key: 'lute', name: 'Luth'),
-  (key: 'lyre', name: 'Lyre'),
-  (key: 'drum', name: 'Tambour'),
-  (key: 'dulcimer', name: 'Tympanon'),
-  (key: 'viol', name: 'Viole'),
-];
 
 const List<({String key, String name})> _otherTools = [
   (key: 'disguise_kit', name: 'Matériel de déguisement'),
@@ -250,7 +239,7 @@ class Step6Proficiencies extends ConsumerWidget {
                   ),
                 );
                 eligibleItems.addAll(
-                  _musicalInstruments.map(
+                  musicalInstruments.map(
                     (t) => (
                       key: 'tool_${t.key}',
                       name: t.name,
@@ -278,7 +267,7 @@ class Step6Proficiencies extends ConsumerWidget {
               } else if (isMusician) {
                 featName = 'Don "Musicien" (Musician)';
                 eligibleItems.addAll(
-                  _musicalInstruments.map(
+                  musicalInstruments.map(
                     (t) => (
                       key: 'tool_${t.key}',
                       name: t.name,

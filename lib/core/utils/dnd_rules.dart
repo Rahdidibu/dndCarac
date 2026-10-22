@@ -78,45 +78,11 @@ class DndRules {
     {1: 4, 2: 3, 3: 3, 4: 3, 5: 3, 6: 2, 7: 2, 8: 1, 9: 1}, // level 20
   ];
 
-  /// Half-caster (Paladin, Ranger): level / 2 rounded down → use full-caster table
-  /// Third-caster (Arcane Trickster, Eldritch Knight): level / 3 rounded down
-
-  /// Compute spell slots for multiclass per SRD multiclassing table.
-  ///
-  /// [classPairs] is a list of (classId, level) pairs for all classes the
-  /// character has levels in.
-  ///
-  /// Full casters: Bard, Cleric, Druid, Sorcerer, Wizard + Artificer (not SRD)
-  /// Half casters: Paladin, Ranger  → contribute level / 2
-  /// Third casters: Arcane Trickster (Rogue), Eldritch Knight (Fighter) → level / 3
-  static Map<int, int> multiclassSpellSlots(
-      List<({String classId, int level})> classPairs) {
-    int effectiveLevel = 0;
-
-    for (final pair in classPairs) {
-      switch (pair.classId) {
-        case 'bard':
-        case 'cleric':
-        case 'druid':
-        case 'sorcerer':
-        case 'wizard':
-          effectiveLevel += pair.level;
-        case 'paladin':
-        case 'ranger':
-          effectiveLevel += pair.level ~/ 2;
-        case 'fighter':
-        case 'rogue':
-          // Subclass-dependent; use 1/3 as conservative assumption
-          effectiveLevel += pair.level ~/ 3;
-        default:
-          // Non-caster classes don't contribute
-          break;
-      }
-    }
-
-    if (effectiveLevel <= 0) return {};
-    final idx = (effectiveLevel - 1).clamp(0, 19);
-    return _fullCasterSlots[idx];
+  /// Emplacements de sorts pour un niveau de lanceur de sorts effectif
+  /// (table du lanceur complet, 1 à 20). Vide si le niveau est nul.
+  static Map<int, int> slotsForCasterLevel(int casterLevel) {
+    if (casterLevel <= 0) return {};
+    return _fullCasterSlots[(casterLevel - 1).clamp(0, 19)];
   }
 
   /// Spell slots for a single-class character (uses the same full-caster table
@@ -164,25 +130,6 @@ class DndRules {
                 ? 3
                 : 4;
     return {slotLevel: slotCount};
-  }
-
-  /// Number of cantrips known by class and level (SRD table)
-  static int cantripsKnown(String classId, int level) {
-    switch (classId) {
-      case 'wizard':
-        return level >= 10 ? 5 : level >= 4 ? 4 : 3;
-      case 'sorcerer':
-        return level >= 10 ? 6 : level >= 4 ? 5 : 4;
-      case 'warlock':
-        return level >= 10 ? 4 : level >= 4 ? 3 : 2;
-      case 'bard':
-        return level >= 10 ? 4 : level >= 4 ? 3 : 2;
-      case 'cleric':
-      case 'druid':
-        return level >= 10 ? 4 : level >= 4 ? 3 : 2;
-      default:
-        return 0;
-    }
   }
 
   /// Get the maximum spell level a class can cast at a given level.

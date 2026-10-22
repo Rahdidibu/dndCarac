@@ -1,17 +1,26 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../core/database/app_database.dart';
-import '../../../core/database/tables/tables.dart';
 import '../../../core/providers/database_provider.dart';
+import '../../../core/utils/app_errors.dart';
 import '../../../core/utils/character_service.dart';
-import '../../../core/utils/dnd_rules.dart';
-import '../../../l10n/app_localizations.dart';
-import '../providers/character_providers.dart';
+import '../../../core/utils/level_up_plan.dart';
 import '../../../core/widgets/async_error_view.dart';
+import '../../../l10n/app_localizations.dart';
+import '../providers/character_features_provider.dart';
+import '../providers/character_providers.dart';
+import '../providers/level_up_provider.dart';
+import '../widgets/level_up/level_up_choice_steps.dart';
+import '../widgets/level_up/level_up_class_step.dart';
+import '../widgets/level_up/level_up_improvement_step.dart';
+import '../widgets/level_up/level_up_summary.dart';
 
+enum _Step { classChoice, hp, subclass, improvement, spells, summary }
+
+/// Assistant de montée de niveau : classe, PV, sous-classe, caractéristiques ou
+/// don, sorts, résumé. Rien n'est écrit avant la validation finale, puis tout
+/// est appliqué en une seule opération (`CharacterService.levelUp`).
 class LevelUpScreen extends ConsumerStatefulWidget {
   final int characterId;
   const LevelUpScreen({super.key, required this.characterId});
@@ -21,525 +30,361 @@ class LevelUpScreen extends ConsumerStatefulWidget {
 }
 
 class _LevelUpScreenState extends ConsumerState<LevelUpScreen> {
-  // Selected class to level up (existing or new)
-  String? _selectedClassId;
-  bool _addNewClass = false;
-  String? _selectedSubclassId;
+  _Step _step = _Step.classChoice;
+  bool _applying = false;
+  List<LevelUpChange>? _appliedChanges;
 
-  // HP choice
-  int? _rolledHp;
-  bool _useAverage = true;
-
-  final _random = Random();
+  int get _id => widget.characterId;
 
   @override
   Widget build(BuildContext context) {
-    final charAsync = ref.watch(characterByIdProvider(widget.characterId));
-    final classesAsync = ref.watch(characterClassesProvider(widget.characterId));
-    final totalLevelAsync = ref.watch(characterTotalLevelProvider(widget.characterId));
     final l10n = AppLocalizations.of(context)!;
+    final stateAsync = ref.watch(levelUpStateProvider(_id));
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.levelUp),
+        automaticallyImplyLeading: _appliedChanges == null,
       ),
-      body: charAsync.when(
+      body: stateAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => AsyncErrorView(error: e, stackTrace: st, onRetry: () => ref.invalidate(characterByIdProvider(widget.characterId))),
-        data: (character) {
-          if (character == null) return const Center(child: Text('Personnage introuvable'));
-
-          final totalLevel = totalLevelAsync.whenData((v) => v).valueOrNull ?? 1;
-
-          return classesAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, st) => AsyncErrorView(error: e, stackTrace: st),
-            data: (classes) {
-              final hitDie = _getHitDie(_selectedClassId ?? (classes.isNotEmpty ? classes.first.classId : null));
-
-              return _buildBody(context, character, classes, totalLevel, hitDie, l10n);
-            },
-          );
+        error: (e, st) => AsyncErrorView(
+          error: e,
+          stackTrace: st,
+          onRetry: () => ref.invalidate(levelUpStateProvider(_id)),
+        ),
+        data: (state) {
+          if (state == null) {
+            return Center(child: Text(l10n.levelUpCharacterNotFound));
+          }
+          if (_appliedChanges != null) {
+            return _buildResult(l10n, _appliedChanges!);
+          }
+          return _buildWizard(l10n, state);
         },
       ),
     );
   }
 
-  Widget _buildBody(
-    BuildContext context,
-    Character character,
-    List<CharacterClassesData> classes,
-    int totalLevel,
-    int hitDie,
-    AppLocalizations l10n,
-  ) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final scoresAsync = ref.watch(characterAbilityScoresProvider(widget.characterId));
-    final conMod = scoresAsync.maybeWhen(
-      data: (s) => s != null ? DndRules.modifier(s.constitution) : 0,
-      orElse: () => 0,
+  // ── Assistant ─────────────────────────────────────────────────────────────
+
+  Widget _buildWizard(AppLocalizations l10n, LevelUpState state) {
+    final plan = ref.watch(levelUpPlanProvider(_id)).valueOrNull;
+    final choices = ref.watch(levelUpFlowProvider(_id)).choices;
+    final feats =
+        ref.watch(srdFeatsProvider(state.ruleset)).valueOrNull ?? const [];
+    final outcome = plan?.outcome(choices);
+    if (plan != null) {
+      // Chargés d'avance pour que l'aperçu et le résumé disposent des noms.
+      ref.watch(
+        srdSubclassesProvider((classId: plan.classId, ruleset: state.ruleset)),
+      );
+      ref.watch(levelUpFeaturesProvider(state.ruleset));
+    }
+    final issues = plan?.validate(choices, feats: feats) ?? const [];
+
+    final steps = _visibleSteps(plan, outcome);
+    final current = steps.contains(_step) ? _step : _Step.classChoice;
+    final index = steps.indexOf(current);
+    final isLast = current == _Step.summary;
+
+    return Column(
+      children: [
+        LinearProgressIndicator(value: (index + 1) / steps.length),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  _title(l10n, current),
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+              Text(l10n.levelUpStepCounter(index + 1, steps.length)),
+            ],
+          ),
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: _stepBody(l10n, state, plan, outcome, current),
+          ),
+        ),
+        SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: Row(
+              children: [
+                if (index > 0)
+                  OutlinedButton(
+                    onPressed: _applying
+                        ? null
+                        : () => setState(() => _step = steps[index - 1]),
+                    child: Text(l10n.wizardPrevious),
+                  ),
+                const Spacer(),
+                if (_applying)
+                  const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                else if (isLast)
+                  FilledButton.icon(
+                    icon: const Icon(Icons.arrow_upward),
+                    label: Text(l10n.levelUp),
+                    onPressed: plan != null && outcome != null && issues.isEmpty
+                        ? () => _apply(l10n, state, plan)
+                        : null,
+                  )
+                else
+                  FilledButton(
+                    onPressed: plan != null && _isValid(current, issues)
+                        ? () => setState(() => _step = steps[index + 1])
+                        : null,
+                    child: Text(l10n.wizardNext),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
-    final newLevel = totalLevel + 1;
+  }
 
-    // Existing class IDs
-    final existingClassIds = classes.map((c) => c.classId).toSet();
-    final allClassIds = DndRules.abilityKeys.isEmpty ? <String>[] : _allSrdClassIds;
-    final availableNew = allClassIds.where((id) => !existingClassIds.contains(id)).toList();
+  /// Étapes utiles pour la classe choisie ; les autres sont masquées.
+  List<_Step> _visibleSteps(LevelUpPlan? plan, LevelUpOutcome? outcome) {
+    if (plan == null || outcome == null) return const [_Step.classChoice];
+    return [
+      _Step.classChoice,
+      _Step.hp,
+      if (plan.needsSubclass) _Step.subclass,
+      if (plan.improvement != LevelUpImprovementKind.none) _Step.improvement,
+      if (!outcome.spells.isEmpty || outcome.preparedSpellsMax != null)
+        _Step.spells,
+      _Step.summary,
+    ];
+  }
 
+  bool _isValid(_Step step, List<LevelUpIssue> issues) {
+    bool blocked(Set<LevelUpIssue> any) => issues.any(any.contains);
+    return switch (step) {
+      _Step.classChoice => !blocked({
+        LevelUpIssue.maxLevel,
+        LevelUpIssue.skillChoiceMissing,
+        LevelUpIssue.instrumentChoiceMissing,
+        LevelUpIssue.multiclassPrerequisite,
+      }),
+      _Step.subclass => !blocked({LevelUpIssue.subclassMissing}),
+      _Step.improvement => !blocked({
+        LevelUpIssue.improvementMissing,
+        LevelUpIssue.improvementInvalid,
+        LevelUpIssue.featNotEligible,
+      }),
+      _Step.hp || _Step.spells || _Step.summary => true,
+    };
+  }
+
+  String _title(AppLocalizations l10n, _Step step) => switch (step) {
+    _Step.classChoice => l10n.levelUpStepClass,
+    _Step.hp => l10n.levelUpStepHp,
+    _Step.subclass => l10n.levelUpStepSubclass,
+    _Step.improvement => l10n.levelUpStepImprovement,
+    _Step.spells => l10n.levelUpStepSpells,
+    _Step.summary => l10n.levelUpStepSummary,
+  };
+
+  Widget _stepBody(
+    AppLocalizations l10n,
+    LevelUpState state,
+    LevelUpPlan? plan,
+    LevelUpOutcome? outcome,
+    _Step step,
+  ) {
+    if (step == _Step.classChoice || plan == null || outcome == null) {
+      return LevelUpClassStep(characterId: _id, state: state, plan: plan);
+    }
+    return switch (step) {
+      _Step.hp => LevelUpHpStep(characterId: _id, plan: plan),
+      _Step.subclass => LevelUpSubclassStep(characterId: _id, plan: plan),
+      _Step.improvement => LevelUpImprovementStep(
+        key: ValueKey(plan.classId),
+        characterId: _id,
+        plan: plan,
+      ),
+      _Step.spells => LevelUpSpellsStep(plan: plan, outcome: outcome),
+      _ => _buildPreview(l10n, plan, outcome),
+    };
+  }
+
+  Widget _buildPreview(
+    AppLocalizations l10n,
+    LevelUpPlan plan,
+    LevelUpOutcome outcome,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.levelUpSummaryPreview,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        Card(child: LevelUpChangesList(changes: _changes(l10n, plan, outcome))),
+      ],
+    );
+  }
+
+  List<LevelUpChange> _changes(
+    AppLocalizations l10n,
+    LevelUpPlan plan,
+    LevelUpOutcome outcome, {
+    int? armorClassBefore,
+    int? armorClassAfter,
+  }) {
+    final ruleset = plan.state.ruleset;
+    final subclasses = ref
+        .read(srdSubclassesProvider((classId: plan.classId, ruleset: ruleset)))
+        .valueOrNull;
+    final feats = ref.read(srdFeatsProvider(ruleset)).valueOrNull;
+    final features = ref.read(levelUpFeaturesProvider(ruleset)).valueOrNull;
+
+    return buildLevelUpChanges(
+      outcome: outcome,
+      l10n: l10n,
+      className: CharacterService.classDisplayName(plan.classId, l10n),
+      subclassName: subclasses
+          ?.where((s) => s.id == outcome.subclassId)
+          .firstOrNull
+          ?.name,
+      featName: feats?.where((f) => f.id == outcome.featId).firstOrNull?.name,
+      featureNames: features == null
+          ? const []
+          : plan
+                .gainedFeatures(features, subclassId: outcome.subclassId)
+                .map((f) => f.name)
+                .toList(),
+      armorClassBefore: armorClassBefore,
+      armorClassAfter: armorClassAfter,
+    );
+  }
+
+  // ── Application ───────────────────────────────────────────────────────────
+
+  Future<void> _apply(
+    AppLocalizations l10n,
+    LevelUpState state,
+    LevelUpPlan plan,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _applying = true);
+    try {
+      final result = await CharacterService(ref.read(databaseProvider)).levelUp(
+        characterId: _id,
+        classId: plan.classId,
+        choices: ref.read(levelUpFlowProvider(_id)).choices,
+        feats:
+            ref.read(srdFeatsProvider(state.ruleset)).valueOrNull ?? const [],
+        hasSubclassOptions: plan.hasSubclassOptions,
+      );
+      final changes = _changes(
+        l10n,
+        plan,
+        result.outcome,
+        armorClassBefore: result.armorClassBefore,
+        armorClassAfter: result.armorClassAfter,
+      );
+      _refreshCharacterData();
+      if (!mounted) return;
+      setState(() {
+        _applying = false;
+        _appliedChanges = changes;
+      });
+    } catch (e, st) {
+      AppErrors.log(e, st, context: 'levelUp');
+      if (!mounted) return;
+      setState(() => _applying = false);
+      final conflict =
+          (e is PostgrestException && e.code == 'P0001') ||
+          e is LevelUpException;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            conflict
+                ? l10n.levelUpConflict
+                : l10n.levelUpNotApplied(AppErrors.userMessage(e, l10n)),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
+  }
+
+  void _refreshCharacterData() {
+    ref.invalidate(characterByIdProvider(_id));
+    ref.invalidate(characterClassesProvider(_id));
+    ref.invalidate(characterAbilityScoresProvider(_id));
+    ref.invalidate(characterProficienciesProvider(_id));
+    ref.invalidate(characterFeatsProvider(_id));
+    ref.invalidate(characterFeatDetailsProvider(_id));
+    ref.invalidate(characterFeaturesProvider(_id));
+    ref.invalidate(characterResourcesProvider(_id));
+    ref.invalidate(characterSpellSlotsProvider(_id));
+  }
+
+  // ── Résumé final ──────────────────────────────────────────────────────────
+
+  Widget _buildResult(AppLocalizations l10n, List<LevelUpChange> changes) {
+    final hasSpellLink = changes.any(
+      (c) => c.destination == LevelUpDestination.spells,
+    );
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Current state ─────────────────────────────────────────────────
-          Card(
-            color: colorScheme.primaryContainer,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(children: [
-                    Text('Niveau actuel', style: const TextStyle(fontSize: 12)),
-                    Text('$totalLevel',
-                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-                  ]),
-                  const Icon(Icons.arrow_forward, size: 28),
-                  Column(children: [
-                    Text('Nouveau niveau', style: const TextStyle(fontSize: 12)),
-                    Text('$newLevel',
-                        style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.primary)),
-                  ]),
-                ],
-              ),
-            ),
+          Text(
+            l10n.levelUpSummaryDone,
+            style: Theme.of(context).textTheme.titleLarge,
           ),
-          const SizedBox(height: 20),
-
-          // ── Class choice ─────────────────────────────────────────────────
-          Text('Classe à faire progresser',
-              style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
-
-          // Toggle existing vs new class
-          if (availableNew.isNotEmpty && totalLevel >= 1)
-            SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(value: false, label: Text('Classe existante')),
-                ButtonSegment(value: true, label: Text('Nouvelle classe')),
-              ],
-              selected: {_addNewClass},
-              onSelectionChanged: (s) => setState(() {
-                _addNewClass = s.first;
-                _selectedClassId = null;
-                _selectedSubclassId = null;
-                _rolledHp = null;
-              }),
+          Card(
+            child: LevelUpChangesList(changes: changes, onOpen: _open),
+          ),
+          const SizedBox(height: 16),
+          if (hasSpellLink)
+            OutlinedButton.icon(
+              icon: const Icon(Icons.menu_book_outlined),
+              label: Text(l10n.levelUpOpenSpells),
+              onPressed: () => _open(LevelUpDestination.spells),
             ),
-          const SizedBox(height: 12),
-
-          if (!_addNewClass) ...[
-            // Existing classes
-            ...classes.map((cls) {
-              final isSelected = _selectedClassId == cls.classId;
-              return Card(
-                color: isSelected ? colorScheme.secondaryContainer : null,
-                child: ListTile(
-                  title: Text(CharacterService.classDisplayName(cls.classId, l10n)),
-                  subtitle: Text('Niveau actuel : ${cls.level}'),
-                  trailing: isSelected
-                      ? Icon(Icons.check_circle, color: colorScheme.primary)
-                      : const Icon(Icons.radio_button_unchecked),
-                  onTap: () => setState(() {
-                    _selectedClassId = cls.classId;
-                    _selectedSubclassId = cls.subclassId;
-                    _rolledHp = null;
-                  }),
-                ),
-              );
-            }),
-          ] else ...[
-            // New class dropdown
-            DropdownButtonFormField<String>(
-              key: ValueKey(_selectedClassId),
-              decoration: const InputDecoration(
-                labelText: 'Choisir une nouvelle classe',
-                border: OutlineInputBorder(),
-              ),
-              initialValue: _selectedClassId,
-              items: availableNew
-                  .map((id) => DropdownMenuItem(
-                        value: id,
-                        child: Text(CharacterService.classDisplayName(id, l10n)),
-                      ))
-                  .toList(),
-              onChanged: (v) => setState(() {
-                _selectedClassId = v;
-                _selectedSubclassId = null;
-                _rolledHp = null;
-              }),
-            ),
-          ],
-
-          // ── Subclass picker (from level 3) ────────────────────────────────
-          if (_selectedClassId != null) ...[
-            const SizedBox(height: 16),
-            _SubclassPicker(
-              characterId: widget.characterId,
-              classId: _selectedClassId!,
-              currentClasses: classes,
-              ruleset: ref
-                  .read(characterByIdProvider(widget.characterId))
-                  .valueOrNull
-                  ?.ruleset,
-              selectedSubclassId: _selectedSubclassId,
-              onChanged: (v) => setState(() => _selectedSubclassId = v),
-            ),
-          ],
-
-          // ── HP choice ────────────────────────────────────────────────────
-          if (_selectedClassId != null) ...[
-            const SizedBox(height: 20),
-            Text(l10n.sheetHp, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            _HpChoiceWidget(
-              hitDie: _getHitDie(_selectedClassId),
-              useAverage: _useAverage,
-              rolledHp: _rolledHp,
-              averageHp: _averageHp,
-              conMod: conMod,
-              onToggle: (v) => setState(() => _useAverage = v),
-              onRoll: () => setState(() {
-                _rolledHp = _random.nextInt(_getHitDie(_selectedClassId)) + 1;
-                _useAverage = false;
-              }),
-              onAverageSelected: () => setState(() {
-                _useAverage = true;
-              }),
-            ),
-          ],
-
-          // ── Confirm button ────────────────────────────────────────────────
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              icon: const Icon(Icons.arrow_upward),
-              label: Text(l10n.levelUp),
-              onPressed: _canConfirm() ? () => _confirm(context, l10n) : null,
-            ),
+          const SizedBox(height: 8),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l10n.levelUpFinish),
           ),
         ],
       ),
     );
   }
 
-  bool _canConfirm() {
-    final hp = _useAverage ? _averageHp : _rolledHp;
-    return _selectedClassId != null && hp != null;
-  }
-
-  int? get _averageHp {
-    if (_selectedClassId == null) return null;
-    final hitDie = _getHitDie(_selectedClassId);
-    final scores = ref.read(characterAbilityScoresProvider(widget.characterId)).value;
-    final conMod = scores != null ? DndRules.modifier(scores.constitution) : 0;
-    return (hitDie ~/ 2) + 1 + conMod;
-  }
-
-  Future<void> _confirm(BuildContext context, AppLocalizations l10n) async {
+  void _open(LevelUpDestination destination) {
     final navigator = Navigator.of(context);
-    final db = ref.read(databaseProvider);
-
-    // Get actual CON modifier
-    final scores = await db.characterDao.getAbilityScores(widget.characterId);
-    final conMod = scores != null ? DndRules.modifier(scores.constitution) : 0;
-
-    final hitDie = _getHitDie(_selectedClassId);
-    final baseHp = _useAverage
-        ? (hitDie ~/ 2) + 1
-        : (_rolledHp ?? ((hitDie ~/ 2) + 1));
-    final totalHp = (baseHp + conMod).clamp(1, 999);
-
-    await CharacterService(db).levelUp(
-      characterId: widget.characterId,
-      classId: _selectedClassId!,
-      hpGained: totalHp,
-      subclassId: _selectedSubclassId,
-      addNewClass: _addNewClass,
-    );
-
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              '${CharacterService.classDisplayName(_selectedClassId!, l10n)} a gagné un niveau !'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      navigator.pop();
+    if (destination == LevelUpDestination.spells) {
+      navigator.pushNamed('/spells', arguments: _id);
+      return;
     }
-  }
-
-  int _getHitDie(String? classId) {
-    const hitDice = {
-      'barbarian': 12,
-      'fighter': 10,
-      'paladin': 10,
-      'ranger': 10,
-      'bard': 8,
-      'cleric': 8,
-      'druid': 8,
-      'monk': 8,
-      'rogue': 8,
-      'warlock': 8,
-      'sorcerer': 6,
-      'wizard': 6,
+    // Indices de la barre d'onglets mobile de la fiche.
+    final tab = switch (destination) {
+      LevelUpDestination.stats => 0,
+      LevelUpDestination.combat => 1,
+      LevelUpDestination.magic => 2,
+      LevelUpDestination.profile => 4,
+      _ => null,
     };
-    return hitDice[classId] ?? 8;
-  }
-
-  static const List<String> _allSrdClassIds = [
-    'barbarian', 'bard', 'cleric', 'druid', 'fighter',
-    'monk', 'paladin', 'ranger', 'rogue', 'sorcerer', 'warlock', 'wizard',
-  ];
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _SubclassPicker extends ConsumerWidget {
-  final int characterId;
-  final String classId;
-  final List<CharacterClassesData> currentClasses;
-  final RulesetVersion? ruleset;
-  final String? selectedSubclassId;
-  final ValueChanged<String?> onChanged;
-
-  const _SubclassPicker({
-    required this.characterId,
-    required this.classId,
-    required this.currentClasses,
-    required this.ruleset,
-    required this.selectedSubclassId,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final classEntry = currentClasses.where((c) => c.classId == classId).firstOrNull;
-    final level = classEntry?.level ?? 0; // 0 if adding new class (will be 1)
-    final nextLevel = level + 1;
-
-    // Subclass typically unlocked at level 3 (varies: Cleric/Sorcerer/Warlock at 1)
-    final subclassLevel = ['cleric', 'sorcerer', 'warlock'].contains(classId) ? 1 : 3;
-    if (nextLevel < subclassLevel) return const SizedBox.shrink();
-    // Already has subclass
-    if (classEntry?.subclassId != null && !['', null].contains(classEntry?.subclassId)) {
-      return const SizedBox.shrink();
-    }
-
-    if (ruleset == null) return const SizedBox.shrink();
-
-    final subclassesAsync = ref.watch(
-      srdSubclassesProvider((classId: classId, ruleset: ruleset!)),
-    );
-
-    return subclassesAsync.when(
-      loading: () => const SizedBox.shrink(),
-      error: (_, _) => const SizedBox.shrink(),
-      data: (subclasses) {
-        if (subclasses.isEmpty) return const SizedBox.shrink();
-        final selectedSubclass = subclasses.where((s) => s.id == selectedSubclassId).firstOrNull;
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Archétype / Sous-classe',
-                style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              key: ValueKey(selectedSubclassId),
-              decoration: const InputDecoration(
-                labelText: 'Choisir un archétype',
-                border: OutlineInputBorder(),
-              ),
-              initialValue: selectedSubclassId,
-              items: [
-                const DropdownMenuItem(value: null, child: Text('— Aucun pour l\'instant —')),
-                ...subclasses.map((s) => DropdownMenuItem(
-                      value: s.id,
-                      child: Text(s.name),
-                    )),
-              ],
-              onChanged: onChanged,
-            ),
-            if (selectedSubclass != null) ...[
-              const SizedBox(height: 8),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      selectedSubclass.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      selectedSubclass.description,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 11),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _HpChoiceWidget extends StatelessWidget {
-  final int hitDie;
-  final bool useAverage;
-  final int? rolledHp;
-  final int? averageHp;
-  final int conMod;
-  final ValueChanged<bool> onToggle;
-  final VoidCallback onRoll;
-  final VoidCallback onAverageSelected;
-
-  const _HpChoiceWidget({
-    required this.hitDie,
-    required this.useAverage,
-    required this.rolledHp,
-    required this.averageHp,
-    required this.conMod,
-    required this.onToggle,
-    required this.onRoll,
-    required this.onAverageSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final avg = averageHp ?? ((hitDie ~/ 2) + 1 + conMod);
-    final rolledTotal = rolledHp != null ? (rolledHp! + conMod).clamp(1, 999) : null;
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            Text('Dé de vie : d$hitDie',
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                // Average option
-                Expanded(
-                  child: InkWell(
-                    onTap: onAverageSelected,
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: useAverage
-                              ? colorScheme.primary
-                              : colorScheme.outline,
-                          width: useAverage ? 2 : 1,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(Icons.calculate,
-                              color: useAverage ? colorScheme.primary : null),
-                          const SizedBox(height: 4),
-                          Text('Moyenne',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: useAverage ? colorScheme.primary : null)),
-                          Text('$avg PV',
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: useAverage ? colorScheme.primary : null)),
-                          const SizedBox(height: 4),
-                          Text(
-                            '(Moy. ${hitDie ~/ 2 + 1} + $conMod Con)',
-                            style: const TextStyle(fontSize: 9, color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                // Roll option
-                Expanded(
-                  child: InkWell(
-                    onTap: onRoll,
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: !useAverage && rolledHp != null
-                              ? colorScheme.primary
-                              : colorScheme.outline,
-                          width: !useAverage && rolledHp != null ? 2 : 1,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(Icons.casino,
-                              color: !useAverage && rolledHp != null
-                                  ? colorScheme.primary
-                                  : null),
-                          const SizedBox(height: 4),
-                          Text('Lancer le dé',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: !useAverage && rolledHp != null
-                                      ? colorScheme.primary
-                                      : null)),
-                          Text(
-                            rolledTotal != null ? '$rolledTotal PV' : '?',
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: !useAverage && rolledHp != null
-                                    ? colorScheme.primary
-                                    : null),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            rolledHp != null ? '(Jet $rolledHp + $conMod Con)' : '(Jet d$hitDie + $conMod Con)',
-                            style: const TextStyle(fontSize: 9, color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+    if (tab != null) ref.read(sheetTabRequestProvider.notifier).state = tab;
+    navigator.pop();
   }
 }

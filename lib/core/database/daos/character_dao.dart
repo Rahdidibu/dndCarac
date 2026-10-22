@@ -89,6 +89,19 @@ class CharacterDao extends DatabaseAccessor<AppDatabase>
     return 1;
   }
 
+  // ── Level up ─────────────────────────────────────────────
+
+  /// Applique une montée de niveau complète dans une seule transaction côté
+  /// Postgres (`apply_level_up`, voir la migration du même nom) : en cas
+  /// d'erreur ou de coupure réseau, rien n'est écrit. Lève une
+  /// [PostgrestException] de code `P0001` si la classe a changé entre-temps.
+  Future<void> applyLevelUp(int characterId, Map<String, dynamic> payload) async {
+    await Supabase.instance.client.rpc(
+      'apply_level_up',
+      params: {'p_character_id': characterId, 'p_payload': payload},
+    );
+  }
+
   // ── Character classes (multiclass) ───────────────────────
 
   Future<List<CharacterClassesData>> getCharacterClasses(int characterId) async {

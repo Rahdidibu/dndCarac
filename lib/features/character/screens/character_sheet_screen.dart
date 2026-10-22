@@ -20,6 +20,7 @@ import '../../../core/utils/skills_catalog.dart';
 import '../../export/pdf_generator.dart';
 import '../providers/character_providers.dart';
 import '../providers/character_features_provider.dart';
+import '../providers/level_up_provider.dart' show sheetTabRequestProvider;
 import '../widgets/avatar_upload.dart';
 import '../widgets/features_section.dart';
 import '../../../core/theme/app_theme.dart';
@@ -45,6 +46,23 @@ part 'sheet_tabs/tab_equipment.dart';
 part 'sheet_tabs/tab_profile.dart';
 part 'sheet_tabs/tab_journal.dart';
 
+/// Ouvre l'onglet demandé par `sheetTabRequestProvider` (liens du résumé de
+/// montée de niveau) sur la disposition mobile, puis efface la demande.
+class _SheetTabRequestListener extends ConsumerWidget {
+  final Widget child;
+  const _SheetTabRequestListener({required this.child});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen<int?>(sheetTabRequestProvider, (_, tab) {
+      if (tab == null) return;
+      DefaultTabController.maybeOf(context)?.animateTo(tab);
+      ref.read(sheetTabRequestProvider.notifier).state = null;
+    });
+    return child;
+  }
+}
+
 class CharacterSheetScreen extends ConsumerWidget {
   final int characterId;
   const CharacterSheetScreen({super.key, required this.characterId});
@@ -68,7 +86,9 @@ class CharacterSheetScreen extends ConsumerWidget {
     final feats = await db.characterDao.getCharacterFeats(characterId);
     final srdFeats = await db.compendiumDao.getAllFeats(character.ruleset);
     final notes = await db.characterDao.getCharacterNotes(characterId);
-    final features = await ref.read(characterFeaturesProvider(characterId).future);
+    final features = await ref.read(
+      characterFeaturesProvider(characterId).future,
+    );
 
     final bytes = await PdfGenerator.generate(
       character: character,
@@ -294,68 +314,73 @@ class CharacterSheetScreen extends ConsumerWidget {
                     ],
                   ),
           ),
-          body: isDesktop
-              ? Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: _StatsTab(
+          body: _SheetTabRequestListener(
+            child: isDesktop
+                ? Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: _StatsTab(
+                          characterId: characterId,
+                          character: character,
+                          totalLevel: totalLevel,
+                        ),
+                      ),
+                      VerticalDivider(
+                        width: 1,
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
+                      Expanded(
+                        flex: 4,
+                        child: _CombatTab(
+                          characterId: characterId,
+                          character: character,
+                          totalLevel: totalLevel,
+                        ),
+                      ),
+                      VerticalDivider(
+                        width: 1,
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
+                      Expanded(
+                        flex: 4,
+                        child: _RightTabbedPanel(
+                          characterId: characterId,
+                          character: character,
+                        ),
+                      ),
+                    ],
+                  )
+                : TabBarView(
+                    children: [
+                      _StatsTab(
                         characterId: characterId,
                         character: character,
                         totalLevel: totalLevel,
                       ),
-                    ),
-                    VerticalDivider(
-                      width: 1,
-                      color: Colors.white.withValues(alpha: 0.08),
-                    ),
-                    Expanded(
-                      flex: 4,
-                      child: _CombatTab(
+                      _CombatTab(
                         characterId: characterId,
                         character: character,
                         totalLevel: totalLevel,
                       ),
-                    ),
-                    VerticalDivider(
-                      width: 1,
-                      color: Colors.white.withValues(alpha: 0.08),
-                    ),
-                    Expanded(
-                      flex: 4,
-                      child: _RightTabbedPanel(
+                      _MagicTab(characterId: characterId, character: character),
+                      _EquipmentTab(
                         characterId: characterId,
                         character: character,
                       ),
-                    ),
-                  ],
-                )
-              : TabBarView(
-                  children: [
-                    _StatsTab(
-                      characterId: characterId,
-                      character: character,
-                      totalLevel: totalLevel,
-                    ),
-                    _CombatTab(
-                      characterId: characterId,
-                      character: character,
-                      totalLevel: totalLevel,
-                    ),
-                    _MagicTab(characterId: characterId, character: character),
-                    _EquipmentTab(
-                      characterId: characterId,
-                      character: character,
-                    ),
-                    _ProfileTab(characterId: characterId, character: character),
-                    _JournalTab(characterId: characterId),
-                    TabCompanions(
-                      characterId: characterId,
-                      character: character,
-                    ),
-                  ],
-                ),
+                      _ProfileTab(
+                        characterId: characterId,
+                        character: character,
+                      ),
+                      _JournalTab(characterId: characterId),
+                      TabCompanions(
+                        characterId: characterId,
+                        character: character,
+                      ),
+                    ],
+                  ),
+          ),
           floatingActionButton: FloatingActionButton(
             backgroundColor: AppTheme.neonCyan,
             foregroundColor: Colors.black,

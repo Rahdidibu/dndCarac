@@ -30,6 +30,12 @@
   Drift/Supabase : verifier chaque parcours dans ses providers et DAOs.
   [supabase/migrations/](../supabase/migrations/) contient le schema distant,
   les politiques RLS et la configuration Realtime.
+- La montee de niveau (`CharacterService.levelUp`) calcule tout en Dart avec
+  `LevelUpPlan` ([level_up_plan.dart](../lib/core/utils/level_up_plan.dart)),
+  puis ecrit en une transaction via la fonction Postgres `apply_level_up`
+  (migration `20261023000000_add_apply_level_up.sql`, a appliquer sur le projet
+  Supabase). Toute nouvelle donnee ecrite par la montee de niveau doit etre
+  ajoutee a cette fonction.
 - Le fichier `.env` racine doit contenir `SUPABASE_URL` et `SUPABASE_ANON_KEY`
   (cle publique/publishable ou anon, jamais `service_role`). Flutter ne le charge
   que via `--dart-define-from-file=.env`; voir [.env.template](../.env.template).

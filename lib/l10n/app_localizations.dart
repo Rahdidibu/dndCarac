@@ -2821,6 +2821,432 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Erreur lors de l\'enregistrement : {error}'**
   String editSaveError(String error);
+
+  /// No description provided for @levelUpStepClass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classe'**
+  String get levelUpStepClass;
+
+  /// No description provided for @levelUpStepHp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Points de vie'**
+  String get levelUpStepHp;
+
+  /// No description provided for @levelUpStepSubclass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sous-classe'**
+  String get levelUpStepSubclass;
+
+  /// No description provided for @levelUpStepImprovement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caractéristiques et dons'**
+  String get levelUpStepImprovement;
+
+  /// No description provided for @levelUpStepSpells.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sorts'**
+  String get levelUpStepSpells;
+
+  /// No description provided for @levelUpStepSummary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résumé'**
+  String get levelUpStepSummary;
+
+  /// No description provided for @levelUpStepCounter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape {current} sur {total}'**
+  String levelUpStepCounter(int current, int total);
+
+  /// No description provided for @levelUpLevelCurrentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau actuel'**
+  String get levelUpLevelCurrentLabel;
+
+  /// No description provided for @levelUpLevelNewLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau niveau'**
+  String get levelUpLevelNewLabel;
+
+  /// No description provided for @levelUpExistingClass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classe existante'**
+  String get levelUpExistingClass;
+
+  /// No description provided for @levelUpNewClass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle classe'**
+  String get levelUpNewClass;
+
+  /// No description provided for @levelUpChooseClass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classe à faire progresser'**
+  String get levelUpChooseClass;
+
+  /// No description provided for @levelUpChooseNewClass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir une nouvelle classe'**
+  String get levelUpChooseNewClass;
+
+  /// No description provided for @levelUpClassLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau {level}'**
+  String levelUpClassLevel(int level);
+
+  /// No description provided for @levelUpMaxLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le niveau maximum (20) est atteint.'**
+  String get levelUpMaxLevel;
+
+  /// No description provided for @levelUpCharacterNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personnage introuvable'**
+  String get levelUpCharacterNotFound;
+
+  /// No description provided for @levelUpPrereqTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prérequis de multiclassage non remplis'**
+  String get levelUpPrereqTitle;
+
+  /// No description provided for @levelUpPrereqAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'{className} : {ability} {minimum} minimum'**
+  String levelUpPrereqAll(String className, String ability, int minimum);
+
+  /// No description provided for @levelUpPrereqAny.
+  ///
+  /// In fr, this message translates to:
+  /// **'{className} : {abilities} {minimum} minimum (l\'une des deux suffit)'**
+  String levelUpPrereqAny(String className, String abilities, int minimum);
+
+  /// No description provided for @levelUpPrereqOverride.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer malgré tout'**
+  String get levelUpPrereqOverride;
+
+  /// No description provided for @levelUpProficienciesGained.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maîtrises gagnées'**
+  String get levelUpProficienciesGained;
+
+  /// No description provided for @levelUpSkillChoice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez une compétence'**
+  String get levelUpSkillChoice;
+
+  /// No description provided for @levelUpInstrumentChoice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez un instrument de musique'**
+  String get levelUpInstrumentChoice;
+
+  /// No description provided for @levelUpHpHitDie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dé de vie : d{die}'**
+  String levelUpHpHitDie(int die);
+
+  /// No description provided for @levelUpHpAverageValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moyenne : {value}'**
+  String levelUpHpAverageValue(int value);
+
+  /// No description provided for @levelUpHpRollValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jet : {value}'**
+  String levelUpHpRollValue(int value);
+
+  /// No description provided for @levelUpHpConNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le modificateur de Constitution final ({modifier}) s\'ajoute au dé ; une hausse de Constitution rapporte aussi des PV sur les niveaux précédents.'**
+  String levelUpHpConNote(String modifier);
+
+  /// No description provided for @levelUpSubclassPick.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir une sous-classe'**
+  String get levelUpSubclassPick;
+
+  /// No description provided for @levelUpSubclassRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une sous-classe est requise à ce niveau.'**
+  String get levelUpSubclassRequired;
+
+  /// No description provided for @levelUpImprovementHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'+2 à une caractéristique, ou +1 à deux caractéristiques (maximum {cap}).'**
+  String levelUpImprovementHint(int cap);
+
+  /// No description provided for @levelUpImprovementModeAsi.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caractéristiques'**
+  String get levelUpImprovementModeAsi;
+
+  /// No description provided for @levelUpImprovementModeFeat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Don'**
+  String get levelUpImprovementModeFeat;
+
+  /// No description provided for @levelUpImprovementRemaining.
+  ///
+  /// In fr, this message translates to:
+  /// **'Points restants : {count}'**
+  String levelUpImprovementRemaining(int count);
+
+  /// No description provided for @levelUpImprovementNoRoom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune caractéristique ne peut augmenter : choisissez un don.'**
+  String get levelUpImprovementNoRoom;
+
+  /// No description provided for @levelUpEpicBoonHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau 19 : choisissez un Don épique ou un autre don.'**
+  String get levelUpEpicBoonHint;
+
+  /// No description provided for @levelUpFixedHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Champion primitif : +4 Force et +4 Constitution (maximum 24).'**
+  String get levelUpFixedHint;
+
+  /// No description provided for @levelUpSpellsCantrips.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sorts mineurs à apprendre : {count}'**
+  String levelUpSpellsCantrips(int count);
+
+  /// No description provided for @levelUpSpellsToLearn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sorts à apprendre ou à préparer en plus : {count}'**
+  String levelUpSpellsToLearn(int count);
+
+  /// No description provided for @levelUpSpellsSpellbook.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sorts à inscrire dans le grimoire : {count}'**
+  String levelUpSpellsSpellbook(int count);
+
+  /// No description provided for @levelUpSpellsPrepared.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sorts préparés au maximum : {count}'**
+  String levelUpSpellsPrepared(int count);
+
+  /// No description provided for @levelUpSpellsNonBlocking.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette étape ne bloque pas la montée de niveau : une fois validée, utilisez la gestion des sorts pour faire vos choix.'**
+  String get levelUpSpellsNonBlocking;
+
+  /// No description provided for @levelUpSummaryPreview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui va changer'**
+  String get levelUpSummaryPreview;
+
+  /// No description provided for @levelUpSummaryDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui a changé'**
+  String get levelUpSummaryDone;
+
+  /// No description provided for @levelUpFinish.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminer'**
+  String get levelUpFinish;
+
+  /// No description provided for @levelUpOpenSpells.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer les sorts'**
+  String get levelUpOpenSpells;
+
+  /// No description provided for @levelUpApplying.
+  ///
+  /// In fr, this message translates to:
+  /// **'Application de la montée de niveau…'**
+  String get levelUpApplying;
+
+  /// No description provided for @levelUpChangeClass.
+  ///
+  /// In fr, this message translates to:
+  /// **'{className} : niveau {level}'**
+  String levelUpChangeClass(String className, int level);
+
+  /// No description provided for @levelUpChangeNewClass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle classe : {className}'**
+  String levelUpChangeNewClass(String className);
+
+  /// No description provided for @levelUpChangeProficiencyBonus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonus de maîtrise : +{before} → +{after}'**
+  String levelUpChangeProficiencyBonus(int before, int after);
+
+  /// No description provided for @levelUpChangeHp.
+  ///
+  /// In fr, this message translates to:
+  /// **'PV max : {before} → {after} (+{delta})'**
+  String levelUpChangeHp(int before, int after, int delta);
+
+  /// No description provided for @levelUpChangeHpRetro.
+  ///
+  /// In fr, this message translates to:
+  /// **'dont +{retro} PV rétroactifs (Constitution)'**
+  String levelUpChangeHpRetro(int retro);
+
+  /// No description provided for @levelUpChangeAbility.
+  ///
+  /// In fr, this message translates to:
+  /// **'{ability} : {before} → {after}'**
+  String levelUpChangeAbility(String ability, int before, int after);
+
+  /// No description provided for @levelUpChangeSubclass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sous-classe : {name}'**
+  String levelUpChangeSubclass(String name);
+
+  /// No description provided for @levelUpChangeFeat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Don : {name}'**
+  String levelUpChangeFeat(String name);
+
+  /// No description provided for @levelUpChangeProficiencies.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelles maîtrises : {list}'**
+  String levelUpChangeProficiencies(String list);
+
+  /// No description provided for @levelUpChangeFeature.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle capacité : {name}'**
+  String levelUpChangeFeature(String name);
+
+  /// No description provided for @levelUpChangeResource.
+  ///
+  /// In fr, this message translates to:
+  /// **'{resource} : {before} → {after}'**
+  String levelUpChangeResource(String resource, int before, int after);
+
+  /// No description provided for @levelUpChangeResourceNew.
+  ///
+  /// In fr, this message translates to:
+  /// **'{resource} : {after}'**
+  String levelUpChangeResourceNew(String resource, int after);
+
+  /// No description provided for @levelUpChangeHitDie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dés de vie : +1 d{die}'**
+  String levelUpChangeHitDie(int die);
+
+  /// No description provided for @levelUpChangeSlots.
+  ///
+  /// In fr, this message translates to:
+  /// **'Emplacements de sorts : {slots}'**
+  String levelUpChangeSlots(String slots);
+
+  /// No description provided for @levelUpSlotEntry.
+  ///
+  /// In fr, this message translates to:
+  /// **'niv. {level} ×{count}'**
+  String levelUpSlotEntry(int level, int count);
+
+  /// No description provided for @levelUpChangeAc.
+  ///
+  /// In fr, this message translates to:
+  /// **'CA : {before} → {after}'**
+  String levelUpChangeAc(int before, int after);
+
+  /// No description provided for @levelUpConflict.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le personnage a été modifié entre-temps : rien n\'a été appliqué. Rouvrez la montée de niveau.'**
+  String get levelUpConflict;
+
+  /// No description provided for @levelUpNotApplied.
+  ///
+  /// In fr, this message translates to:
+  /// **'La montée de niveau n\'a pas été appliquée, rien n\'a été modifié. {error}'**
+  String levelUpNotApplied(String error);
+
+  /// No description provided for @proficiencyKeyArmorLight.
+  ///
+  /// In fr, this message translates to:
+  /// **'Armures légères'**
+  String get proficiencyKeyArmorLight;
+
+  /// No description provided for @proficiencyKeyArmorMedium.
+  ///
+  /// In fr, this message translates to:
+  /// **'Armures intermédiaires'**
+  String get proficiencyKeyArmorMedium;
+
+  /// No description provided for @proficiencyKeyArmorShield.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boucliers'**
+  String get proficiencyKeyArmorShield;
+
+  /// No description provided for @proficiencyKeyWeaponSimple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Armes courantes'**
+  String get proficiencyKeyWeaponSimple;
+
+  /// No description provided for @proficiencyKeyWeaponMartial.
+  ///
+  /// In fr, this message translates to:
+  /// **'Armes de guerre'**
+  String get proficiencyKeyWeaponMartial;
+
+  /// No description provided for @proficiencyKeyWeaponShortsword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épées courtes'**
+  String get proficiencyKeyWeaponShortsword;
+
+  /// No description provided for @proficiencyKeyToolThieves.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outils de voleur'**
+  String get proficiencyKeyToolThieves;
 }
 
 class _AppLocalizationsDelegate
