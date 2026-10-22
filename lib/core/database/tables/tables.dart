@@ -180,6 +180,8 @@ class CharacterClasses extends Table {
   TextColumn get classId => text()();
   TextColumn get subclassId => text().nullable()();
   IntColumn get level => integer()();
+  // 2024 : ordre divin (Clerc) ou primordial (Druide)
+  TextColumn get classOrder => text().nullable()();
 }
 
 class CharacterAbilityScores extends Table {

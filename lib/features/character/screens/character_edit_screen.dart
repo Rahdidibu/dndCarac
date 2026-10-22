@@ -77,6 +77,7 @@ class _CharacterEditFormState extends ConsumerState<_CharacterEditForm> {
   late final Map<String, TextEditingController> _baseCtrls;
   late final String? _initialSpeciesId;
   late final String? _initialSubspeciesId;
+  late final String? _initialBackgroundId;
   late String _alignment;
   late String? _speciesId;
   late String? _subspeciesId;
@@ -97,6 +98,7 @@ class _CharacterEditFormState extends ConsumerState<_CharacterEditForm> {
     _alignment = c.alignment;
     _initialSpeciesId = c.speciesId;
     _initialSubspeciesId = c.subspeciesId;
+    _initialBackgroundId = c.backgroundId;
     _speciesId = c.speciesId;
     _subspeciesId = c.subspeciesId;
     _backgroundId = c.backgroundId;
@@ -177,6 +179,23 @@ class _CharacterEditFormState extends ConsumerState<_CharacterEditForm> {
   void _onSpeciesChanged(String? id) => setState(() {
     _speciesId = id;
     _subspeciesId = null;
+  });
+
+  /// Même historique : déclarer/corriger le bonus recalcule la base pour que le
+  /// total reste inchangé (le bonus existait déjà dans la valeur finale).
+  bool get _asiKeepsTotal => _is2024 && _backgroundId == _initialBackgroundId;
+
+  void _onAsiChanged(Map<String, int> next) => setState(() {
+    if (_asiKeepsTotal) {
+      for (final key in DndRules.abilityKeys) {
+        final delta = (next[key] ?? 0) - (_asi[key] ?? 0);
+        final base = int.tryParse(_baseCtrls[key]!.text.trim());
+        if (delta != 0 && base != null) {
+          _baseCtrls[key]!.text = (base - delta).toString();
+        }
+      }
+    }
+    _asi = next;
   });
 
   void _onBackgroundChanged(String? id) => setState(() {
@@ -288,7 +307,8 @@ class _CharacterEditFormState extends ConsumerState<_CharacterEditForm> {
                     onSubspeciesChanged: (v) =>
                         setState(() => _subspeciesId = v),
                     onBackgroundChanged: _onBackgroundChanged,
-                    onAsiChanged: (v) => setState(() => _asi = v),
+                    onAsiChanged: _onAsiChanged,
+                    asiKeepsTotal: _asiKeepsTotal,
                   ),
                 ],
               ),
@@ -634,6 +654,7 @@ class _OriginSection extends StatelessWidget {
   final ValueChanged<String?> onSubspeciesChanged;
   final ValueChanged<String?> onBackgroundChanged;
   final ValueChanged<Map<String, int>> onAsiChanged;
+  final bool asiKeepsTotal;
 
   const _OriginSection({
     required this.ruleset,
@@ -647,6 +668,7 @@ class _OriginSection extends StatelessWidget {
     required this.onSubspeciesChanged,
     required this.onBackgroundChanged,
     required this.onAsiChanged,
+    required this.asiKeepsTotal,
   });
 
   @override
@@ -689,12 +711,21 @@ class _OriginSection extends StatelessWidget {
             value: backgroundId,
             onChanged: onBackgroundChanged,
           ),
-          if (ruleset == RulesetVersion.dnd2024 && backgroundId != null)
+          if (ruleset == RulesetVersion.dnd2024 && backgroundId != null) ...[
+            if (asiKeepsTotal)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Text(
+                  l10n.editAsiKeepsTotalHint,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
             _BackgroundAsiSection(
               backgroundId: backgroundId!,
               asi: asi,
               onChanged: onAsiChanged,
             ),
+          ],
         ],
       ],
     );

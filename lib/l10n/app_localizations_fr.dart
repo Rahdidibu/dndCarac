@@ -271,6 +271,61 @@ class AppLocalizationsFr extends AppLocalizations {
   String get resourceActionSurge => 'Fougue';
 
   @override
+  String get resourceSecondWind => 'Second souffle';
+
+  @override
+  String get featuresSectionTitle => 'Capacités';
+
+  @override
+  String get featuresSearchHint => 'Rechercher une capacité';
+
+  @override
+  String get featuresEmpty => 'Aucune capacité à afficher';
+
+  @override
+  String get featuresNoResult => 'Aucun résultat';
+
+  @override
+  String get featuresGroupChoices => 'Choix de classe';
+
+  @override
+  String featuresGroupSpecies(String name) {
+    return 'Traits d\'espèce : $name';
+  }
+
+  @override
+  String featuresGroupSubclass(String name) {
+    return 'Sous-classe : $name';
+  }
+
+  @override
+  String featuresLevel(int level) {
+    return 'Niv. $level';
+  }
+
+  @override
+  String featuresUses(int current, int max) {
+    return '$current / $max utilisations';
+  }
+
+  @override
+  String get featuresUnlimited => 'Illimité';
+
+  @override
+  String get featuresUseOne => 'Utiliser';
+
+  @override
+  String get featuresRestoreOne => 'Récupérer';
+
+  @override
+  String featuresOrderNotChosen(String order) {
+    return '$order : non choisi';
+  }
+
+  @override
+  String get featuresOrderChoose => 'Choisir';
+
+  @override
   String get abilityMethodPointBuy => 'Achat de points';
 
   @override
@@ -1385,6 +1440,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get editBackgroundLabel => 'Historique';
+
+  @override
+  String get editAsiKeepsTotalHint =>
+      'Pour l\'historique actuel, le bonus est déjà inclus dans la valeur finale : le déclarer ici recalcule la base et ne change pas le total.';
 
   @override
   String get editAlignmentLabel => 'Alignement';

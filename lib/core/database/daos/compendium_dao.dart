@@ -183,6 +183,11 @@ class CompendiumDao extends DatabaseAccessor<AppDatabase>
     (b) => b.insertAll(srdFeatures, features, mode: InsertMode.insertOrIgnore),
   );
 
+  Future<List<SrdFeature>> getAllFeatures(RulesetVersion ruleset) =>
+      (select(srdFeatures)..where((f) => f.ruleset.equalsValue(ruleset))).get();
+
+  Future<void> clearFeatures() => delete(srdFeatures).go();
+
   // ── Seed check ───────────────────────────────────────────
 
   Future<bool> isSeeded(RulesetVersion ruleset) async {

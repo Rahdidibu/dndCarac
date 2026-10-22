@@ -493,6 +493,7 @@ class _ProfileTabState extends ConsumerState<_ProfileTab> {
                       );
                 },
               ),
+          FeaturesSection(characterId: widget.characterId),
           featsAsync.when(
             loading: () => const LinearProgressIndicator(),
             error: (e, st) =>

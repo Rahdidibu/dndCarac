@@ -19,7 +19,9 @@ import '../../../core/utils/string_utils.dart';
 import '../../../core/utils/skills_catalog.dart';
 import '../../export/pdf_generator.dart';
 import '../providers/character_providers.dart';
+import '../providers/character_features_provider.dart';
 import '../widgets/avatar_upload.dart';
+import '../widgets/features_section.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/providers/forge_navigation_provider.dart';
 import '../../../core/utils/markdown_text.dart';
@@ -66,6 +68,7 @@ class CharacterSheetScreen extends ConsumerWidget {
     final feats = await db.characterDao.getCharacterFeats(characterId);
     final srdFeats = await db.compendiumDao.getAllFeats(character.ruleset);
     final notes = await db.characterDao.getCharacterNotes(characterId);
+    final features = await ref.read(characterFeaturesProvider(characterId).future);
 
     final bytes = await PdfGenerator.generate(
       character: character,
@@ -78,6 +81,7 @@ class CharacterSheetScreen extends ConsumerWidget {
       equipment: equipment,
       feats: feats,
       srdFeats: srdFeats,
+      features: features,
       notes: notes,
     );
 

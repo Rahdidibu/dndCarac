@@ -614,6 +614,96 @@ abstract class AppLocalizations {
   /// **'Fougue'**
   String get resourceActionSurge;
 
+  /// No description provided for @resourceSecondWind.
+  ///
+  /// In fr, this message translates to:
+  /// **'Second souffle'**
+  String get resourceSecondWind;
+
+  /// No description provided for @featuresSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capacités'**
+  String get featuresSectionTitle;
+
+  /// No description provided for @featuresSearchHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher une capacité'**
+  String get featuresSearchHint;
+
+  /// No description provided for @featuresEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune capacité à afficher'**
+  String get featuresEmpty;
+
+  /// No description provided for @featuresNoResult.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun résultat'**
+  String get featuresNoResult;
+
+  /// No description provided for @featuresGroupChoices.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choix de classe'**
+  String get featuresGroupChoices;
+
+  /// No description provided for @featuresGroupSpecies.
+  ///
+  /// In fr, this message translates to:
+  /// **'Traits d\'espèce : {name}'**
+  String featuresGroupSpecies(String name);
+
+  /// No description provided for @featuresGroupSubclass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sous-classe : {name}'**
+  String featuresGroupSubclass(String name);
+
+  /// No description provided for @featuresLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niv. {level}'**
+  String featuresLevel(int level);
+
+  /// No description provided for @featuresUses.
+  ///
+  /// In fr, this message translates to:
+  /// **'{current} / {max} utilisations'**
+  String featuresUses(int current, int max);
+
+  /// No description provided for @featuresUnlimited.
+  ///
+  /// In fr, this message translates to:
+  /// **'Illimité'**
+  String get featuresUnlimited;
+
+  /// No description provided for @featuresUseOne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser'**
+  String get featuresUseOne;
+
+  /// No description provided for @featuresRestoreOne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récupérer'**
+  String get featuresRestoreOne;
+
+  /// No description provided for @featuresOrderNotChosen.
+  ///
+  /// In fr, this message translates to:
+  /// **'{order} : non choisi'**
+  String featuresOrderNotChosen(String order);
+
+  /// No description provided for @featuresOrderChoose.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir'**
+  String get featuresOrderChoose;
+
   /// No description provided for @abilityMethodPointBuy.
   ///
   /// In fr, this message translates to:
@@ -2605,6 +2695,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Historique'**
   String get editBackgroundLabel;
+
+  /// No description provided for @editAsiKeepsTotalHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour l\'historique actuel, le bonus est déjà inclus dans la valeur finale : le déclarer ici recalcule la base et ne change pas le total.'**
+  String get editAsiKeepsTotalHint;
 
   /// No description provided for @editAlignmentLabel.
   ///

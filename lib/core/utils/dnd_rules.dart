@@ -1,5 +1,18 @@
 // D&D 5e game rules calculations — edition-agnostic unless noted
 
+import '../database/tables/tables.dart';
+
+/// Ressource de classe à usage limité (clé de `character_resources`).
+class ClassResourceSpec {
+  final String key;
+  final int maximum;
+
+  const ClassResourceSpec(this.key, this.maximum);
+
+  @override
+  String toString() => '$key=$maximum';
+}
+
 class DndRules {
   DndRules._();
 
@@ -206,6 +219,60 @@ class DndRules {
 
   static String abilityName(String key, {required Map<String, String> labels}) {
     return labels[key] ?? key;
+  }
+
+  /// Valeur « illimité » utilisée pour les ressources sans plafond (Rage 20, 2014).
+  static const int unlimitedResource = 999;
+
+  /// Ressources de classe à usage limité et leur maximum au [level] de la
+  /// classe. Les clés correspondent à `character_resources.resource_name`.
+  /// Retourne une liste vide si la classe n'a pas de ressource à ce niveau.
+  static List<ClassResourceSpec> classResourceByLevel(
+      String classId, int level, RulesetVersion ruleset) {
+    final is2024 = ruleset == RulesetVersion.dnd2024;
+    int steps(List<(int, int)> table) {
+      var value = 0;
+      for (final (minLevel, amount) in table) {
+        if (level >= minLevel) value = amount;
+      }
+      return value;
+    }
+
+    final specs = <ClassResourceSpec>[];
+    void add(String key, int maximum) {
+      if (maximum > 0) specs.add(ClassResourceSpec(key, maximum));
+    }
+
+    switch (classId) {
+      case 'barbarian':
+        final rages = steps([(1, 2), (3, 3), (6, 4), (12, 5), (17, 6)]);
+        add('resourceRage',
+            !is2024 && level >= 20 ? unlimitedResource : rages);
+      case 'monk':
+        add('resourceKi', level >= 2 ? level : 0);
+      case 'sorcerer':
+        add('resourceSorceryPoints', level >= 2 ? level : 0);
+      case 'cleric':
+        add(
+            'resourceChannelDivinity',
+            is2024
+                ? steps([(2, 2), (6, 3), (18, 4)])
+                : steps([(2, 1), (6, 2), (18, 3)]));
+      case 'paladin':
+        add('resourceChannelDivinity',
+            is2024 ? steps([(3, 2), (11, 3)]) : steps([(3, 1)]));
+      case 'druid':
+        add(
+            'resourceWildShape',
+            is2024
+                ? steps([(2, 2), (6, 3), (17, 4)])
+                : (level >= 20 ? unlimitedResource : steps([(2, 2)])));
+      case 'fighter':
+        add('resourceSecondWind',
+            is2024 ? steps([(1, 2), (4, 3), (10, 4)]) : 1);
+        add('resourceActionSurge', steps([(2, 1), (17, 2)]));
+    }
+    return specs;
   }
 
   static List<String> alignments(Map<String, String> labels) {

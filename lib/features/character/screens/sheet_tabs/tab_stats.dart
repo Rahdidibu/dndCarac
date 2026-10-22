@@ -573,9 +573,6 @@ class _EditAbilitiesDialogState extends ConsumerState<_EditAbilitiesDialog> {
     );
   }
 
-  Value<int> _syncedBase(int finalScore, int? bonus) =>
-      Value.absentIfNull(bonus == null ? null : finalScore - bonus);
-
   Future<void> _save() async {
     final db = ref.read(databaseProvider);
     final str = int.tryParse(_strCtrl.text) ?? widget.scores.strength;
@@ -585,24 +582,16 @@ class _EditAbilitiesDialogState extends ConsumerState<_EditAbilitiesDialog> {
     final wis = int.tryParse(_wisCtrl.text) ?? widget.scores.wisdom;
     final cha = int.tryParse(_chaCtrl.text) ?? widget.scores.charisma;
 
-    final s = widget.scores;
-    await db.characterDao.upsertAbilityScores(
-      CharacterAbilityScoresCompanion(
-        characterId: Value(widget.characterId),
-        strength: Value(str),
-        dexterity: Value(dex),
-        constitution: Value(con),
-        intelligence: Value(valInt),
-        wisdom: Value(wis),
-        charisma: Value(cha),
-        // Garde base = final − bonus d'origine quand la décomposition existe
-        baseStrength: _syncedBase(str, s.bonusStrength),
-        baseDexterity: _syncedBase(dex, s.bonusDexterity),
-        baseConstitution: _syncedBase(con, s.bonusConstitution),
-        baseIntelligence: _syncedBase(valInt, s.bonusIntelligence),
-        baseWisdom: _syncedBase(wis, s.bonusWisdom),
-        baseCharisma: _syncedBase(cha, s.bonusCharisma),
-      ),
+    await CharacterService(db).saveFinalScores(
+      characterId: widget.characterId,
+      finalScores: {
+        'str': str,
+        'dex': dex,
+        'con': con,
+        'int': valInt,
+        'wis': wis,
+        'cha': cha,
+      },
     );
 
     if (widget.character != null) {

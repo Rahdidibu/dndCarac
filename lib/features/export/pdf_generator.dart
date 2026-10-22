@@ -10,6 +10,7 @@ import '../../core/utils/dnd_rules.dart';
 
 import '../../core/models/character_note.dart';
 import '../../core/utils/app_errors.dart';
+import '../character/providers/character_features_provider.dart';
 
 // ─── Palette ────────────────────────────────────────────────────────────────
 
@@ -33,6 +34,7 @@ class PdfGenerator {
     required List<CharacterEquipmentData> equipment,
     List<CharacterFeat> feats = const [],
     List<SrdFeat> srdFeats = const [],
+    List<CharacterFeatureEntry> features = const [],
     List<CharacterNote> notes = const [],
   }) async {
     final font = await PdfGoogleFonts.robotoRegular();
@@ -124,6 +126,12 @@ class PdfGenerator {
           _buildBodyText('Aucun équipement.')
         else
           _buildEquipment(equipment, character),
+        if (features.isNotEmpty) ...[
+          pw.SizedBox(height: 10),
+          _sectionLabel('Capacités'),
+          pw.SizedBox(height: 4),
+          _buildFeatures(features),
+        ],
         if (feats.isNotEmpty) ...[
           pw.SizedBox(height: 10),
           _sectionLabel('Dons'),
@@ -649,6 +657,44 @@ class PdfGenerator {
 
   static pw.Widget _buildBodyText(String text) =>
       pw.Text(text, style: const pw.TextStyle(fontSize: 10));
+
+  // Les dons ont leur propre section : on n'imprime ici que classe,
+  // sous-classe, espèce et choix de classe.
+  static pw.Widget _buildFeatures(List<CharacterFeatureEntry> features) {
+    final children = <pw.Widget>[];
+    String? lastGroup;
+    for (final f in features.where((f) => f.source != FeatureSource.feat)) {
+      final group = switch (f.source) {
+        FeatureSource.subclass => 'Sous-classe : ${f.origin}',
+        FeatureSource.species => 'Espèce : ${f.origin}',
+        FeatureSource.choice => 'Choix de classe',
+        _ => f.origin,
+      };
+      if (group != lastGroup) {
+        children.add(pw.Padding(
+          padding: const pw.EdgeInsets.only(top: 4, bottom: 3),
+          child: _subsectionLabel(group),
+        ));
+        lastGroup = group;
+      }
+      final title = f.level == null ? f.name : '${f.name} (niv. ${f.level})';
+      children.add(pw.Padding(
+        padding: const pw.EdgeInsets.only(bottom: 5),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(title,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9)),
+            if (f.description.isNotEmpty)
+              pw.Text(f.description.replaceAll('**', ''),
+                  style: const pw.TextStyle(fontSize: 8, color: _grey)),
+          ],
+        ),
+      ));
+    }
+    return pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start, children: children);
+  }
 
   static pw.Widget _buildFeats(List<CharacterFeat> characterFeats, List<SrdFeat> srdFeats) {
     final srdFeatsMap = {for (final f in srdFeats) f.id: f};

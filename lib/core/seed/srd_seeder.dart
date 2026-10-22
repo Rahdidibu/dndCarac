@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../database/app_database.dart';
 import '../database/tables/tables.dart';
+import '../utils/feature_rules.dart';
 
 /// Loads SRD JSON assets into the local SQLite database.
 /// Called once at startup if the DB is empty.
@@ -47,6 +49,7 @@ class SrdSeeder {
       // Force seed 2024 subclasses to ensure French translations are applied
       await _seedSubclasses(RulesetVersion.dnd2024, 'assets/data/2024/subclasses.json');
 
+      await _syncFeatures();
 
     } catch (e, stack) {
       print('Error during SRD seeding: $e');
@@ -88,8 +91,6 @@ class SrdSeeder {
     await _seedRaces2014();
     await _seedSubraces2014();
     await _seedBackgrounds2014();
-    await _seedFeatures(
-        RulesetVersion.dnd2014, 'assets/data/2014/features.json');
   }
 
   Future<void> _seedSpells2014() async {
@@ -253,20 +254,53 @@ class SrdSeeder {
     await db.compendiumDao.insertAllBackgrounds(companions);
   }
 
-  Future<void> _seedFeatures(
-      RulesetVersion ruleset, String assetPath) async {
+  /// À incrémenter dès que `features.json` (2014/2024) ou
+  /// `features_fr.json` change, pour relancer l'import sur les bases existantes.
+  static const _featuresSeedVersion = 2;
+  static const _featuresSeedVersionKey = 'srd_features_seed_version';
+
+  /// SrdFeatures n'a pas de clé unique : on remplace le contenu complet
+  /// quand la version change (ou que la table est vide) plutôt que d'insérer
+  /// en double.
+  Future<void> _syncFeatures() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedVersion = prefs.getInt(_featuresSeedVersionKey) ?? 0;
+    final hasRows = (await db.compendiumDao
+            .getFeaturesForClass('fighter', RulesetVersion.dnd2024, 20))
+        .isNotEmpty;
+    if (storedVersion >= _featuresSeedVersion && hasRows) return;
+
+    final rawFr = await rootBundle.loadString('assets/data/features_fr.json');
+    final fr = json.decode(rawFr) as Map<String, dynamic>;
+
+    await db.compendiumDao.clearFeatures();
+    await _seedFeatures(RulesetVersion.dnd2014,
+        'assets/data/2014/features.json', fr['2014'] as Map<String, dynamic>?);
+    await _seedFeatures(RulesetVersion.dnd2024,
+        'assets/data/2024/features.json', fr['2024'] as Map<String, dynamic>?);
+    await prefs.setInt(_featuresSeedVersionKey, _featuresSeedVersion);
+  }
+
+  Future<void> _seedFeatures(RulesetVersion ruleset, String assetPath,
+      Map<String, dynamic>? translations) async {
     final raw = await rootBundle.loadString(assetPath);
     final List<dynamic> list = json.decode(raw);
-    final companions = list.map((f) {
+    final companions = list.where((f) {
+      return ruleset != RulesetVersion.dnd2014 ||
+          !FeatureRules.isHidden2014Source(
+              f['name'] as String, f['subclass']?['index'] as String?);
+    }).map((f) {
+      final index = f['index'] as String;
+      final tr = translations?[index] as Map<String, dynamic>?;
+      final trDesc = (tr?['desc'] as List?)?.join('\n');
       return SrdFeaturesCompanion(
-        srdIndex: Value(f['index'] as String),
+        srdIndex: Value(index),
         ruleset: Value(ruleset),
-        name: Value(f['name'] as String),
+        name: Value((tr?['name'] as String?) ?? f['name'] as String),
         classId: Value(f['class']?['index'] as String?),
         subclassId: Value(f['subclass']?['index'] as String?),
         level: Value(f['level'] as int),
-        description:
-            Value((f['desc'] as List?)?.join('\n') ?? ''),
+        description: Value(trDesc ?? (f['desc'] as List?)?.join('\n') ?? ''),
       );
     }).toList();
     await _insertFeaturesInChunks(companions);

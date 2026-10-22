@@ -270,6 +270,61 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resourceActionSurge => 'Action Surge';
 
   @override
+  String get resourceSecondWind => 'Second Wind';
+
+  @override
+  String get featuresSectionTitle => 'Features';
+
+  @override
+  String get featuresSearchHint => 'Search a feature';
+
+  @override
+  String get featuresEmpty => 'No features to display';
+
+  @override
+  String get featuresNoResult => 'No results';
+
+  @override
+  String get featuresGroupChoices => 'Class choices';
+
+  @override
+  String featuresGroupSpecies(String name) {
+    return 'Species traits: $name';
+  }
+
+  @override
+  String featuresGroupSubclass(String name) {
+    return 'Subclass: $name';
+  }
+
+  @override
+  String featuresLevel(int level) {
+    return 'Lvl $level';
+  }
+
+  @override
+  String featuresUses(int current, int max) {
+    return '$current / $max uses';
+  }
+
+  @override
+  String get featuresUnlimited => 'Unlimited';
+
+  @override
+  String get featuresUseOne => 'Use';
+
+  @override
+  String get featuresRestoreOne => 'Restore';
+
+  @override
+  String featuresOrderNotChosen(String order) {
+    return '$order: not chosen';
+  }
+
+  @override
+  String get featuresOrderChoose => 'Choose';
+
+  @override
   String get abilityMethodPointBuy => 'Point buy';
 
   @override
@@ -1379,6 +1434,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editBackgroundLabel => 'Background';
+
+  @override
+  String get editAsiKeepsTotalHint =>
+      'For the current background, the bonus is already included in the final score: declaring it here recalculates the base and leaves the total unchanged.';
 
   @override
   String get editAlignmentLabel => 'Alignment';

@@ -7105,6 +7105,17 @@ class $CharacterClassesTable extends CharacterClasses
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _classOrderMeta = const VerificationMeta(
+    'classOrder',
+  );
+  @override
+  late final GeneratedColumn<String> classOrder = GeneratedColumn<String>(
+    'class_order',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -7112,6 +7123,7 @@ class $CharacterClassesTable extends CharacterClasses
     classId,
     subclassId,
     level,
+    classOrder,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -7161,6 +7173,12 @@ class $CharacterClassesTable extends CharacterClasses
     } else if (isInserting) {
       context.missing(_levelMeta);
     }
+    if (data.containsKey('class_order')) {
+      context.handle(
+        _classOrderMeta,
+        classOrder.isAcceptableOrUnknown(data['class_order']!, _classOrderMeta),
+      );
+    }
     return context;
   }
 
@@ -7190,6 +7208,10 @@ class $CharacterClassesTable extends CharacterClasses
         DriftSqlType.int,
         data['${effectivePrefix}level'],
       )!,
+      classOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}class_order'],
+      ),
     );
   }
 
@@ -7206,12 +7228,14 @@ class CharacterClassesData extends DataClass
   final String classId;
   final String? subclassId;
   final int level;
+  final String? classOrder;
   const CharacterClassesData({
     required this.id,
     required this.characterId,
     required this.classId,
     this.subclassId,
     required this.level,
+    this.classOrder,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -7223,6 +7247,9 @@ class CharacterClassesData extends DataClass
       map['subclass_id'] = Variable<String>(subclassId);
     }
     map['level'] = Variable<int>(level);
+    if (!nullToAbsent || classOrder != null) {
+      map['class_order'] = Variable<String>(classOrder);
+    }
     return map;
   }
 
@@ -7235,6 +7262,9 @@ class CharacterClassesData extends DataClass
           ? const Value.absent()
           : Value(subclassId),
       level: Value(level),
+      classOrder: classOrder == null && nullToAbsent
+          ? const Value.absent()
+          : Value(classOrder),
     );
   }
 
@@ -7249,6 +7279,7 @@ class CharacterClassesData extends DataClass
       classId: serializer.fromJson<String>(json['classId']),
       subclassId: serializer.fromJson<String?>(json['subclassId']),
       level: serializer.fromJson<int>(json['level']),
+      classOrder: serializer.fromJson<String?>(json['classOrder']),
     );
   }
   @override
@@ -7260,6 +7291,7 @@ class CharacterClassesData extends DataClass
       'classId': serializer.toJson<String>(classId),
       'subclassId': serializer.toJson<String?>(subclassId),
       'level': serializer.toJson<int>(level),
+      'classOrder': serializer.toJson<String?>(classOrder),
     };
   }
 
@@ -7269,12 +7301,14 @@ class CharacterClassesData extends DataClass
     String? classId,
     Value<String?> subclassId = const Value.absent(),
     int? level,
+    Value<String?> classOrder = const Value.absent(),
   }) => CharacterClassesData(
     id: id ?? this.id,
     characterId: characterId ?? this.characterId,
     classId: classId ?? this.classId,
     subclassId: subclassId.present ? subclassId.value : this.subclassId,
     level: level ?? this.level,
+    classOrder: classOrder.present ? classOrder.value : this.classOrder,
   );
   CharacterClassesData copyWithCompanion(CharacterClassesCompanion data) {
     return CharacterClassesData(
@@ -7287,6 +7321,9 @@ class CharacterClassesData extends DataClass
           ? data.subclassId.value
           : this.subclassId,
       level: data.level.present ? data.level.value : this.level,
+      classOrder: data.classOrder.present
+          ? data.classOrder.value
+          : this.classOrder,
     );
   }
 
@@ -7297,13 +7334,15 @@ class CharacterClassesData extends DataClass
           ..write('characterId: $characterId, ')
           ..write('classId: $classId, ')
           ..write('subclassId: $subclassId, ')
-          ..write('level: $level')
+          ..write('level: $level, ')
+          ..write('classOrder: $classOrder')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, characterId, classId, subclassId, level);
+  int get hashCode =>
+      Object.hash(id, characterId, classId, subclassId, level, classOrder);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -7312,7 +7351,8 @@ class CharacterClassesData extends DataClass
           other.characterId == this.characterId &&
           other.classId == this.classId &&
           other.subclassId == this.subclassId &&
-          other.level == this.level);
+          other.level == this.level &&
+          other.classOrder == this.classOrder);
 }
 
 class CharacterClassesCompanion extends UpdateCompanion<CharacterClassesData> {
@@ -7321,12 +7361,14 @@ class CharacterClassesCompanion extends UpdateCompanion<CharacterClassesData> {
   final Value<String> classId;
   final Value<String?> subclassId;
   final Value<int> level;
+  final Value<String?> classOrder;
   const CharacterClassesCompanion({
     this.id = const Value.absent(),
     this.characterId = const Value.absent(),
     this.classId = const Value.absent(),
     this.subclassId = const Value.absent(),
     this.level = const Value.absent(),
+    this.classOrder = const Value.absent(),
   });
   CharacterClassesCompanion.insert({
     this.id = const Value.absent(),
@@ -7334,6 +7376,7 @@ class CharacterClassesCompanion extends UpdateCompanion<CharacterClassesData> {
     required String classId,
     this.subclassId = const Value.absent(),
     required int level,
+    this.classOrder = const Value.absent(),
   }) : characterId = Value(characterId),
        classId = Value(classId),
        level = Value(level);
@@ -7343,6 +7386,7 @@ class CharacterClassesCompanion extends UpdateCompanion<CharacterClassesData> {
     Expression<String>? classId,
     Expression<String>? subclassId,
     Expression<int>? level,
+    Expression<String>? classOrder,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -7350,6 +7394,7 @@ class CharacterClassesCompanion extends UpdateCompanion<CharacterClassesData> {
       if (classId != null) 'class_id': classId,
       if (subclassId != null) 'subclass_id': subclassId,
       if (level != null) 'level': level,
+      if (classOrder != null) 'class_order': classOrder,
     });
   }
 
@@ -7359,6 +7404,7 @@ class CharacterClassesCompanion extends UpdateCompanion<CharacterClassesData> {
     Value<String>? classId,
     Value<String?>? subclassId,
     Value<int>? level,
+    Value<String?>? classOrder,
   }) {
     return CharacterClassesCompanion(
       id: id ?? this.id,
@@ -7366,6 +7412,7 @@ class CharacterClassesCompanion extends UpdateCompanion<CharacterClassesData> {
       classId: classId ?? this.classId,
       subclassId: subclassId ?? this.subclassId,
       level: level ?? this.level,
+      classOrder: classOrder ?? this.classOrder,
     );
   }
 
@@ -7387,6 +7434,9 @@ class CharacterClassesCompanion extends UpdateCompanion<CharacterClassesData> {
     if (level.present) {
       map['level'] = Variable<int>(level.value);
     }
+    if (classOrder.present) {
+      map['class_order'] = Variable<String>(classOrder.value);
+    }
     return map;
   }
 
@@ -7397,7 +7447,8 @@ class CharacterClassesCompanion extends UpdateCompanion<CharacterClassesData> {
           ..write('characterId: $characterId, ')
           ..write('classId: $classId, ')
           ..write('subclassId: $subclassId, ')
-          ..write('level: $level')
+          ..write('level: $level, ')
+          ..write('classOrder: $classOrder')
           ..write(')'))
         .toString();
   }
@@ -17997,6 +18048,7 @@ typedef $$CharacterClassesTableCreateCompanionBuilder =
       required String classId,
       Value<String?> subclassId,
       required int level,
+      Value<String?> classOrder,
     });
 typedef $$CharacterClassesTableUpdateCompanionBuilder =
     CharacterClassesCompanion Function({
@@ -18005,6 +18057,7 @@ typedef $$CharacterClassesTableUpdateCompanionBuilder =
       Value<String> classId,
       Value<String?> subclassId,
       Value<int> level,
+      Value<String?> classOrder,
     });
 
 final class $$CharacterClassesTableReferences
@@ -18069,6 +18122,11 @@ class $$CharacterClassesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get classOrder => $composableBuilder(
+    column: $table.classOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$CharactersTableFilterComposer get characterId {
     final $$CharactersTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -18122,6 +18180,11 @@ class $$CharacterClassesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get classOrder => $composableBuilder(
+    column: $table.classOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$CharactersTableOrderingComposer get characterId {
     final $$CharactersTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -18168,6 +18231,11 @@ class $$CharacterClassesTableAnnotationComposer
 
   GeneratedColumn<int> get level =>
       $composableBuilder(column: $table.level, builder: (column) => column);
+
+  GeneratedColumn<String> get classOrder => $composableBuilder(
+    column: $table.classOrder,
+    builder: (column) => column,
+  );
 
   $$CharactersTableAnnotationComposer get characterId {
     final $$CharactersTableAnnotationComposer composer = $composerBuilder(
@@ -18228,12 +18296,14 @@ class $$CharacterClassesTableTableManager
                 Value<String> classId = const Value.absent(),
                 Value<String?> subclassId = const Value.absent(),
                 Value<int> level = const Value.absent(),
+                Value<String?> classOrder = const Value.absent(),
               }) => CharacterClassesCompanion(
                 id: id,
                 characterId: characterId,
                 classId: classId,
                 subclassId: subclassId,
                 level: level,
+                classOrder: classOrder,
               ),
           createCompanionCallback:
               ({
@@ -18242,12 +18312,14 @@ class $$CharacterClassesTableTableManager
                 required String classId,
                 Value<String?> subclassId = const Value.absent(),
                 required int level,
+                Value<String?> classOrder = const Value.absent(),
               }) => CharacterClassesCompanion.insert(
                 id: id,
                 characterId: characterId,
                 classId: classId,
                 subclassId: subclassId,
                 level: level,
+                classOrder: classOrder,
               ),
           withReferenceMapper: (p0) => p0
               .map(

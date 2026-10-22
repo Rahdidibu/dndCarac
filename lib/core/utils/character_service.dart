@@ -7,6 +7,7 @@ import '../database/app_database.dart';
 import '../database/tables/tables.dart';
 import '../utils/app_errors.dart';
 import '../utils/armor_class_helper.dart';
+import '../utils/class_orders.dart';
 import '../utils/character_edit_rules.dart';
 import '../utils/dnd_rules.dart';
 import '../utils/starting_equipment_helper.dart';
@@ -204,13 +205,24 @@ class CharacterService {
     );
 
     // 4 — Insert class rows (multiclass)
+    final is2024 = wizard.ruleset == RulesetVersion.dnd2024;
     for (final entry in wizard.classes) {
+      final order = is2024
+          ? ClassOrders.chosenFor(
+              entry.classId,
+              divineOrder: wizard.chosenDivineOrder,
+              primalOrder: wizard.chosenPrimalOrder,
+            )
+          : null;
       await db.characterDao.insertCharacterClass(
         CharacterClassesCompanion.insert(
           characterId: characterId,
           classId: entry.classId,
           subclassId: Value(entry.subclassId),
           level: entry.level,
+          // Colonne absente de l'insert si pas d'ordre : reste compatible avec
+          // une base distante où la migration class_order n'est pas appliquée.
+          classOrder: order == null ? const Value.absent() : Value(order),
         ),
       );
     }
@@ -424,67 +436,26 @@ class CharacterService {
         maximum: level,
       ));
 
-      switch (entry.classId) {
-        case 'barbarian':
-          final rages = level >= 20
-              ? 999 // Unlimited at 20
-              : level >= 17
-                  ? 6
-                  : level >= 12
-                      ? 5
-                      : level >= 6
-                          ? 4
-                          : level >= 3
-                              ? 3
-                              : 2;
-          resources.add(CharacterResourcesCompanion.insert(
-            characterId: characterId,
-            resourceName: 'resourceRage',
-            current: rages,
-            maximum: rages,
-          ));
-        case 'monk':
-          resources.add(CharacterResourcesCompanion.insert(
-            characterId: characterId,
-            resourceName: 'resourceKi',
-            current: level,
-            maximum: level,
-          ));
-        case 'sorcerer':
-          final points = level * 2;
-          resources.add(CharacterResourcesCompanion.insert(
-            characterId: characterId,
-            resourceName: 'resourceSorceryPoints',
-            current: points,
-            maximum: points,
-          ));
-        case 'cleric':
-        case 'paladin':
-          resources.add(CharacterResourcesCompanion.insert(
-            characterId: characterId,
-            resourceName: 'resourceChannelDivinity',
-            current: 1,
-            maximum: 1,
-          ));
-        case 'druid':
-          if (level >= 2) {
-            resources.add(CharacterResourcesCompanion.insert(
-              characterId: characterId,
-              resourceName: 'resourceWildShape',
-              current: 2,
-              maximum: 2,
-            ));
-          }
-        case 'fighter':
-          final surges = level >= 17 ? 2 : 1;
-          resources.add(CharacterResourcesCompanion.insert(
-            characterId: characterId,
-            resourceName: 'resourceActionSurge',
-            current: surges,
-            maximum: surges,
-          ));
-        default:
-          break;
+      for (final spec in DndRules.classResourceByLevel(
+          entry.classId, level, wizard.ruleset)) {
+        // Deux classes peuvent partager une ressource (ex. Conduit divin) :
+        // on garde le plus grand maximum.
+        final index = resources.indexWhere((r) =>
+            r.resourceName.value == spec.key);
+        if (index >= 0 && resources[index].maximum.value >= spec.maximum) {
+          continue;
+        }
+        final companion = CharacterResourcesCompanion.insert(
+          characterId: characterId,
+          resourceName: spec.key,
+          current: spec.maximum,
+          maximum: spec.maximum,
+        );
+        if (index >= 0) {
+          resources[index] = companion;
+        } else {
+          resources.add(companion);
+        }
       }
     }
 
@@ -502,6 +473,31 @@ class CharacterService {
 
     if (resources.isNotEmpty) {
       await db.characterDao.replaceAllResources(characterId, resources);
+    }
+  }
+
+  /// Enregistre l'ordre divin/primordial d'une classe d'un personnage existant
+  /// et ajoute les maîtrises associées si elles manquent.
+  Future<void> setClassOrder({
+    required int characterId,
+    required int classRowId,
+    required String order,
+  }) async {
+    await db.characterDao.updateCharacterClass(
+      CharacterClassesCompanion(
+        id: Value(classRowId),
+        classOrder: Value(order),
+      ),
+    );
+    final existing = await db.characterDao.getProficiencies(characterId);
+    for (final key in ClassOrders.proficiencyKeys(order)) {
+      if (existing.any((p) => p.proficiencyKey == key)) continue;
+      await db.characterDao.insertProficiency(
+        CharacterProficienciesCompanion.insert(
+          characterId: characterId,
+          proficiencyKey: key,
+        ),
+      );
     }
   }
 
@@ -610,6 +606,55 @@ class CharacterService {
         ),
       );
     }
+
+    await _syncClassResources(characterId, updatedClasses, character.ruleset);
+  }
+
+  /// Met à jour le maximum des ressources de classe sans réinitialiser le
+  /// courant : un maximum qui augmente ajoute autant d'utilisations
+  /// disponibles, un maximum qui diminue plafonne le courant.
+  Future<void> _syncClassResources(
+    int characterId,
+    List<CharacterClassesData> classes,
+    RulesetVersion ruleset,
+  ) async {
+    final target = <String, int>{};
+    for (final c in classes) {
+      for (final spec
+          in DndRules.classResourceByLevel(c.classId, c.level, ruleset)) {
+        final known = target[spec.key];
+        if (known == null || spec.maximum > known) target[spec.key] = spec.maximum;
+      }
+    }
+
+    final existing = await db.characterDao.watchResources(characterId).first;
+    for (final entry in target.entries) {
+      final current = existing.where((r) => r.resourceName == entry.key).firstOrNull;
+      if (current == null) {
+        await db.characterDao.upsertResource(
+          CharacterResourcesCompanion.insert(
+            characterId: characterId,
+            resourceName: entry.key,
+            current: entry.value,
+            maximum: entry.value,
+          ),
+        );
+        continue;
+      }
+      if (current.maximum == entry.value) continue;
+      final delta = entry.value - current.maximum;
+      final newCurrent = (current.current + (delta > 0 ? delta : 0))
+          .clamp(0, entry.value);
+      await db.characterDao.upsertResource(
+        CharacterResourcesCompanion(
+          id: Value(current.id),
+          characterId: Value(characterId),
+          resourceName: Value(current.resourceName),
+          current: Value(newCurrent),
+          maximum: Value(entry.value),
+        ),
+      );
+    }
   }
 
   /// Convert a class index to a display-friendly name
@@ -675,6 +720,7 @@ class CharacterService {
       'resourceChannelDivinity': l10n.resourceChannelDivinity,
       'resourceWildShape': l10n.resourceWildShape,
       'resourceActionSurge': l10n.resourceActionSurge,
+      'resourceSecondWind': l10n.resourceSecondWind,
     };
     return names[resourceKey] ?? resourceKey;
   }
@@ -896,6 +942,60 @@ class CharacterService {
     );
   }
 
+  /// Écrit les valeurs finales avec leur décomposition base/bonus, sans toucher
+  /// aux PV ni à la CA. Utilisé aussi par l'édition rapide de la fiche : le
+  /// bonus d'origine est relu (ou déduit pour un personnage plus ancien).
+  Future<void> saveFinalScores({
+    required int characterId,
+    required Map<String, int> finalScores,
+  }) async {
+    final bonus = await loadOriginAbilityBonuses(characterId);
+    await _writeScores(characterId, finalScores, bonus);
+  }
+
+  Future<void> _writeScores(
+    int characterId,
+    Map<String, int> finalScores,
+    Map<String, int> originBonus,
+  ) async {
+    final old = await db.characterDao.getAbilityScores(characterId);
+
+    int score(String key, int fallback) => (finalScores[key] ?? fallback)
+        .clamp(CharacterEditRules.minScore, CharacterEditRules.maxScore);
+    int bonus(String key) => originBonus[key] ?? 0;
+
+    final str = score('str', old?.strength ?? 10);
+    final dex = score('dex', old?.dexterity ?? 10);
+    final con = score('con', old?.constitution ?? 10);
+    final intel = score('int', old?.intelligence ?? 10);
+    final wis = score('wis', old?.wisdom ?? 10);
+    final cha = score('cha', old?.charisma ?? 10);
+
+    await db.characterDao.upsertAbilityScores(
+      CharacterAbilityScoresCompanion(
+        characterId: Value(characterId),
+        strength: Value(str),
+        dexterity: Value(dex),
+        constitution: Value(con),
+        intelligence: Value(intel),
+        wisdom: Value(wis),
+        charisma: Value(cha),
+        baseStrength: Value(str - bonus('str')),
+        baseDexterity: Value(dex - bonus('dex')),
+        baseConstitution: Value(con - bonus('con')),
+        baseIntelligence: Value(intel - bonus('int')),
+        baseWisdom: Value(wis - bonus('wis')),
+        baseCharisma: Value(cha - bonus('cha')),
+        bonusStrength: Value(bonus('str')),
+        bonusDexterity: Value(bonus('dex')),
+        bonusConstitution: Value(bonus('con')),
+        bonusIntelligence: Value(bonus('int')),
+        bonusWisdom: Value(bonus('wis')),
+        bonusCharisma: Value(bonus('cha')),
+      ),
+    );
+  }
+
   /// Enregistre les valeurs finales (= base + [originBonus]), applique l'écart
   /// rétroactif de PV si la CON change et recalcule la CA. Les emplacements de
   /// sorts dépendent uniquement des classes/niveaux, pas des caractéristiques.
@@ -908,40 +1008,9 @@ class CharacterService {
     final old = await db.characterDao.getAbilityScores(characterId);
     if (character == null) return;
 
-    int score(String key, int fallback) => (finalScores[key] ?? fallback)
+    final newCon = (finalScores['con'] ?? old?.constitution ?? 10)
         .clamp(CharacterEditRules.minScore, CharacterEditRules.maxScore);
-    int bonus(String key) => originBonus[key] ?? 0;
-
-    final str = score('str', old?.strength ?? 10);
-    final dex = score('dex', old?.dexterity ?? 10);
-    final newCon = score('con', old?.constitution ?? 10);
-    final intel = score('int', old?.intelligence ?? 10);
-    final wis = score('wis', old?.wisdom ?? 10);
-    final cha = score('cha', old?.charisma ?? 10);
-
-    await db.characterDao.upsertAbilityScores(
-      CharacterAbilityScoresCompanion(
-        characterId: Value(characterId),
-        strength: Value(str),
-        dexterity: Value(dex),
-        constitution: Value(newCon),
-        intelligence: Value(intel),
-        wisdom: Value(wis),
-        charisma: Value(cha),
-        baseStrength: Value(str - bonus('str')),
-        baseDexterity: Value(dex - bonus('dex')),
-        baseConstitution: Value(newCon - bonus('con')),
-        baseIntelligence: Value(intel - bonus('int')),
-        baseWisdom: Value(wis - bonus('wis')),
-        baseCharisma: Value(cha - bonus('cha')),
-        bonusStrength: Value(bonus('str')),
-        bonusDexterity: Value(bonus('dex')),
-        bonusConstitution: Value(bonus('con')),
-        bonusIntelligence: Value(bonus('int')),
-        bonusWisdom: Value(bonus('wis')),
-        bonusCharisma: Value(bonus('cha')),
-      ),
-    );
+    await _writeScores(characterId, finalScores, originBonus);
 
     final delta = CharacterEditRules.retroactiveHpDelta(
       oldCon: old?.constitution ?? newCon,

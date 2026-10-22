@@ -49,8 +49,10 @@ part 'app_database.g.dart';
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
+  AppDatabase.forTesting(super.executor);
+
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -87,6 +89,9 @@ class AppDatabase extends _$AppDatabase {
         ]) {
           await migrator.addColumn(scores, column);
         }
+      }
+      if (from < 6) {
+        await migrator.addColumn(characterClasses, characterClasses.classOrder);
       }
     },
   );

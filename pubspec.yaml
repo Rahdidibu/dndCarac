@@ -86,6 +86,7 @@ flutter:
     - assets/data/2014/
     - assets/data/2024/
     - assets/data/translations_fr.json
+    - assets/data/features_fr.json
     - assets/data/spell_descriptions_fr.json
     - assets/data/Batman/profiles.json
     - assets/data/Batman/ways.json
